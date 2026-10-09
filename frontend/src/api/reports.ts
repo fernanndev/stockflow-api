@@ -12,7 +12,7 @@ export async function getLowStockProducts(): Promise<Product[]> {
 }
 
 export async function getExpiringProducts(days = 30): Promise<Product[]> {
-    const response = await api.get<Product[]>("/reports.expiring", {
+    const response = await api.get<Product[]>("/reports/expiring", {
         params: { days },
     })
     return response.data
