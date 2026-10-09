@@ -24,7 +24,7 @@ class ProductService:
             price=data.price,
             stock_quantity=data.stock_quantity,
             minimum_stock=data.minimum_stock,
-            size=data.size,
+            expiration_date =data.expiration_date,
             category_id=data.category_id,
         )
 
@@ -49,6 +49,7 @@ class ProductService:
         product.price = data.price
         product.minimum_stock = data.minimum_stock
         product.size = data.size
+        product.expiration_date = data.expiration_date
         product.category_id = data.category_id
 
         return self.repository.update(product)

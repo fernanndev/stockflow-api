@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel
 
 from app.schemas.category import CategoryResponse
@@ -9,6 +10,7 @@ class ProductCreate(BaseModel):
     stock_quantity: int = 0
     minimum_stock: int = 0
     size: str | None = None
+    expiration_date: date | None = None
     category_id: int
 
 class ProductResponse(BaseModel):
@@ -19,6 +21,7 @@ class ProductResponse(BaseModel):
     stock_quantity: int
     minimum_stock: int
     size: str | None = None
+    expiration_date: date | None = None
     category: CategoryResponse
 
     model_config = {"from_attributes": True}
@@ -29,4 +32,5 @@ class ProductUpdate(BaseModel):
     price: float
     minimum_stock: int = 0
     size: str | None
+    expiration_date: date | None = None
     category_id: int
