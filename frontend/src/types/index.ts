@@ -38,4 +38,5 @@ export interface DashboardResponse {
     total_categories: number
     total_stock_value: number
     low_stock_count: number
+    expiring_count: number
 }
