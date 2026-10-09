@@ -11,6 +11,11 @@ import {
 import { getCategories } from "../api/categories"
 import type { Category, Product } from "../types"
 
+function formatDate(isoDate: string): string {
+    const [year, month, day] = isoDate.split("-")
+    return `${day}/${month}/${year}`
+}
+
 const emptyForm: ProductCreateInput = {
     name: "",
     description: "",
@@ -18,6 +23,7 @@ const emptyForm: ProductCreateInput = {
     stock_quantity: 0,
     minimum_stock: 0,
     size: "",
+    expiration_date: null,
     category_id: 0,
 }
 
@@ -97,6 +103,7 @@ export function ProductsPage() {
             price: product.price,
             minimum_stock: product.minimum_stock,
             size: product.size ?? "",
+            expiration_date: product.expiration_date,
             category_id: product.category.id,
         })
     }
@@ -210,6 +217,17 @@ export function ProductsPage() {
                     />
                 </div>
 
+                <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">Validade</label>
+                    <input 
+                    type="date" 
+                    value={form.expiration_date ?? ""}
+                    onChange={(e) => setForm({ ...form, expiration_date: e.target.value || null })}
+                    className="w-full rounded border border-gray-300 px-3 py-2"
+                    />
+                </div>
+
+
                 <button
                     type="submit"
                     className="col-span-2 rounded bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
@@ -271,6 +289,15 @@ export function ProductsPage() {
                                     }
                                     className="rounded border border-gray-300 px-2 py-1"
                                 />
+                                <input 
+                                type="date"
+                                value={editingForm.expiration_date ?? ""}
+                                onChange={(e) =>
+                                    setEditingForm({ ...editingForm, expiration_date: e.target.value || null })
+                                }
+                                className="rounded border border-gray-300 px-2 py-1"
+                                />
+
                                 <div className="col-span-2 flex gap-2">
                                     <button
                                         onClick={() => handleUpdate(product.id)}
@@ -299,6 +326,7 @@ export function ProductsPage() {
                                     <p className="text-sm text-gray-500">
                                         {product.category.name} — R$ {product.price.toFixed(2)} —{" "}
                                         {product.stock_quantity} em estoque (mín: {product.minimum_stock})
+                                        {product.expiration_date && ` - Val: ${formatDate(product.expiration_date)}`}
                                     </p>
                                 </div>
                                 <div className="flex gap-2">

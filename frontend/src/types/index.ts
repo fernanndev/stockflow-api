@@ -17,6 +17,7 @@ export interface Product {
     stock_quantity: number
     minimum_stock: number
     size: string | null
+    expiration_date: string | null
     category: Category
 }
 
