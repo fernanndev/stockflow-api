@@ -6,3 +6,4 @@ class DashboardResponse(BaseModel):
     total_categories: int
     total_stock_value: int
     low_stock_count: int
+    expiring_count: int

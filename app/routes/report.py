@@ -24,3 +24,8 @@ def get_dashboard(db: Session = Depends(get_db)):
 def get_low_stock_products(db: Session = Depends(get_db)):
     service = ReportService(db)
     return service.low_stock_products()
+
+@router.get("/expiring", response_model=list[ProductResponse])
+def get_expiring_products(days: int = 30, db: Session = Depends(get_db)):
+    service = ReportService(db)
+    return service.expiring_products(days)
