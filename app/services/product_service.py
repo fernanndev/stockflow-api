@@ -24,6 +24,7 @@ class ProductService:
             price=data.price,
             stock_quantity=data.stock_quantity,
             minimum_stock=data.minimum_stock,
+            size=data.size,
             category_id=data.category_id,
         )
 
@@ -47,6 +48,7 @@ class ProductService:
         product.description = data.description
         product.price = data.price
         product.minimum_stock = data.minimum_stock
+        product.size = data.size
         product.category_id = data.category_id
 
         return self.repository.update(product)
