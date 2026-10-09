@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react"
+import { ExpirationBadge } from "../components/ExpirationBadge"
+import { formatDate } from "../utils/date"
 import { getDashboard, getExpiringProducts, getLowStockProducts } from "../api/reports"
 import type { DashboardResponse, Product } from "../types"
 
@@ -92,7 +94,7 @@ export function DashboardPage() {
                     {expiring.map((product) => (
                         <li key={product.id} className="rounded-lg bg-white p-4 shadow">
                             {product.name}
-                            {product.size ? ` (${product.size} ` : ""}
+                            {product.size ? ` (${product.size}) ` : ""}
                             {product.expiration_date && (
                                 <>
                                     {"- Val: "}
