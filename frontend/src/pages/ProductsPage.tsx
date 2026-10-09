@@ -16,6 +16,38 @@ function formatDate(isoDate: string): string {
     return `${day}/${month}/${year}`
 }
 
+const EXPIRING_SOON_DAYS = 30
+
+function daysUntil(isoDate: string): number {
+    const [year, month, day] = isoDate.split("-").map(Number)
+    const expiration = new Date(year, month - 1, day)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    return Math.round((expiration.getTime() - today.getTime()) / 86_400_000)
+}
+
+function ExpirationBadge({ isoDate }: { isoDate: string }) {
+    const days = daysUntil(isoDate)
+
+    if (days < 0) {
+        return (
+            <span className="ml-2 rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+                Vencido
+            </span>
+        )
+    }
+
+    if (days <= EXPIRING_SOON_DAYS) {
+        return (
+            <span className="ml-2 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                {days === 0 ? "Vence hoje" : `Vence em ${days} ${days === 1 ? "dia": "dias"}`}
+            </span>
+        )
+    }
+    return null
+}
+
 const emptyForm: ProductCreateInput = {
     name: "",
     description: "",
@@ -322,6 +354,9 @@ export function ProductsPage() {
                                     <p className="font-medium">
                                         {product.name}
                                         {product.size ? ` (${product.size})` : ""}
+                                        {product.expiration_date && (
+                                            <ExpirationBadge isoDate={product.expiration_date} />
+                                        )}
                                     </p>
                                     <p className="text-sm text-gray-500">
                                         {product.category.name} — R$ {product.price.toFixed(2)} —{" "}
