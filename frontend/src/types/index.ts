@@ -26,6 +26,8 @@ export interface StockMovement {
     product_id: number
     type: "in" | "out"
     quantity: number
+    created_at: string
+    product: Product
 }
 
 export interface AuthToken {
