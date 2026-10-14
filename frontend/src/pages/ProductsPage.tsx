@@ -356,6 +356,12 @@ export function ProductsPage() {
                                     </p>
                                 </div>
                                 <div className="flex gap-2">
+                                    <Link
+                                        to={`stock-movements?product_id=${product.id}`}
+                                        className="text-sm font-medium text-gray-600 hover:text-gray-900"
+                                    >
+                                        Movimentações
+                                    </Link>
                                     <button
                                         onClick={() => startEditing(product)}
                                         className="text-sm font-medium text-blue-600 hover:text-blue-800"
