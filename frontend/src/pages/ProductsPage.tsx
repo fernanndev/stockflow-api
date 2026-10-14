@@ -13,12 +13,26 @@ import { formatDate } from "../utils/date"
 import { getCategories } from "../api/categories"
 import type { Category, Product } from "../types"
 
-const emptyForm: ProductCreateInput = {
+type ProductFormState = Omit<
+    ProductCreateInput,
+    "price" | "stock_quantity" | "minimum_stock"
+    > & {
+        price: string
+        stock_quantity: string
+        minimum_stock: string
+    }
+
+type ProductEditState = Omit<ProductUpdateInput, "price" | "minimum_stock"> & {
+    price: string
+    minimum_stock: string
+}
+
+const emptyForm: ProductFormState = {
     name: "",
     description: "",
-    price: 0,
-    stock_quantity: 0,
-    minimum_stock: 0,
+    price: "",
+    stock_quantity: "",
+    minimum_stock: "",
     size: "",
     expiration_date: null,
     category_id: 0,
@@ -33,9 +47,9 @@ export function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [error, setError] = useState<string | null>(null)
-    const [form, setForm] = useState<ProductCreateInput>(emptyForm)
+    const [form, setForm] = useState<ProductFormState>(emptyForm)
     const [editingId, setEditingId] = useState<number | null>(null)
-    const [editingForm, setEditingForm] = useState<ProductUpdateInput | null>(null)
+    const [editingForm, setEditingForm] = useState<ProductEditState | null>(null)
 
     async function loadData() {
         try {
@@ -73,7 +87,12 @@ export function ProductsPage() {
         setError(null)
 
         try {
-            await createProduct(form)
+            await createProduct({
+                ...form,
+                price: Number(form.price),
+                stock_quantity: Number(form.stock_quantity),
+                minimum_stock: Number(form.minimum_stock),
+            })
             setForm({ ...emptyForm, category_id: categoryId ?? 0 })
             await loadData()
         } catch {
@@ -97,26 +116,30 @@ export function ProductsPage() {
         setEditingForm({
             name: product.name,
             description: product.description ?? "",
-            price: product.price,
-            minimum_stock: product.minimum_stock,
+            price: String(product.price),
+            minimum_stock: String(product.minimum_stock),
             size: product.size ?? "",
             expiration_date: product.expiration_date,
             category_id: product.category.id,
         })
     }
 
-    async function handleUpdate(id: number) {
-        if (!editingForm) return
-        setError(null)
+        async function handleUpdate(id: number) {
+            if (!editingForm) return
+            setError(null)
 
-        try {
-            await updateProduct(id, editingForm)
-            setEditingId(null)
-            setEditingForm(null)
-            await loadData()
-        } catch {
-            setError("Não foi possível atualizar o produto.")
-        }
+            try {
+                await updateProduct(id, {
+                    ...editingForm,
+                    price: Number(editingForm.price),
+                    minimum_stock: Number(editingForm.minimum_stock),
+                })
+                setEditingId(null)
+                setEditingForm(null)
+                await loadData()
+            } catch {
+                setError("Não foi possível atualizar o produto.")
+            }
     }
 
     return (
@@ -177,8 +200,9 @@ export function ProductsPage() {
                     <input
                         type="number"
                         step="0.01"
+                        placeholder="0"
                         value={form.price}
-                        onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                        onChange={(e) => setForm({ ...form, price: e.target.value })}
                         required
                         className="w-full rounded border border-gray-300 px-3 py-2"
                     />
@@ -198,8 +222,9 @@ export function ProductsPage() {
                     <label className="mb-1 block text-sm font-medium text-gray-700">Estoque inicial</label>
                     <input
                         type="number"
+                        placeholder="0"
                         value={form.stock_quantity}
-                        onChange={(e) => setForm({ ...form, stock_quantity: Number(e.target.value) })}
+                        onChange={(e) => setForm({ ...form, stock_quantity: e.target.value })}
                         className="w-full rounded border border-gray-300 px-3 py-2"
                     />
                 </div>
@@ -208,8 +233,9 @@ export function ProductsPage() {
                     <label className="mb-1 block text-sm font-medium text-gray-700">Estoque mínimo</label>
                     <input
                         type="number"
+                        placeholder="0"
                         value={form.minimum_stock}
-                        onChange={(e) => setForm({ ...form, minimum_stock: Number(e.target.value) })}
+                        onChange={(e) => setForm({ ...form, minimum_stock: e.target.value })}
                         className="w-full rounded border border-gray-300 px-3 py-2"
                     />
                 </div>
@@ -269,7 +295,7 @@ export function ProductsPage() {
                                     type="number"
                                     step="0.01"
                                     value={editingForm.price}
-                                    onChange={(e) => setEditingForm({ ...editingForm, price: Number(e.target.value) })}
+                                    onChange={(e) => setEditingForm({ ...editingForm, price: e.target.value })}
                                     className="rounded border border-gray-300 px-2 py-1"
                                 />
                                 <input
@@ -282,7 +308,7 @@ export function ProductsPage() {
                                     type="number"
                                     value={editingForm.minimum_stock}
                                     onChange={(e) =>
-                                        setEditingForm({ ...editingForm, minimum_stock: Number(e.target.value) })
+                                        setEditingForm({ ...editingForm, minimum_stock: e.target.value })
                                     }
                                     className="rounded border border-gray-300 px-2 py-1"
                                 />
