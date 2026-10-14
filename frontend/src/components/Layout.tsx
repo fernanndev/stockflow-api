@@ -20,6 +20,9 @@ export function Layout() {
                     <NavLink to="/products" className={linkClass}>
                          Produtos   
                     </NavLink>
+                    <NavLink to="stock-movements" className={linkClass}>
+                        Estoque
+                    </NavLink>
                 </div>
 
                 <button
