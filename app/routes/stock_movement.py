@@ -24,3 +24,11 @@ def create_stock_movement(
         return service.create(data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/", response_model=list[StockMovementResponse])
+def list_stock_movements(
+    product_id: int | None = None,
+    db: Session = Depends(get_db), 
+):
+    service = StockMovementService(db)
+    return service.list_all(product_id)

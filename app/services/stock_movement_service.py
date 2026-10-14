@@ -38,3 +38,6 @@ class StockMovementService:
         self.db.refresh(movement)
 
         return movement
+
+    def list_all(self, product_id: int | None = None) -> list[StockMovement]:
+        return self.repository.list_all(product_id)
