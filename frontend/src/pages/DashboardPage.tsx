@@ -3,6 +3,8 @@ import { ExpirationBadge } from "../components/ExpirationBadge"
 import { formatDate } from "../utils/date"
 import { getDashboard, getExpiringProducts, getLowStockProducts } from "../api/reports"
 import type { DashboardResponse, Product } from "../types"
+import { Link } from "react-router-dom"
+
 
 export function DashboardPage() {
     const [dashboard, setDashboard] = useState<DashboardResponse | null>(null)
@@ -42,27 +44,41 @@ export function DashboardPage() {
             <h1 className="mb-6 text-2xl font-bold text-gray-800">Dashboard</h1>
 
             <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                <div className="rounded-lg bg-white p-4 shadow">
+                <Link
+                    to="/products"
+                    className="block rounded-lg bg-white p-4 shadow transition hover:shadow-md"
+                >
                     <p className="text-sm text-gray-500">Produtos</p>
                     <p className="text-2xl font-bold">{dashboard.total_products}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow">
+                </Link>
+                <Link
+                    to="/categories"
+                    className="block rounded-lg bg-white p-4 shadow trasition hover:shadow-md"
+                >
                     <p className="text-sm text-gray-500">Categorias</p>
                     <p className="text-2xl font-bold">{dashboard.total_categories}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow">
-                    <p className="text-sm text-gray-500">Valor em Estoque</p>
-                    <p className="text-2xl font-bold"> R$ {dashboard.total_stock_value.toFixed(2)}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow">
+                </Link>
+                <Link
+                    to="/products"
+                    className="block rounded-lg bg-white p-4 shadow trasition hover:shadow-md"
+                >
+                    <p className="text-sm text-gray-500">Valor em estoque</p>
+                    <p className="text-2xl font-bold">{dashboard.total_stock_value}</p>
+                </Link>
+                <Link 
+                    to="/products?status=low_stock"
+                    className="block rounded-lg bg-white p-4 shadow transition hover:shadow-md"
+                >
                     <p className="text-sm text-gray-500">Estoque baixo</p>
                     <p className="text-2xl font-bold">{dashboard.low_stock_count}</p>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow">
+                </Link>
+                <Link
+                    to="/products?status=expiring"
+                    className="block rounded-lg bg-white p-4 shadow trasition hover:shadow-md"
+                >
                     <p className="text-sm text-gray-500">Vencendo em 30 dias</p>
                     <p className="text-2xl font-bold">{dashboard.expiring_count}</p>
-
-                </div>
+                </Link>
             </div>
 
             <h2 className="mb-4 text-lg font-semibold text-gray-800">

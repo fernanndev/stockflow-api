@@ -9,7 +9,7 @@ import {
     type ProductUpdateInput,
 } from "../api/products"
 import { ExpirationBadge } from "../components/ExpirationBadge"
-import { formatDate } from "../utils/date"
+import {  daysUntil, EXPIRING_SOON_DAYS, formatDate } from "../utils/date"
 import { getCategories } from "../api/categories"
 import type { Category, Product } from "../types"
 
@@ -38,11 +38,22 @@ const emptyForm: ProductFormState = {
     category_id: 0,
 }
 
+const STATUS_LABELS: Record<string, string> = {
+    low_stock: "Estoque baixo",
+    expiring: "Vencidos ou perto de vencer",
+}
+        
+
 export function ProductsPage() {
     const [searchParams] = useSearchParams()
     const categoryId = searchParams.get("category_id")
         ? Number(searchParams.get("category_id"))
         : null
+    const status = searchParams.get("status")
+    const productId = searchParams.get("product_id")
+        ? Number(searchParams.get("product_id"))
+        : null
+    const hasFilter = categoryId !== null || productId !== null || status !== null
 
     const [products, setProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
@@ -74,9 +85,20 @@ export function ProductsPage() {
         }
     }, [categoryId])
 
-    const visibleProducts = categoryId
-        ? products.filter((product) => product.category.id === categoryId)
-        : products
+    const visibleProducts = products.filter((product) => {
+        if (categoryId && product.category.id !== categoryId) return false
+        if (productId && product.id !== productId) return false
+        if (status === "low_stock" && product.stock_quantity > product.minimum_stock) {
+            return false
+        }
+        if (
+            status === "expiring" &&
+            (!product.expiration_date || daysUntil(product.expiration_date) > EXPIRING_SOON_DAYS)
+        ) {
+            return false
+        }
+        return true
+    })
 
     const filteredCategoryName = categoryId
         ? categories.find((category) => category.id === categoryId)?.name
@@ -145,10 +167,12 @@ export function ProductsPage() {
     return (
         <div className="p-8">
             <h1 className="mb-2 text-2xl font-bold text-gray-800">
-                Produtos{filteredCategoryName ? ` — ${filteredCategoryName}` : ""}
+                Produtos
+                {filteredCategoryName ? `${filteredCategoryName}`: ""}
+                {status && STATUS_LABELS ? `${STATUS_LABELS[status]}`: ""}
             </h1>
 
-            {categoryId && (
+            {hasFilter && (
                 <Link to="/products" className="mb-6 inline-block text-sm text-blue-600 hover:underline">
                     Ver todos os produtos
                 </Link>
