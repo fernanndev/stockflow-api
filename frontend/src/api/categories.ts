@@ -17,5 +17,5 @@ export async function updateCategory(id: number, name: string): Promise<Category
 }
 
 export async function deleteCategory(id: number): Promise<void> {
-    await api.delete(`categories/${id}`)
+    await api.delete(`/categories/${id}`)
 }
