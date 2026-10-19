@@ -381,7 +381,7 @@ export function ProductsPage() {
                                 </div>
                                 <div className="flex gap-2">
                                     <Link
-                                        to={`stock-movements?product_id=${product.id}`}
+                                        to={`/stock-movements?product_id=${product.id}`}
                                         className="text-sm font-medium text-gray-600 hover:text-gray-900"
                                     >
                                         Movimentações
