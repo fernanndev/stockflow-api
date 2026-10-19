@@ -5,9 +5,10 @@ interface ModalProps {
     title: string
     onClose: () => void
     children: ReactNode
+    widthClass?: string
 }
 
-export function Modal({ open, title, onClose, children }: ModalProps) {
+export function Modal({ open, title, onClose, children, widthClass = "max-w-2xl" }: ModalProps) {
     useEffect(() => {
         if (!open) return
 
@@ -29,7 +30,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
             <div
                 role="dialog"
                 aria-modal="true"
-                className="my-8 w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl"
+                className={`my-8 w-full ${widthClass} rounded-lg bg-white p-6 shadow-xl`}
                 onClick={(event) => event.stopPropagation()}
             >
                 <div className="mb-4 flex items-center justify-between">
