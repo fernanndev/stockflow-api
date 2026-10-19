@@ -60,7 +60,4 @@ class ProductService:
         if not product:
             raise ValueError("Product not found.")
 
-        if product.movements:
-            raise ValueError("It is not possible to delete a product with recorded stock movements.")
-
         self.repository.delete(product)

@@ -1,8 +1,7 @@
 from datetime import date
 
-from sqlalchemy import ForeignKey, Numeric, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Date, ForeignKey, Numeric, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base_model import BaseModel
 
@@ -27,4 +26,4 @@ class Product(BaseModel):
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     category: Mapped["Category"] = relationship(back_populates="products")
-    movements: Mapped[list["StockMovement"]] = relationship(back_populates="product")
+    movements: Mapped[list["StockMovement"]] = relationship(back_populates="product", cascade="all, delete-orphan",)
