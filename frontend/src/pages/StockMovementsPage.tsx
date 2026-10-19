@@ -1,21 +1,44 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { getProducts } from "../api/products"
-import { createStockMovement, getStockMovements } from "../api/stockMovements"
+import { getStockMovements } from "../api/stockMovements"
+import { MovementFormModal } from "../components/MovementFormModal"
+import { Notice } from "../components/Notice"
+import { Pagination } from "../components/Pagination"
+import { useNotice } from "../hooks/useNotice"
 import type { Product, StockMovement } from "../types"
+import { normalizeText } from "../utils/format"
+
+const PAGE_SIZE = 15
 
 export function StockMovementsPage() {
-    const [searchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams()
     const productId = searchParams.get("product_id")
         ? Number(searchParams.get("product_id"))
         : null
+    const typeFilter = searchParams.get("type")
+    const search = searchParams.get("q") ?? ""
+    const hasFilter = productId !== null || typeFilter !== null || search !== ""
 
     const [products, setProducts] = useState<Product[]>([])
     const [movements, setMovements] = useState<StockMovement[]>([])
     const [error, setError] = useState<string | null>(null)
-    const [selectedProductId, setSelectedProductId] = useState(0)
-    const [type, setType] = useState<"in" | "out">("in")
-    const [quantity, setQuantity] = useState(1)
+    const [page, setPage] = useState(1)
+    const [showForm, setShowForm] = useState(false)
+    const { notice, showNotice } = useNotice()
+
+    function setFilter(key: string, value: string) {
+        const next = new URLSearchParams(searchParams)
+
+        if (value) {
+            next.set(key, value)
+        } else {
+            next.delete(key)
+        }
+
+        setSearchParams(next, { replace: true })
+        setPage(1)
+    }
 
     async function loadData() {
         try {
@@ -34,140 +57,162 @@ export function StockMovementsPage() {
         loadData()
     }, [productId])
 
-    useEffect(() => {
-        if (productId) {
-            setSelectedProductId(productId)
-        }
-    }, [productId])
-
     const filteredProductName = productId
         ? products.find((product) => product.id === productId)?.name
         : null
 
-    async function handleSubmit(event: FormEvent) {
-        event.preventDefault()
-        setError(null)
-
-        try {
-            await createStockMovement({
-                product_id: selectedProductId,
-                type,
-                quantity,
-            })
-            setQuantity(1)
-            await loadData()
-        } catch {
-            setError("Não foi possível registrar. Verifique se há estoque suficiente para a saída.")
+    const filtered = movements.filter((movement) => {
+        if (typeFilter && movement.type !== typeFilter) return false
+        if (search) {
+            const text = normalizeText(
+                `${movement.product.name} ${movement.product.size ?? ""}`,
+            )
+            if (!text.includes(normalizeText(search))) return false
         }
+        return true
+    })
+
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    const currentPage = Math.min(page, totalPages)
+    const visibleMovements = filtered.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE,
+    )
+
+    async function handleSaved(message: string) {
+        setShowForm(false)
+        await loadData()
+        showNotice(message)
     }
 
     return (
-        <div className="p-8">
-            <h1 className="mb-2 text-2xl font-bold text-gray-800">
-                Movimentações{filteredProductName ? ` — ${filteredProductName}` : ""}
-            </h1>
-
-            {productId && (
-                <Link
-                    to="/stock-movements"
-                    className="mb-6 inline-block text-sm text-blue-600 hover:underline"
+        <div className="mx-auto max-w-6xl p-8">
+            <div className="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                        Movimentações de estoque
+                    </h1>
+                    <p className="text-sm text-slate-500">
+                        {filtered.length}{" "}
+                        {filtered.length === 1 ? "movimentação" : "movimentações"}
+                    </p>
+                </div>
+                <button
+                    onClick={() => setShowForm(true)}
+                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
                 >
-                    Ver todas as movimentações
-                </Link>
-            )}
+                    + Registrar movimentação
+                </button>
+            </div>
 
-            <form
-                onSubmit={handleSubmit}
-                className="mb-6 grid max-w-2xl grid-cols-3 gap-3 rounded-lg bg-white p-4 shadow"
-            >
-                <div className="col-span-3">
-                    <label className="mb-1 block text-sm font-medium text-gray-700">Produto</label>
-                    <select
-                        value={selectedProductId}
-                        onChange={(e) => setSelectedProductId(Number(e.target.value))}
-                        required
-                        className="w-full rounded border border-gray-300 px-3 py-2"
+            <div className="mb-4 flex flex-wrap items-center gap-3">
+                <input
+                    type="search"
+                    placeholder="Buscar por produto"
+                    value={search}
+                    onChange={(e) => setFilter("q", e.target.value)}
+                    className="w-full max-w-sm rounded border border-slate-300 px-3 py-2 text-sm"
+                />
+                <select
+                    value={typeFilter ?? ""}
+                    onChange={(e) => setFilter("type", e.target.value)}
+                    className="rounded border border-slate-300 px-3 py-2 text-sm"
+                >
+                    <option value="">Todos os tipos</option>
+                    <option value="in">Entradas</option>
+                    <option value="out">Saídas</option>
+                </select>
+                {productId && filteredProductName && (
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700">
+                        Produto: {filteredProductName}
+                    </span>
+                )}
+                {hasFilter && (
+                    <Link
+                        to="/stock-movements"
+                        className="text-sm text-brand-600 hover:underline"
+                        onClick={() => setPage(1)}
                     >
-                        <option value={0} disabled>
-                            Selecione
-                        </option>
-                        {products.map((product) => (
-                            <option key={product.id} value={product.id}>
-                                {product.name}
-                                {product.size ? ` (${product.size})` : ""} — estoque: {product.stock_quantity}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">Tipo</label>
-                    <select
-                        value={type}
-                        onChange={(e) => setType(e.target.value as "in" | "out")}
-                        className="w-full rounded border border-gray-300 px-3 py-2"
-                    >
-                        <option value="in">Entrada</option>
-                        <option value="out">Saída</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1 block text-sm font-medium text-gray-700">Quantidade</label>
-                    <input
-                        type="number"
-                        min={1}
-                        value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value))}
-                        required
-                        className="w-full rounded border border-gray-300 px-3 py-2"
-                    />
-                </div>
-
-                <div className="flex items-end">
-                    <button
-                        type="submit"
-                        className="w-full rounded bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
-                    >
-                        Registrar
-                    </button>
-                </div>
-            </form>
+                        Limpar filtros
+                    </Link>
+                )}
+            </div>
 
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
-            {movements.length === 0 ? (
-                <p className="text-gray-500">Nenhuma movimentação registrada.</p>
+            {filtered.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                    {movements.length === 0
+                        ? "Nenhuma movimentação registrada ainda."
+                        : "Nenhuma movimentação encontrada."}
+                </p>
             ) : (
-                <ul className="space-y-2">
-                    {movements.map((movement) => (
-                        <li
-                            key={movement.id}
-                            className="flex items-center justify-between rounded-lg bg-white p-4 shadow"
-                        >
-                            <div>
-                                <p className="font-medium">
-                                    {movement.product.name}
-                                    {movement.product.size ? ` (${movement.product.size})` : ""}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                    {new Date(movement.created_at).toLocaleString("pt-BR")}
-                                </p>
-                            </div>
-                            <span
-                                className={
-                                    movement.type === "in"
-                                        ? "rounded bg-green-100 px-2 py-1 text-sm font-medium text-green-700"
-                                        : "rounded bg-red-100 px-2 py-1 text-sm font-medium text-red-700"
-                                }
-                            >
-                                {movement.type === "in" ? "+" : "−"}
-                                {movement.quantity}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+                    <table className="w-full text-left text-sm">
+                        <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <tr>
+                                <th className="px-4 py-3 font-medium">Data</th>
+                                <th className="px-4 py-3 font-medium">Produto</th>
+                                <th className="px-4 py-3 font-medium">Tipo</th>
+                                <th className="px-4 py-3 text-right font-medium">Quantidade</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {visibleMovements.map((movement) => (
+                                <tr key={movement.id} className="hover:bg-slate-50">
+                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                                        {new Date(movement.created_at).toLocaleString("pt-BR", {
+                                            dateStyle: "short",
+                                            timeStyle: "short",
+                                        })}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="font-medium text-slate-900">
+                                            {movement.product.name}
+                                        </span>
+                                        {movement.product.size && (
+                                            <span className="ml-2 text-xs text-slate-500">
+                                                {movement.product.size}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span
+                                            className={
+                                                movement.type === "in"
+                                                    ? "rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                                    : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+                                            }
+                                        >
+                                            {movement.type === "in" ? "Entrada" : "Saída"}
+                                        </span>
+                                    </td>
+                                    <td
+                                        className={`px-4 py-3 text-right font-medium tabular-nums ${
+                                            movement.type === "in" ? "text-emerald-700" : "text-red-700"
+                                        }`}
+                                    >
+                                        {movement.type === "in" ? "+" : "−"}
+                                        {movement.quantity}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
+
+            <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+
+            <MovementFormModal
+                open={showForm}
+                products={products}
+                defaultProductId={productId ?? 0}
+                onClose={() => setShowForm(false)}
+                onSaved={handleSaved}
+            />
+
+            <Notice message={notice} />
         </div>
     )
 }
