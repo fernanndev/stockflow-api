@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile ,status
 from sqlalchemy.orm import Session
 
 from app.auth.dependecies import get_current_user
@@ -54,5 +54,31 @@ def delete_product(
 
     try:
         service.delete(product_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/{product_id}/image", response_model=ProductResponse)
+def upload_product_image(
+    product_id: int,
+    image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    service = ProductService(db)
+
+    try:
+        return service.set_image(product_id, image.file)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.delete("/{product_id}/image", response_model=ProductResponse)
+def delete_product_image(
+    product_id: int,
+    db: Session = Depends(get_db),
+):
+    service = ProductService(db)
+
+    try:
+        return service.remove_image(product_id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

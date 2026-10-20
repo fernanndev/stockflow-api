@@ -22,6 +22,7 @@ class ProductResponse(BaseModel):
     minimum_stock: int
     size: str | None = None
     expiration_date: date | None = None
+    image_url: str | None = None
     category: CategoryResponse
 
     model_config = {"from_attributes": True}

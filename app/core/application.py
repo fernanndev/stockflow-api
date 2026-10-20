@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
+from app.core.storage import UPLOAD_DIR
 from app.api.routers.health import router as health_router
 from app.routes.auth import router as auth_router
 from app.routes.users import router as users_router
@@ -34,5 +36,7 @@ def create_app() -> FastAPI:
     app.include_router(product_router)
     app.include_router(stock_movement_router)
     app.include_router(report_router)
+
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
     return app

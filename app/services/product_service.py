@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
+from typing import BinaryIO
 
+from app.core.storage import delete_image, save_image
 from app.models.product import Product
 from app.repositories.category import CategoryRepository
 from app.repositories.product import ProductRepository
@@ -60,4 +62,37 @@ class ProductService:
         if not product:
             raise ValueError("Product not found.")
 
+        image_filename = product.image_path
         self.repository.delete(product)
+        delete_image(image_filename)
+
+    def set_image(self, product_id: int, file: BinaryIO) -> Product:
+        product = self.repository.get_by_id(product_id)
+
+        if not product:
+            raise ValueError("Product not found.")
+
+        new_filename = save_image(file)
+        old_filename = product.image_path
+
+        product.image_path = new_filename
+        updated = self.repository.update(product)
+
+        delete_image(old_filename)
+
+        return updated
+
+    def remove_image(self, product_id: int) -> Product:
+        product = self.repository.get_by_id(product_id)
+
+        if not product:
+            raise ValueError("Product not found.")
+
+        old_filename = product.image_path
+        product.image_path = None
+        updated = self.repository.update(product)
+
+        delete_image(old_filename)
+
+        return updated
+        
