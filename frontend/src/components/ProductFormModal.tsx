@@ -1,5 +1,11 @@
-import { useEffect, useState, type FormEvent } from "react"
-import { createProduct, updateProduct } from "../api/products"
+import { useEffect, useMemo, useState, type FormEvent } from "react"
+import { 
+    createProduct,
+    deleteProductImage,
+    updateProduct,
+    uploadProductImage,
+} from "../api/products"
+import { getImageUrl } from "../utils/image"
 import type { Category, Product } from "../types"
 import { Modal } from "./Modal"
 
@@ -25,6 +31,9 @@ interface FormState {
 
 const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
 const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
 function buildInitialState(product: Product | null, defaultCategoryId: number) : FormState {
     if (product) {
@@ -65,20 +74,62 @@ export function ProductFormModal({
     )
     const [error, setError] = useState<string | null>(null)
 
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [removeImage, setRemoveImage] = useState(false)
+
+    const previewUrl = useMemo(
+        () => (imageFile ? URL.createObjectURL(imageFile): null),
+        [imageFile],
+    )
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl) URL.revokeObjectURL(previewUrl)
+        }
+    }, [previewUrl])
+
+    const showImage = previewUrl ?? (removeImage ? null : getImageUrl(product?.image_url ?? null))
+
     useEffect(() => {
         if (open) {
             setForm(buildInitialState(product, defaultCategoryId))
             setError(null)
+            setImageFile(null)
+            setRemoveImage(false)
         }
     }, [open, product, defaultCategoryId])
+
+    function handleFileChange(file: File | null) {
+        setError(null)
+        
+        if (!file) {
+            setImageFile(null)
+            return
+        }
+
+        if (!ACCEPTED_TYPES.includes(file.type)) {
+            setError("Use uma imagem JPEG, PNG ou WebP.")
+            return
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            setError("A imagem deve ter no máximo 5 MB.")
+            return
+        }
+
+        setImageFile(file)
+        setRemoveImage(false)
+    }
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
         setError(null)
-        
+
+        let saved: Product
+
         try {
             if (product) {
-                await updateProduct(product.id, {
+                saved = await updateProduct(product.id, {
                     name: form.name,
                     description: form.description || null,
                     price: Number(form.price),
@@ -87,9 +138,8 @@ export function ProductFormModal({
                     expiration_date: form.expiration_date,
                     category_id: form.category_id,
                 })
-                onSaved("Produto atualizado")
             } else {
-                await createProduct({
+                saved = await createProduct({
                     name: form.name,
                     description: form.description || null,
                     price: Number(form.price),
@@ -99,7 +149,6 @@ export function ProductFormModal({
                     expiration_date: form.expiration_date,
                     category_id: form.category_id,
                 })
-                onSaved("Produto criado")
             }
         } catch {
             setError(
@@ -107,7 +156,22 @@ export function ProductFormModal({
                     ? "Não foi possível atualizar o produto."
                     : "Não foi possível criar o produto.",
             )
+            return
         }
+
+        let message = product ? "Produto atualizado." : "Produto criado."
+
+        try {
+            if (imageFile) {
+                await uploadProductImage(saved.id, imageFile)
+            } else if (removeImage && product?.image_url) {
+                await deleteProductImage(saved.id)
+            }
+        } catch {
+            message += " Mas não foi possível enviar a foto."
+        }
+
+        onSaved(message)
     }
 
     return (
@@ -214,6 +278,45 @@ export function ProductFormModal({
                         }
                         className={inputClass}
                     />
+                </div>
+
+                <div className="col-span-2">
+                    <label className={labelClass}>Foto (opicional)</label>
+                    <div className="flex items-center gap-4">
+                        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-200 bg-slate-50 text-sx text-slate-400">
+                            {showImage ? (
+                                <img
+                                    src={showImage}
+                                    alt="Pré-visualização"
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                "Sem foto"
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
+                                className="block text-sm text-slate-600 file:mr-3 file:rounded file:border-0 file:bg-slate-100 file:px-3 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+                            />
+                            {product?.image_url && !removeImage && !imageFile && (
+                                <button
+                                    type="button"
+                                    onClick={() => setRemoveImage(true)}
+                                    className="text-sm text-red-600 hover:underline"
+                                >
+                                    Remover foto atual
+                                </button>
+                            )}
+                            {removeImage && (
+                                <p className="text-xs text-slate-500">
+                                    A foto será removida ao salvar.
+                                </p>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {error && <p className="col-span-2 text-sm text-red-600">{error}</p>}

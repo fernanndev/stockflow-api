@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
+
 import { getCategories } from "../api/categories"
 import { deleteProduct, getProducts } from "../api/products"
 import { getStockMovements } from "../api/stockMovements"
+
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import { ExpirationBadge } from "../components/ExpirationBadge"
 import { Notice } from "../components/Notice"
 import { ProductFormModal } from "../components/ProductFormModal"
 import { StockBadge } from "../components/StockBadge"
+import { ProductThumb } from "../components/ProductThumb"
+import { Modal } from "../components/Modal"
+
 import { useNotice } from "../hooks/useNotice"
+
 import type { Category, Product } from "../types"
+
 import { daysUntil, EXPIRING_SOON_DAYS, formatDate } from "../utils/date"
 import { formatCurrency, normalizeText } from "../utils/format"
+import { getImageUrl } from "../utils/image" 
 
 export function ProductsPage() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -34,6 +42,8 @@ export function ProductsPage() {
     const [productToDelete, setProductToDelete] = useState<Product | null>(null)
     const [movementCount, setMovementCount] = useState(0)
     const { notice, showNotice } = useNotice()
+    const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
+    const previewSrc = getImageUrl(previewProduct?.image_url ?? null)
 
     function setFilter(key: string, value: string) {
         const next = new URLSearchParams(searchParams)
@@ -212,9 +222,10 @@ export function ProductsPage() {
                                 <tr key={product.id} className="hover:bg-slate-50">
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-slate-100 text-sm font-medium text-slate-400">
-                                                {product.name.charAt(0).toUpperCase()}
-                                            </div>
+                                            <ProductThumb
+                                                product={product}
+                                                onClick={() => setPreviewProduct(product)}
+                                            />
                                             <div>
                                                 <p className="font-medium text-slate-900">
                                                     {product.name}
@@ -293,6 +304,20 @@ export function ProductsPage() {
                 onClose={() => setShowForm(false)}
                 onSaved={handleSaved}
             />
+
+            <Modal
+                open={previewProduct !== null && previewSrc !==null}
+                title={previewProduct?.name ?? ""}
+                onClose={() => setPreviewProduct(null)}
+            >
+                {previewSrc && (
+                    <img
+                        src={previewSrc}
+                        alt={previewProduct?.name}
+                        className="mx-auto max-h-[70vh] rounded object-contain"
+                    />
+                )}
+            </Modal>
 
             <ConfirmDialog
                 open={productToDelete !== null}
