@@ -147,61 +147,100 @@ export function StockMovementsPage() {
                         : "Nenhuma movimentação encontrada."}
                 </p>
             ) : (
-                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                    <table className="w-full text-left text-sm">
-                        <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">Data</th>
-                                <th className="px-4 py-3 font-medium">Produto</th>
-                                <th className="px-4 py-3 font-medium">Tipo</th>
-                                <th className="px-4 py-3 text-right font-medium">Quantidade</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {visibleMovements.map((movement) => (
-                                <tr key={movement.id} className="hover:bg-slate-50">
-                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                <>
+                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                        <table className="w-full text-left text-sm">
+                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium">Data</th>
+                                    <th className="px-4 py-3 font-medium">Produto</th>
+                                    <th className="px-4 py-3 font-medium">Tipo</th>
+                                    <th className="px-4 py-3 text-right font-medium">Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {visibleMovements.map((movement) => (
+                                    <tr key={movement.id} className="hover:bg-slate-50">
+                                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                                            {new Date(movement.created_at).toLocaleString("pt-BR", {
+                                                dateStyle: "short",
+                                                timeStyle: "short",
+                                            })}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className="font-medium text-slate-900">
+                                                {movement.product.name}
+                                            </span>
+                                            {movement.product.size && (
+                                                <span className="ml-2 text-xs text-slate-500">
+                                                    {movement.product.size}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span
+                                                className={
+                                                    movement.type === "in"
+                                                        ? "rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                                        : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+                                                }
+                                            >
+                                                {movement.type === "in" ? "Entrada" : "Saída"}
+                                            </span>
+                                        </td>
+                                        <td
+                                            className={`px-4 py-3 text-right font-medium tabular-nums ${
+                                                movement.type === "in" ? "text-emerald-700" : "text-red-700"
+                                            }`}
+                                        >
+                                            {movement.type === "in" ? "+" : "−"}
+                                            {movement.quantity}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul className="space-y-2 md:hidden">
+                        {visibleMovements.map((movement) => (
+                            <li
+                                key={movement.id}
+                                className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4"
+                            >
+                                <div className="min-w-0">
+                                    <p className="truncate font-medium text-slate-900">
+                                        {movement.product.name}
+                                        {movement.product.size
+                                            ? ` (${movement.product.size})`
+                                            : ""}
+                                    </p>
+                                    <p className="text-xs text-slate-500">
                                         {new Date(movement.created_at).toLocaleString("pt-BR", {
                                             dateStyle: "short",
                                             timeStyle: "short",
                                         })}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span className="font-medium text-slate-900">
-                                            {movement.product.name}
-                                        </span>
-                                        {movement.product.size && (
-                                            <span className="ml-2 text-xs text-slate-500">
-                                                {movement.product.size}
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <span
-                                            className={
-                                                movement.type === "in"
-                                                    ? "rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                                                    : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
-                                            }
-                                        >
-                                            {movement.type === "in" ? "Entrada" : "Saída"}
-                                        </span>
-                                    </td>
-                                    <td
-                                        className={`px-4 py-3 text-right font-medium tabular-nums ${
-                                            movement.type === "in" ? "text-emerald-700" : "text-red-700"
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p
+                                        className={`text-lg font-semibold tabular-nums ${
+                                            movement.type === "in"
+                                                ? "text-emerald-700"
+                                                : "text-red-700"
                                         }`}
                                     >
                                         {movement.type === "in" ? "+" : "−"}
                                         {movement.quantity}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                        {movement.type === "in" ? "Entrada" : "Saída"}
+                                    </p>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </>
             )}
-
             <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
 
             <MovementFormModal

@@ -205,95 +205,182 @@ export function ProductsPage() {
                     Nenhum produto encontrado.
                 </p>
             ) : (
-                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                    <table className="w-full text-left text-sm">
-                        <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">Produto</th>
-                                <th className="px-4 py-3 font-medium">Categoria</th>
-                                <th className="px-4 py-3 text-right font-medium">Preço</th>
-                                <th className="px-4 py-3 text-right font-medium">Estoque</th>
-                                <th className="px-4 py-3 font-medium">Validade</th>
-                                <th className="px-4 py-3 text-right font-medium">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {visibleProducts.map((product) => (
-                                <tr key={product.id} className="hover:bg-slate-50">
-                                    <td className="px-4 py-3">
-                                        <div className="flex items-center gap-3">
-                                            <ProductThumb
-                                                product={product}
-                                                onClick={() => setPreviewProduct(product)}
-                                            />
-                                            <div>
-                                                <p className="font-medium text-slate-900">
-                                                    {product.name}
-                                                </p>
-                                                {product.size && (
-                                                    <p className="text-xs text-slate-500">
-                                                        {product.size}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-3 text-slate-600">
-                                        {product.category.name}
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-slate-900">
-                                        {formatCurrency(product.price)}
-                                    </td>
-                                    <td className="whitespace-nowrap px-4 py-3 text-right">
-                                        <span className="font-medium text-slate-900">
-                                            {product.stock_quantity}
-                                        </span>
-                                        <span className="text-slate-400">
-                                            {" "}
-                                            / mín. {product.minimum_stock}
-                                        </span>
-                                        <StockBadge
-                                            quantity={product.stock_quantity}
-                                            minimum={product.minimum_stock}
-                                        />
-                                    </td>
-                                    <td className="whitespace-nowrap px-4 py-3 text-slate-600">
-                                        {product.expiration_date ? (
-                                            <>
-                                                {formatDate(product.expiration_date)}
-                                                <ExpirationBadge isoDate={product.expiration_date} />
-                                            </>
-                                        ) : (
-                                            "—"
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex justify-end gap-4 text-sm font-medium">
-                                            <Link
-                                                to={`/stock-movements?product_id=${product.id}`}
-                                                className="text-slate-600 hover:text-slate-900"
-                                            >
-                                                Movimentações
-                                            </Link>
-                                            <button
-                                                onClick={() => openEdit(product)}
-                                                className="text-brand-600 hover:text-brand-700"
-                                            >
-                                                Editar
-                                            </button>
-                                            <button
-                                                onClick={() => requestDelete(product)}
-                                                className="text-red-600 hover:text-red-800"
-                                            >
-                                                Excluir
-                                            </button>
-                                        </div>
-                                    </td>
+                <>
+                    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white hidden md:block">
+                        <table className="w-full text-left text-sm">
+                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium">Produto</th>
+                                    <th className="px-4 py-3 font-medium">Categoria</th>
+                                    <th className="px-4 py-3 text-right font-medium">Preço</th>
+                                    <th className="px-4 py-3 text-right font-medium">Estoque</th>
+                                    <th className="px-4 py-3 font-medium">Validade</th>
+                                    <th className="px-4 py-3 text-right font-medium">Ações</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {visibleProducts.map((product) => (
+                                    <tr key={product.id} className="hover:bg-slate-50">
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-3">
+                                                <ProductThumb
+                                                    product={product}
+                                                    onClick={() => setPreviewProduct(product)}
+                                                />
+                                                <div>
+                                                    <p className="font-medium text-slate-900">
+                                                        {product.name}
+                                                    </p>
+                                                    {product.size && (
+                                                        <p className="text-xs text-slate-500">
+                                                            {product.size}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-slate-600">
+                                            {product.category.name}
+                                        </td>
+                                        <td className="px-4 py-3 text-right text-slate-900">
+                                            {formatCurrency(product.price)}
+                                        </td>
+                                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                                            <span className="font-medium text-slate-900">
+                                                {product.stock_quantity}
+                                            </span>
+                                            <span className="text-slate-400">
+                                                {" "}
+                                                / mín. {product.minimum_stock}
+                                            </span>
+                                            <StockBadge
+                                                quantity={product.stock_quantity}
+                                                minimum={product.minimum_stock}
+                                            />
+                                        </td>
+                                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                                            {product.expiration_date ? (
+                                                <>
+                                                    {formatDate(product.expiration_date)}
+                                                    <ExpirationBadge isoDate={product.expiration_date} />
+                                                </>
+                                            ) : (
+                                                "—"
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex justify-end gap-4 text-sm font-medium">
+                                                <Link
+                                                    to={`/stock-movements?product_id=${product.id}`}
+                                                    className="text-slate-600 hover:text-slate-900"
+                                                >
+                                                    Movimentações
+                                                </Link>
+                                                <button
+                                                    onClick={() => openEdit(product)}
+                                                    className="text-brand-600 hover:text-brand-700"
+                                                >
+                                                    Editar
+                                                </button>
+                                                <button
+                                                    onClick={() => requestDelete(product)}
+                                                    className="text-red-600 hover:text-red-800"
+                                                >
+                                                    Excluir
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <ul className="space-y-3 md-hidden">
+                        {visibleProducts.map((product) => (
+                            <li
+                                key={product.id}
+                                className="rounded-lg border border-slate-200 bg-white p-4"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <ProductThumb
+                                        product={product}
+                                        onClick={() => setPreviewProduct(product)}
+                                    />
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-slate-900">
+                                            {product.name}
+                                        </p>
+                                        <p className="text-sm text-slate-500">
+                                            {product.category.name}
+                                            {product.size ? ` .${product.size}` : ""}
+                                        </p>
+                                    </div>
+                                    <p className="whitespace-nowrap font-medium text-slate-900">
+                                        {formatCurrency(product.price)}
+                                    </p>
+                                </div>
+
+                                <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-sm">
+                                    <div>
+                                        <dt className="text-xs uppercase tracking-wide text-slate-400">
+                                            Estoque
+                                        </dt>
+                                        <dd className="mt-0.5 text-slate-900">
+                                            {product.stock_quantity}
+                                            <span className="text-slate-400">
+                                                {" "}
+                                                / mín. {product.minimum_stock}
+                                            </span>
+                                            <StockBadge
+                                                quantity={product.stock_quantity}
+                                                minimum={product.minimum_stock}
+                                            />
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs uppercase tracking-wide text-slate-400">
+                                            Validade
+                                        </dt>
+                                        <dd className="mt-0.5 text-slate-900">
+                                            {product.expiration_date ? (
+                                                <>
+                                                    {formatDate(product.expiration_date)}
+                                                    <ExpirationBadge
+                                                        isoDate={product.expiration_date}
+                                                    />
+                                                </>
+                                            ) : (
+                                                "—"
+                                            )}
+                                        </dd>
+                                    </div>
+                                </dl>
+
+                                <div className="mt-4 grid grid-cols-3 gap-2 text-sm font-medium">
+                                    <Link
+                                        to={`/stock-movements?product_id=${product.id}`}
+                                        className="rounded border border-slate-300 py-2.5 text-center text-slate-700 hover:bg-slate-50"
+                                    >
+                                        Movimentar
+                                    </Link>
+                                    <button
+                                        onClick={() => openEdit(product)}
+                                        className="rounded border border-slate-300 py-2.5 text-brand-700 hover:bg-slate-50"
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        onClick={() => requestDelete(product)}
+                                        className="rounded border border-red-200 py-2.5 text-red-600 hover:bg-red-50"
+                                    >
+                                        Excluir
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </>
             )}
 
             <ProductFormModal
