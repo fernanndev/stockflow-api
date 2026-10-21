@@ -140,7 +140,7 @@ export function ProductsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-8">
+        <div className="mx-auto max-w-6xl p-4 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -170,7 +170,7 @@ export function ProductsPage() {
                 <select
                     value={categoryId ?? ""}
                     onChange={(e) => setFilter("category_id", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
                 >
                     <option value="">Todas as categorias</option>
                     {categories.map((category) => (
@@ -182,7 +182,7 @@ export function ProductsPage() {
                 <select
                     value={status ?? ""}
                     onChange={(e) => setFilter("status", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
                 >
                     <option value="">Todas as situações</option>
                     <option value="low_stock">Estoque baixo</option>

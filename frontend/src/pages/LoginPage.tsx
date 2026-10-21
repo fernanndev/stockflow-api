@@ -2,6 +2,10 @@ import { useState, type FormEvent } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
+const inputClass = 
+    "mb-4 w-full rounded border border-slate-300 px-3 py-2 text-base sm:text-sm"
+const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+
 export function LoginPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -24,32 +28,35 @@ export function LoginPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-100">
+        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
             <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-sm rounded-lg bg-white p-8 shadow-md"
+                className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
             >
-                <h1 className="mb-6 text-2x1 font-bold text-gray-800">StockFlow</h1>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Email
-                </label>
+                <h1 className="text-2xl font-semibold tracking-tight text-brand-700">
+                    StockFlow
+                </h1>
+                <p className="mb-6 mt-1 text-sm text-slate-500">
+                    Entre para gerenciar seu estoque  
+                </p>
+
+                <label className={labelClass}>E-mail</label>
                 <input
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="mb-4 w-full rounded border border-gray-300 px-3 py-2"
+                    className={inputClass}
                 />
 
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                    Password
-                </label>
+                <label className={labelClass}>Senha</label>
                 <input
                     type="password"
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="mb-4 w-full rounded border-gray-300 px-3 py-2"
+                    className={inputClass}
                 />
 
                 {expired && !error && (
@@ -62,10 +69,11 @@ export function LoginPage() {
 
                 <button
                     type="submit"
-                    className="w-full rounded bg-blue-600 py-2 font-medium text-white hover:bg-blue-700"
+                    className="w-full rounded bg-brand-600 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
                 >
-                    Sign in
+                    Entrar
                 </button>
+
             </form>
         </div>
     )

@@ -121,10 +121,10 @@ export function CategoriesPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-8">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl p-4 sm:p-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
                         Categorias
                     </h1>
                     <p className="text-sm text-slate-500">
@@ -133,7 +133,7 @@ export function CategoriesPage() {
                 </div>
                 <button
                     onClick={openCreate}
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 whitespace-nowrap"
                 >
                     + Nova categoria
                 </button>

@@ -36,15 +36,15 @@ export function DashboardPage() {
     }, [])
 
     if (error) {
-        return <p className="p-8 text-red-600">{error}</p>
+        return <p className="p-4 sm:p-8 text-red-600">{error}</p>
     }
 
     if (!dashboard) {
-        return <p className="p-8 text-gray-500">Carregando...</p>
+        return <p className="p-4 sm:p-8 text-gray-500">Carregando...</p>
     }
 
         return (
-        <div className="mx-auto max-w-6xl p-8">
+        <div className="mx-auto max-w-6xl p-4 sm:p-8">
             <div className="mb-8 flex items-end justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-slate-900">

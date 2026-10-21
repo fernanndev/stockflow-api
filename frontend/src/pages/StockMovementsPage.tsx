@@ -86,7 +86,7 @@ export function StockMovementsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-8">
+        <div className="mx-auto max-w-6xl p-4 sm:p-8">
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
@@ -116,7 +116,7 @@ export function StockMovementsPage() {
                 <select
                     value={typeFilter ?? ""}
                     onChange={(e) => setFilter("type", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
                 >
                     <option value="">Todos os tipos</option>
                     <option value="in">Entradas</option>

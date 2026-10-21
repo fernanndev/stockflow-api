@@ -180,7 +180,7 @@ export function ProductFormModal({
             title={product ? "Editar produto" : "Novo produto"}
             onClose={onClose}
         >
-            <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                     <label className={labelClass}>Nome</label>
                     <input 
@@ -211,7 +211,7 @@ export function ProductFormModal({
                     </select>
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                     <label className={labelClass}>Descrição</label>
                     <input
                         type="text"
@@ -280,7 +280,7 @@ export function ProductFormModal({
                     />
                 </div>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                     <label className={labelClass}>Foto (opicional)</label>
                     <div className="flex items-center gap-4">
                         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-200 bg-slate-50 text-sx text-slate-400">
@@ -319,9 +319,9 @@ export function ProductFormModal({
                     </div>
                 </div>
 
-                {error && <p className="col-span-2 text-sm text-red-600">{error}</p>}
+                {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
 
-                <div className="col-span-2 flex justify-end gap-3">
+                <div className="flex justify-end gap-3 sm:col-span-2">
                     <button
                         type="button"
                         onClick={onClose}
