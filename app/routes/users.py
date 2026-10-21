@@ -17,6 +17,7 @@ router = APIRouter(
     "/",
     response_model=UserResponse,
     status_code=201,
+    dependencies=[Depends(get_current_user)],
 )
 def create_user(
     user : UserCreate,
