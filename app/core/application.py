@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.storage import UPLOAD_DIR
+from app.core.config import settings
+
 from app.api.routers.health import router as health_router
+
 from app.routes.auth import router as auth_router
 from app.routes.users import router as users_router
 from app.routes.category import router as category_router
@@ -21,7 +24,11 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173"],
+        allow_origins=[
+            origin.strip()
+            for origin in settings.cor_origins.split(",")
+            if origin.strip()    
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"]
@@ -39,4 +46,5 @@ def create_app() -> FastAPI:
 
     app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
+    
     return app

@@ -10,4 +10,6 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
+    cor_origins: str = "http://localhost:5173"
+
 settings = Settings()
