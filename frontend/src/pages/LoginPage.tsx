@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 export function LoginPage() {
@@ -8,6 +8,8 @@ export function LoginPage() {
     const [error, setError] = useState<string | null>(null)
     const { login } = useAuth()
     const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    const expired = searchParams.get("expired") === "1"
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
@@ -49,6 +51,12 @@ export function LoginPage() {
                     required
                     className="mb-4 w-full rounded border-gray-300 px-3 py-2"
                 />
+
+                {expired && !error && (
+                    <p className="mb-4 text-sm text-amber-700">
+                        Sua sessão expirou. Entre novamente.
+                    </p>
+                )}
 
                 {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
