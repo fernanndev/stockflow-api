@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { useEffect, useState, type MouseEvent } from "react"
+import { Link, useNavigate ,useSearchParams } from "react-router-dom"
 import { deleteCategory, getCategories } from "../api/categories"
 import { getProducts } from "../api/products"
 import { CategoryFormModal } from "../components/CategoryFormModal"
@@ -24,6 +24,18 @@ export function CategoriesPage() {
     const [editingCategory, setEditingCategory] = useState<Category | null>(null)
     const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
     const { notice, showNotice } = useNotice()
+    const navigate = useNavigate()
+
+    function goToProducts(category: Category) {
+        navigate(`/products?category_id=${category.id}`)
+    }
+
+    function stop(handler: () => void) {
+        return (event: MouseEvent) => {
+            event.stopPropagation()
+            handler()
+        }
+    }
 
     async function loadData() {
         try {
@@ -166,58 +178,118 @@ export function CategoriesPage() {
                         : "Nenhuma categoria encontrada."}
                 </p>
             ) : (
-                <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-                    <table className="w-full text-left text-sm">
-                        <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-                            <tr>
-                                <th className="px-4 py-3 font-medium">Categoria</th>
-                                <th className="px-4 py-3 font-medium">Produtos</th>
-                                <th className="px-4 py-3 text-right font-medium">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {visibleCategories.map((category) => {
-                                const count = productCounts[category.id] ?? 0
+                <>
+                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                        <table className="w-full text-left text-sm">
+                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                                <tr>
+                                    <th className="px-4 py-3 font-medium">Categoria</th>
+                                    <th className="px-4 py-3 font-medium">Produtos</th>
+                                    <th className="px-4 py-3 text-right font-medium">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {visibleCategories.map((category) => {
+                                    const count = productCounts[category.id] ?? 0
 
-                                return (
-                                    <tr key={category.id} className="hover:bg-slate-50">
-                                        <td className="px-4 py-3 font-medium text-slate-900">
-                                            {category.name}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            {count > 0 ? (
+                                    return (
+                                        <tr 
+                                            key={category.id} 
+                                            onClick={() => goToProducts(category)}
+                                            className="cursor-pointer hover:bg-slate-50"
+                                        >
+                                            <td className="px-4 py-3 font-medium text-slate-900">
                                                 <Link
                                                     to={`/products?category_id=${category.id}`}
-                                                    className="text-brand-600 hover:underline"
+                                                    onClick={(event) => event.stopPropagation()}
+                                                    className="hover:text-brand-700 hover:underline"
                                                 >
-                                                    {count} {count === 1 ? "produto" : "produtos"}
+                                                    {category.name}
                                                 </Link>
-                                            ) : (
-                                                <span className="text-slate-400">Nenhum produto</span>
-                                            )}
-                                        </td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex justify-end gap-4 text-sm font-medium">
-                                                <button
-                                                    onClick={() => openEdit(category)}
-                                                    className="text-brand-600 hover:text-brand-700"
-                                                >
-                                                    Editar
-                                                </button>
-                                                <button
-                                                    onClick={() => requestDelete(category)}
-                                                    className="text-red-600 hover:text-red-800"
-                                                >
-                                                    Excluir
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                {count > 0 ? (
+                                                    <Link
+                                                        to={`/products?category_id=${category.id}`}
+                                                        className="text-brand-600 hover:underline"
+                                                    >
+                                                        {count} {count === 1 ? "produto" : "produtos"}
+                                                    </Link>
+                                                ) : (
+                                                    <span className="text-slate-400">Nenhum produto</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex justify-end gap-4 text-sm font-medium">
+                                                    <button
+                                                        onClick={stop(() => openEdit(category))}
+                                                        className="text-brand-600 hover:text-brand-700"
+                                                    >
+                                                        Editar
+                                                    </button>
+                                                    <button
+                                                        onClick={stop(() => requestDelete(category))}
+                                                        className="text-red-600 hover:text-red-800"
+                                                    >
+                                                        Excluir
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <ul className="space-y-3 md:hidden">
+                        {visibleCategories.map((category) => {
+                            const count = productCounts[category.id] ?? 0
+
+                            return (
+                                <li
+                                    key={category.id}
+                                    onClick={() => goToProducts(category)}
+                                    className="cursor-pointer rounded-lg border border-slate-200 bg-white p-4 active:bg-slate-50"
+                                >
+                                    <div className="flex items-center justify-between gap-3">
+                                        <p className="font-medium text-slate-900">
+                                            {category.name}
+                                        </p>
+                                        {count > 0 ? (
+                                            <Link
+                                                to={`/products?category_id=${category.id}`}
+                                                className="whitespace-nowrap text-sm text-brand-600"
+                                            >
+                                                {count} {count === 1 ? "produto" : "produtos"}
+                                            </Link>
+                                        ) : (
+                                            <span className="whitespace-nowrap text-sm text-slate-400">
+                                                Nenhum produto
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="mt-3 grid grid-cols-2 gap-2 text-sm font-medium">
+                                        <button
+                                            onClick={stop(() => openEdit(category))}
+                                            className="rounded border border-slate-300 py-2.5 text-brand-700 hover:bg-slate-50"
+                                        >
+                                            Editar
+                                        </button>
+                                        <button
+                                            onClick={stop(() => requestDelete(category))}
+                                            className="rounded border border-red-200 py-2.5 text-red-600 hover:bg-red-50"
+                                        >
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </li>
+                            )
+                        })}
+                    </ul>
+
+                </>
+                
             )}
 
             <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
