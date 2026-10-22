@@ -14,7 +14,7 @@ class UserService:
         existing_user = self.repository.get_by_email(data.email)
 
         if existing_user:
-            raise ValueError("E-mail ja cadastrado.")
+            raise ValueError("Email already registered.")
         
         user = User(
             name=data.name,
