@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import {  useCallback ,useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { getProducts } from "../api/products"
 import { getStockMovements } from "../api/stockMovements"
@@ -40,7 +40,7 @@ export function StockMovementsPage() {
         setPage(1)
     }
 
-    async function loadData() {
+    const loadData = useCallback(async() => {
         try {
             const [productsData, movementsData] = await Promise.all([
                 getProducts(),
@@ -51,11 +51,11 @@ export function StockMovementsPage() {
         } catch {
             setError("Não foi possível carregar as movimentações.")
         }
-    }
+    }, [productId])
 
     useEffect(() => {
         loadData()
-    }, [productId])
+    }, [loadData])
 
     const filteredProductName = productId
         ? products.find((product) => product.id === productId)?.name
