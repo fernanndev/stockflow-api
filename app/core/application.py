@@ -26,7 +26,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=[
             origin.strip()
-            for origin in settings.cor_origins.split(",")
+            for origin in settings.cors_origins.split(",")
             if origin.strip()    
         ],
         allow_credentials=True,
