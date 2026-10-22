@@ -10,7 +10,7 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 def _detect_extension(content: bytes) -> str | None:
     if content.startswith(b"\xff\xd8\xff"):
         return ".jpg"
-    if content.startswith(b"\89PNG\r\n\x1a\n"):
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
         return ".png"
     if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
         return ".webp"
