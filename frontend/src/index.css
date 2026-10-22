@@ -3,5 +3,6 @@
 @theme {
     --color-brand-50: #f0dfa;
     --color-brand-600: #0d9488;
-    --color-brand-700: #0f766e
+    --color-brand-700: #0f766e;
+    --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 }
