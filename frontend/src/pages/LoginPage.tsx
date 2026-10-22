@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { BrandLogo } from "../components/BrandLogo"
 
+import axios from "axios"
+
 const inputClass = 
     "mb-4 w-full rounded border border-slate-300 px-3 py-2 text-base sm:text-sm"
 const labelClass = "mb-1 block text-sm font-medium text-slate-700"
@@ -23,8 +25,14 @@ export function LoginPage() {
         try {
             await login(email, password)
             navigate("/")
-        } catch {
-            setError("E-mail ou senha incorretos.")
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 401) {
+                setError("E-mail ou senha incorretos.")
+            } else if (axios.isAxiosError(err) && !err.response) {
+                setError("Não foi possível conectar ao servidor. Verifique a conexão.")
+            } else {
+                setError("Não foi possível entrar. Tente novamente")
+            }
         }
     }
 
