@@ -296,7 +296,7 @@ export function ProductsPage() {
                         </table>
                     </div>
 
-                    <ul className="space-y-3 md-hidden">
+                    <ul className="space-y-3 md:hidden">
                         {visibleProducts.map((product) => (
                             <li
                                 key={product.id}
