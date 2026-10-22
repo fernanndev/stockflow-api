@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { BrandLogo } from "./BrandLogo"
 
 const NAV_LINKS = [
     { to: "/", label: "Dashboard", end: true },
@@ -30,8 +31,9 @@ export function Layout() {
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
                     <div className="flex items-center gap-8">
                         <span className="text-lg font-semibold tracking-tight text-brand-700">
-                            StockFlow
+                            <BrandLogo size="md" />
                         </span>
+                        
                         <div className="hidden gap-6 text-sm sm:flex">{links}</div>
                     </div>
 
