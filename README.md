@@ -1,5 +1,7 @@
 # StockFlow
 
+![CI](https://github.com/fernanndev/stockflow-api/actions/workflows/ci.yml/badge.svg)
+
 Inventory management for small retail stores: a **FastAPI + PostgreSQL** REST API and a **React + TypeScript** web app, designed to work on desktop and on phones.
 
 Built as a hands-on study of full-stack architecture and as a reusable base for store-specific projects.
@@ -88,6 +90,16 @@ Then start the development server:
 npm run dev
 ```
 
+## Running the tests
+
+The backend has an automated test suite (pytest) that runs against a separate `stockflow_test` database, so your data is never touched:
+
+```bash
+docker compose run --rm -v "${PWD}:/app" api sh -c "pip install -q -r requirements-dev.txt && pytest -q"
+```
+
+The same suite, plus the frontend lint and build, runs on every push through GitHub Actions (see `.github/workflows/ci.yml`).
+
 Open `http://localhost:5173` and sign in.
 
 ## Configuration
@@ -133,6 +145,7 @@ app/
   scripts/       admin commands (create-user)
   services/      business rules
 alembic/         database migrations
+tests/           automated tests (pytest)
 frontend/
   src/api/         HTTP calls
   src/components/  shared UI components
@@ -154,11 +167,9 @@ frontend/
 - Lists are loaded in full and paginated in the browser, which is fine for a small store.
 - Photos are served without authentication (the file names are unguessable).
 - The provided Docker Compose file is meant for development, not for production.
-- There is no automated test suite yet.
 
 ## Roadmap
 
-- Automated tests and continuous integration
 - Production deployment setup and backups
 - Reports: profit, best sellers, Excel/PDF export
 - User roles
