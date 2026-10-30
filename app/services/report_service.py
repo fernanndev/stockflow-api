@@ -16,6 +16,7 @@ class ReportService:
             "total_products": self.repository.count_products(),
             "total_categories": self.repository.count_categories(),
             "total_stock_value": self.repository.total_stock_value(),
+            "projected_profit": self.repository.projected_profit(),
             "low_stock_count": len(self.repository.low_stock_products()),
             "expiring_count": len(self.repository.expiring_products(EXPIRING_SOON_DAYS)),
         }

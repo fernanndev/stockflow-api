@@ -25,6 +25,17 @@ class ReportRepository:
 
         return total or 0
 
+    def projected_profit(self) -> float:
+        total = (
+            self.db.query(
+                func.sum((Product.price - Product.cost_price) * Product.stock_quantity)
+            )
+            .filter(Product.cost_price.is_not(None))
+            .scalar()
+        )
+
+        return total or 0
+
     def low_stock_products(self) -> list[Product]:
         return self.db.query(Product).filter(
             Product.stock_quantity <= Product.minimum_stock
