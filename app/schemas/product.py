@@ -7,6 +7,7 @@ class ProductCreate(BaseModel):
     name: str
     description: str | None = None
     price: float
+    cost_price: float | None = None
     stock_quantity: int = 0
     minimum_stock: int = 0
     size: str | None = None
@@ -18,6 +19,8 @@ class ProductResponse(BaseModel):
     name: str
     description: str | None
     price: float
+    cost_price: float | None = None
+    unit_profit: float | None = None
     stock_quantity: int
     minimum_stock: int
     size: str | None = None
@@ -31,6 +34,7 @@ class ProductUpdate(BaseModel):
     name: str
     description: str | None = None
     price: float
+    cost_price: float | None = None
     minimum_stock: int = 0
     size: str | None
     expiration_date: date | None = None

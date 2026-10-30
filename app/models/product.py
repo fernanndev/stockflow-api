@@ -15,6 +15,7 @@ class Product(BaseModel):
     minimum_stock: Mapped[int] = mapped_column(default=0)
     size: Mapped[str | None] = mapped_column(String(50))
     expiration_date: Mapped[date | None] = mapped_column(Date)
+    cost_price: Mapped[float | None] = mapped_column(Numeric(10, 2))
 
     image_path: Mapped[str | None] = mapped_column(String(255))
 
@@ -23,6 +24,12 @@ class Product(BaseModel):
         if self.image_path is None:
             return None
         return f"/uploads/{self.image_path}"
+
+    @property
+    def unit_profit(self) -> float | None:
+        if self.cost_price is None:
+            return None
+        return float(self.price) - float(self.cost_price)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     category: Mapped["Category"] = relationship(back_populates="products")

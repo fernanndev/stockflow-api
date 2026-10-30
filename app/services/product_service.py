@@ -28,6 +28,7 @@ class ProductService:
             minimum_stock=data.minimum_stock,
             size=data.size,
             expiration_date =data.expiration_date,
+            cost_price=data.cost_price,
             category_id=data.category_id,
         )
 
@@ -50,6 +51,7 @@ class ProductService:
         product.name = data.name
         product.description = data.description
         product.price = data.price
+        product.cost_price = data.cost_price
         product.minimum_stock = data.minimum_stock
         product.size = data.size
         product.expiration_date = data.expiration_date
