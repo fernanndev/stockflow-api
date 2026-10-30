@@ -26,6 +26,7 @@ class ProductService:
             price=data.price,
             stock_quantity=data.stock_quantity,
             minimum_stock=data.minimum_stock,
+            size=data.size,
             expiration_date =data.expiration_date,
             category_id=data.category_id,
         )
