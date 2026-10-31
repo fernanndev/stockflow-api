@@ -22,6 +22,7 @@ interface FormState {
     name: string
     description: string
     price: string
+    cost_price: string
     stock_quantity: string
     minimum_stock: string
     size: string
@@ -41,6 +42,7 @@ function buildInitialState(product: Product | null, defaultCategoryId: number) :
             name: product.name,
             description: product.description ?? "",
             price: String(product.price),
+            cost_price: product.cost_price === null ? "" : String(product.cost_price),
             stock_quantity: "",
             minimum_stock: String(product.minimum_stock),
             size: product.size ?? "",
@@ -53,6 +55,7 @@ function buildInitialState(product: Product | null, defaultCategoryId: number) :
         name: "",
         description: "",
         price: "",
+        cost_price: "",
         stock_quantity: "",
         minimum_stock: "",
         size: "",
@@ -133,6 +136,7 @@ export function ProductFormModal({
                     name: form.name,
                     description: form.description || null,
                     price: Number(form.price),
+                    cost_price: form.cost_price === "" ? null : Number(form.cost_price),
                     minimum_stock: Number(form.minimum_stock),
                     size: form.size || null,
                     expiration_date: form.expiration_date,
@@ -230,6 +234,18 @@ export function ProductFormModal({
                         value={form.price}
                         onChange={(e) => setForm({ ...form, price: e.target.value })}
                         required
+                        className={inputClass}
+                    />
+                </div>
+
+                <div>
+                    <label className={labelClass}>Custo (opicional)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0"
+                        value={form.cost_price}
+                        onChange={(e) => setForm({ ...form, cost_price: e.target.value })}
                         className={inputClass}
                     />
                 </div>

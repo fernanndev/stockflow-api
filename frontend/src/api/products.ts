@@ -5,6 +5,7 @@ export interface ProductCreateInput{
     name: string
     description?: string | null
     price: number
+    cost_price?: number | null
     stock_quantity: number
     minimum_stock: number
     size?: string | null
@@ -16,6 +17,7 @@ export interface ProductUpdateInput {
     name: string
     description?: string | null
     price: number
+    cost_price?: number | null
     minimum_stock: number
     size?: string | null
     expiration_date?: string | null

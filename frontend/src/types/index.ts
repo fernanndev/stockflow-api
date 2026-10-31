@@ -14,6 +14,8 @@ export interface Product {
     name: string
     description: string | null
     price: number
+    cost_price: number | null
+    unit_profit: number | null
     stock_quantity: number
     minimum_stock: number
     size: string | null
@@ -40,6 +42,7 @@ export interface DashboardResponse {
     total_products: number
     total_categories: number
     total_stock_value: number
+    projected_profit: number
     low_stock_count: number
     expiring_count: number
 }
