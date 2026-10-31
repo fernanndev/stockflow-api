@@ -30,3 +30,9 @@ def get_product(client, headers, product_id):
     products = client.get("/products/", headers=headers).json()
 
     return next(product for product in products if product["id"] == product_id)
+
+def create_packaging(client, headers, name="Small bag"):
+    response = client.post("/packagings/", json={"name": name}, headers=headers)
+    assert response.status_code == 201
+
+    return response.json()
