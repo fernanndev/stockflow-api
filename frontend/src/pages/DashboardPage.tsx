@@ -84,13 +84,20 @@ export function DashboardPage() {
                 />
             </div>
 
-            <div className="mb-10 grid gap-4 sm:grid-cols-3">
+            <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <KpiCard label="Produtos" value={dashboard.total_products} to="/products" />
                 <KpiCard label="Categorias" value={dashboard.total_categories} to="/categories" />
                 <KpiCard
                     label="Valor em estoque"
                     value={formatCurrency(dashboard.total_stock_value)}
                     to="/products"
+                />
+                <KpiCard  
+                    label="Lucro previsto"
+                    value={formatCurrency(dashboard.projected_profit)}
+                    to="/products"
+                    tone={dashboard.projected_profit < 0 ? "danger" : "neutral"}
+                    hint="Só produtos com custo informado"
                 />
             </div>
 

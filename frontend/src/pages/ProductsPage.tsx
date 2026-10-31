@@ -12,6 +12,7 @@ import { ProductFormModal } from "../components/ProductFormModal"
 import { StockBadge } from "../components/StockBadge"
 import { ProductThumb } from "../components/ProductThumb"
 import { Modal } from "../components/Modal"
+import { ProfitValue } from "../components/ProfitValue"
 
 import { useNotice } from "../hooks/useNotice"
 
@@ -213,6 +214,7 @@ export function ProductsPage() {
                                     <th className="px-4 py-3 font-medium">Produto</th>
                                     <th className="px-4 py-3 font-medium">Categoria</th>
                                     <th className="px-4 py-3 text-right font-medium">Preço</th>
+                                    <th className="px-4 py-3 text-right font-medium">Lucro</th>
                                     <th className="px-4 py-3 text-right font-medium">Estoque</th>
                                     <th className="px-4 py-3 font-medium">Validade</th>
                                     <th className="px-4 py-3 text-right font-medium">Ações</th>
@@ -244,6 +246,9 @@ export function ProductsPage() {
                                         </td>
                                         <td className="px-4 py-3 text-right text-slate-900">
                                             {formatCurrency(product.price)}
+                                        </td>
+                                        <td className="px-4 py-3 text-right">
+                                            <ProfitValue value={product.unit_profit} />
                                         </td>
                                         <td className="whitespace-nowrap px-4 py-3 text-right">
                                             <span className="font-medium text-slate-900">
@@ -342,6 +347,14 @@ export function ProductsPage() {
                                         <dt className="text-xs uppercase tracking-wide text-slate-400">
                                             Validade
                                         </dt>
+                                        <div>
+                                            <dt className="text-xs uppercase tracking-wide text-slate-400">
+                                                Lucro por unidade
+                                            </dt>
+                                            <dd className="mt-0.05">
+                                                <ProfitValue value={product.unit_profit} />
+                                            </dd>
+                                        </div>
                                         <dd className="mt-0.5 text-slate-900">
                                             {product.expiration_date ? (
                                                 <>
