@@ -20,7 +20,7 @@ export function KpiCard({ label, value, to, tone ="neutral", hint }: KpiCardProp
     return(
         <Link
             to={to}
-            className={`block rounded-lg border border-l-4 border-slate-200 bg-white p-5 trasition hover:border-slate-300 hover:shadow-sm ${TONE_STYLES[tone]}`}
+            className={`block rounded-lg border border-l-4 border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-sm ${TONE_STYLES[tone]}`}
         >
             <p className="text-sm font-medium text-slate-500">{label}</p>
             <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-900">{value}</p>
