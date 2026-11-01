@@ -6,6 +6,7 @@ import { DashboardPage } from "./pages/DashboardPage"
 import { CategoriesPage } from "./pages/Categories"
 import { ProductsPage } from "./pages/ProductsPage"
 import { StockMovementsPage } from "./pages/StockMovementsPage"
+import { PackagingsPage } from "./pages/PackagingsPage"
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/stock-movements" element={<StockMovementsPage />} />
+          <Route path="/packagings" element={<PackagingsPage />} />
         </Route>
       </Route>
     </Routes>

@@ -24,6 +24,14 @@ export interface Product {
     category: Category
 }
 
+export interface Packaging {
+    id: number
+    name: string
+    stock_quantity: number
+    unit_cost: number
+    image_url: string | null
+}
+
 export interface StockMovement { 
     id: number
     product_id: number
