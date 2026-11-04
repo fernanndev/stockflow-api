@@ -19,12 +19,11 @@ def create_product(client, headers, category_id, **overrides):
 
     return response.json()
 
-def register_movement(client, headers, product_id, movement_type, quantity):
-    return client.post(
-        "/stock-movements/",
-        json={"product_id": product_id, "type": movement_type, "quantity": quantity},
-        headers=headers,
-    )
+def register_movement(client, headers, product_id, movement_type, quantity, **extra):
+    payload = {"product_id": product_id, "type": movement_type, "quantity": quantity}
+    payload.update(extra)
+
+    return client.post("/stock-movements/", json=payload, headers=headers)
 
 def get_product(client, headers, product_id):
     products = client.get("/products/", headers=headers).json()

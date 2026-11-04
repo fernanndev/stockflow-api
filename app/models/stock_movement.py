@@ -19,3 +19,6 @@ class StockMovement(BaseModel):
 
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship(back_populates="movements")
+
+    variation_id: Mapped[int] = mapped_column(ForeignKey("variations.id"))
+    variation: Mapped["Variation"] = relationship(back_populates="movements")

@@ -2,6 +2,7 @@ from datetime import date
 from pydantic import BaseModel
 
 from app.schemas.category import CategoryResponse
+from app.schemas.variation import VariationResponse
 
 class ProductCreate(BaseModel):
     name: str
@@ -27,6 +28,7 @@ class ProductResponse(BaseModel):
     expiration_date: date | None = None
     image_url: str | None = None
     category: CategoryResponse
+    variations: list[VariationResponse]
 
     model_config = {"from_attributes": True}
 
@@ -37,5 +39,4 @@ class ProductUpdate(BaseModel):
     cost_price: float | None = None
     minimum_stock: int = 0
     size: str | None
-    expiration_date: date | None = None
     category_id: int

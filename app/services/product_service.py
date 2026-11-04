@@ -2,10 +2,16 @@ from sqlalchemy.orm import Session
 from typing import BinaryIO
 
 from app.core.storage import delete_image, save_image
+
+from app.models.lot import Lot
 from app.models.product import Product
+from app.models.variation import Variation
+
 from app.repositories.category import CategoryRepository
 from app.repositories.product import ProductRepository
 from app.schemas.product import ProductCreate, ProductUpdate
+
+DEFAULT_VARIATION_NAME = "Padrão"
 
 
 class ProductService:
@@ -24,13 +30,19 @@ class ProductService:
             name=data.name,
             description=data.description,
             price=data.price,
-            stock_quantity=data.stock_quantity,
             minimum_stock=data.minimum_stock,
             size=data.size,
-            expiration_date =data.expiration_date,
             cost_price=data.cost_price,
             category_id=data.category_id,
         )
+
+        # Every product has at least one variation; the initial stock is its first lot.
+        variation = Variation(name=DEFAULT_VARIATION_NAME)
+
+        if data.stock_quantity > 0:
+            variation.lots.append(Lot(quantity=data.stock_quantity, expiration_date=data.expiration_date))
+
+        product.variations.append(variation)
 
         return self.repository.create(product)
 
@@ -54,7 +66,6 @@ class ProductService:
         product.cost_price = data.cost_price
         product.minimum_stock = data.minimum_stock
         product.size = data.size
-        product.expiration_date = data.expiration_date
         product.category_id = data.category_id
 
         return self.repository.update(product)

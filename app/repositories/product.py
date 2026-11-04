@@ -1,6 +1,7 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.product import Product
+from app.models.variation import Variation
 
 class ProductRepository: 
 
@@ -17,7 +18,11 @@ class ProductRepository:
         return self.db.query(Product).filter(Product.id == product_id).first()
 
     def list_all(self) -> list[Product]:
-        return self.db.query(Product).all()
+        return (
+            self.db.query(Product)
+            .options(selectinload(Product.variations).selectinload(Variation.lots))
+            .all()
+        )
 
     def update(self, product: Product) -> Product:
         self.db.commit()
