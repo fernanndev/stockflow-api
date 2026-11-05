@@ -14,6 +14,8 @@ from app.routes.product import router as product_router
 from app.routes.stock_movement import router as stock_movement_router
 from app.routes.report import router as report_router
 from app.routes.packaging import router as packaging_router
+from app.routes.variation import router as variation_router
+from app.routes.lot import router as lot_router
 
 
 def create_app() -> FastAPI:
@@ -45,6 +47,8 @@ def create_app() -> FastAPI:
     app.include_router(stock_movement_router)
     app.include_router(report_router)
     app.include_router(packaging_router)
+    app.include_router(variation_router)
+    app.include_router(lot_router)
 
     app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 

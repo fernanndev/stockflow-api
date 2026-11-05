@@ -35,3 +35,11 @@ def create_packaging(client, headers, name="Small bag"):
     assert response.status_code == 201
 
     return response.json()
+
+def create_variation(client, headers, product_id, name="Blue"):
+    response = client.post(
+        f"/products/{product_id}/variations", json={"name": name}, headers=headers
+    )
+    assert response.status_code == 201
+
+    return response.json()

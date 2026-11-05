@@ -34,3 +34,6 @@ class LotRepository:
             .order_by(Lot.expiration_date.asc().nulls_last(), Lot.id)
             .all()
         )
+
+    def delete(self, lot: Lot) -> None:
+        self.db.delete(lot)
