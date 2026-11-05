@@ -7,6 +7,11 @@ export async function createVariation(productId: number, name: string): Promise<
     return response.data
 }
 
+export async function updateVariation(id: number, name: string): Promise<Variation> {
+    const response = await api.put<Variation>(`/variations/${id}`, { name })
+    return response.data
+}
+
 export async function deleteVariation(id: number): Promise<void> {
     await api.delete(`/variations/${id}`)
 }

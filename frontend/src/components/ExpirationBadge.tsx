@@ -14,7 +14,7 @@ export function ExpirationBadge({ isoDate }: { isoDate: string }) {
     if (days <= EXPIRING_SOON_DAYS) {
         return (
             <span className="ml-2 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
-                {days === 0 ? "Vence hoje" : `Vence em ${days === 1 ? "dia": "dias"}`}
+                {days === 0 ? "Vence hoje": `Vence em ${days} ${days === 1? "dia" : "dias"}`}
             </span>
         )
     }

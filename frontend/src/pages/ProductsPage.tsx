@@ -7,12 +7,13 @@ import { getStockMovements } from "../api/stockMovements"
 
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import { ExpirationBadge } from "../components/ExpirationBadge"
+import { Modal } from "../components/Modal"
 import { Notice } from "../components/Notice"
 import { ProductFormModal } from "../components/ProductFormModal"
-import { StockBadge } from "../components/StockBadge"
+import { ProductLotsModal } from "../components/ProductLotsModal"
 import { ProductThumb } from "../components/ProductThumb"
-import { Modal } from "../components/Modal"
 import { ProfitValue } from "../components/ProfitValue"
+import { StockBadge } from "../components/StockBadge"
 
 import { useNotice } from "../hooks/useNotice"
 
@@ -44,6 +45,8 @@ export function ProductsPage() {
     const [movementCount, setMovementCount] = useState(0)
     const { notice, showNotice } = useNotice()
     const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
+    const [lotsProductId, setLotsProductId] = useState<number | null>(null)
+    const lotsProduct = products.find((product) => product.id === lotsProductId) ?? null
     const previewSrc = getImageUrl(previewProduct?.image_url ?? null)
 
     function setFilter(key: string, value: string) {
@@ -108,6 +111,11 @@ export function ProductsPage() {
 
     async function handleSaved(message: string) {
         setShowForm(false)
+        await loadData()
+        showNotice(message)
+    }
+
+    async function handleLotsChanged(message: string) {
         await loadData()
         showNotice(message)
     }
@@ -275,6 +283,12 @@ export function ProductsPage() {
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="flex justify-end gap-4 text-sm font-medium">
+                                                <button
+                                                    onClick={() => setLotsProductId(product.id)}
+                                                    className="text-slate-600 hover:text-slate-900"
+                                                >
+                                                    Lotes
+                                                </button>
                                                 <Link
                                                     to={`/stock-movements?product_id=${product.id}`}
                                                     className="text-slate-600 hover:text-slate-900"
@@ -370,7 +384,13 @@ export function ProductsPage() {
                                     </div>
                                 </dl>
 
-                                <div className="mt-4 grid grid-cols-3 gap-2 text-sm font-medium">
+                                <div className="grid-cols-2">
+                                    <button
+                                        onClick={() => setLotsProductId(product.id)}
+                                        className="rounded border border-slate-300 py-2.5 text-slate-700 hover: bg-slate-50"
+                                    >
+                                        Lotes
+                                    </button>
                                     <Link
                                         to={`/stock-movements?product_id=${product.id}`}
                                         className="rounded border border-slate-300 py-2.5 text-center text-slate-700 hover:bg-slate-50"
@@ -418,6 +438,14 @@ export function ProductsPage() {
                     />
                 )}
             </Modal>
+
+            {lotsProduct && (
+                <ProductLotsModal
+                    product={lotsProduct}
+                    onClose={() => setLotsProductId(null)}
+                    onChanged={handleLotsChanged}
+                />
+            )}
 
             <ConfirmDialog
                 open={productToDelete !== null}
