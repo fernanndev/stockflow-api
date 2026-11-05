@@ -11,6 +11,7 @@ import { Modal } from "../components/Modal"
 import { Notice } from "../components/Notice"
 import { ProductFormModal } from "../components/ProductFormModal"
 import { ProductLotsModal } from "../components/ProductLotsModal"
+import { ProductSummaryModal } from "../components/ProductSummaryModal"
 import { ProductThumb } from "../components/ProductThumb"
 import { ProfitValue } from "../components/ProfitValue"
 import { StockBadge } from "../components/StockBadge"
@@ -47,6 +48,8 @@ export function ProductsPage() {
     const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
     const [lotsProductId, setLotsProductId] = useState<number | null>(null)
     const lotsProduct = products.find((product) => product.id === lotsProductId) ?? null
+    const [summaryProductId, setSummaryProductId] = useState<number | null> (null)
+    const summaryProduct = products.find((product) => product.id === summaryProductId) ?? null
     const previewSrc = getImageUrl(previewProduct?.image_url ?? null)
 
     function setFilter(key: string, value: string) {
@@ -215,7 +218,7 @@ export function ProductsPage() {
                 </p>
             ) : (
                 <>
-                    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white hidden md:block">
+                    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white hidden lg:block">
                         <table className="w-full text-left text-sm">
                             <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                                 <tr>
@@ -238,9 +241,13 @@ export function ProductsPage() {
                                                     onClick={() => setPreviewProduct(product)}
                                                 />
                                                 <div>
-                                                    <p className="font-medium text-slate-900">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setSummaryProductId(product.id)}
+                                                        className="text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                                                    >
                                                         {product.name}
-                                                    </p>
+                                                    </button>
                                                     {product.size && (
                                                         <p className="text-xs text-slate-500">
                                                             {product.size}
@@ -281,7 +288,7 @@ export function ProductsPage() {
                                                 "—"
                                             )}
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="whitespace-nowrap px-4 py-3">
                                             <div className="flex justify-end gap-4 text-sm font-medium">
                                                 <button
                                                     onClick={() => setLotsProductId(product.id)}
@@ -289,12 +296,6 @@ export function ProductsPage() {
                                                 >
                                                     Lotes
                                                 </button>
-                                                <Link
-                                                    to={`/stock-movements?product_id=${product.id}`}
-                                                    className="text-slate-600 hover:text-slate-900"
-                                                >
-                                                    Movimentações
-                                                </Link>
                                                 <button
                                                     onClick={() => openEdit(product)}
                                                     className="text-brand-600 hover:text-brand-700"
@@ -315,7 +316,7 @@ export function ProductsPage() {
                         </table>
                     </div>
 
-                    <ul className="space-y-3 md:hidden">
+                    <ul className="space-y-3 lg:hidden">
                         {visibleProducts.map((product) => (
                             <li
                                 key={product.id}
@@ -327,9 +328,13 @@ export function ProductsPage() {
                                         onClick={() => setPreviewProduct(product)}
                                     />
                                     <div className="min-w-0 flex-1">
-                                        <p className="font-medium text-slate-900">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSummaryProductId(product.id)}
+                                            className="text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                                        >
                                             {product.name}
-                                        </p>
+                                        </button>
                                         <p className="text-sm text-slate-500">
                                             {product.category.name}
                                             {product.size ? ` .${product.size}` : ""}
@@ -438,6 +443,21 @@ export function ProductsPage() {
                     />
                 )}
             </Modal>
+
+            {summaryProduct && (
+                <ProductSummaryModal 
+                    product={summaryProduct}
+                    onClose={() => setSummaryProductId(null)}
+                    onOpenLots={() => {
+                        setSummaryProductId(null)
+                        setLotsProductId(summaryProduct.id)
+                    }}
+                    onEdit={() => {
+                        setSummaryProductId(null)
+                        openEdit(summaryProduct)
+                    }}
+                />
+            )}
 
             {lotsProduct && (
                 <ProductLotsModal
