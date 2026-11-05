@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react"
 import { createStockMovement } from "../api/stockMovements"
 import type { Product } from "../types"
+import { formatDate } from "../utils/date"
 import { Modal } from "./Modal"
 
 interface MovementFormModalProps {
@@ -37,20 +38,55 @@ export function MovementFormModal({
     onSaved,
 }: MovementFormModalProps) {
     const [productId, setProductId] = useState(defaultProductId)
+    // 0 = not chosen yet (only matters when the product has several variations)
+    const [variationId, setVariationId] = useState(0)
+    // 0 = automatic (the backend takes the lot that expires first)
+    const [lotId, setLotId] = useState(0)
     const [type, setType] = useState<MovementType>("in")
     const [quantity, setQuantity] = useState("")
+    const [expirationDate, setExpirationDate] = useState("")
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         if (open) {
             setProductId(defaultProductId)
+            setVariationId(0)
+            setLotId(0)
             setType("in")
             setQuantity("")
+            setExpirationDate("")
             setError(null)
         }
     }, [open, defaultProductId])
 
     const selectedProduct = products.find((product) => product.id === productId)
+    const variations = selectedProduct?.variations ?? []
+    const selectedVariation =
+        variations.length === 1
+            ? variations[0]
+            : variations.find((variation) => variation.id === variationId)
+
+    // lots that still have stock, earliest expiration first, no expiration last
+    const availableLots = (selectedVariation?.lots ?? [])
+        .filter((lot) => lot.quantity > 0)
+        .sort((a, b) => {
+            if (a.expiration_date === b.expiration_date) return 0
+            if (a.expiration_date === null) return 1
+            if (b.expiration_date === null) return -1
+            return a.expiration_date.localeCompare(b.expiration_date)
+        })
+    const selectedLot = availableLots.find((lot) => lot.id === lotId)
+
+    function handleProductChange(newProductId: number) {
+        setProductId(newProductId)
+        setVariationId(0)
+        setLotId(0)
+    }
+
+    function handleVariationChange(newVariationId: number) {
+        setVariationId(newVariationId)
+        setLotId(0)
+    }
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
@@ -63,23 +99,35 @@ export function MovementFormModal({
             return
         }
 
+        if (!selectedVariation) {
+            setError("Selecione a variação.")
+            return
+        }
+
         if (!Number.isInteger(amount) || amount < 1) {
             setError("Informe uma quantidade inteira maior que zero.")
             return
         }
 
-        if (type === "out" && amount > selectedProduct.stock_quantity) {
-            setError(
-                `Saldo insuficiente: "${selectedProduct.name}" tem ${selectedProduct.stock_quantity} em estoque.`,
-            )
-            return
+        if (type === "out") {
+            const available = selectedLot ? selectedLot.quantity : selectedVariation.stock_quantity
+
+            if (amount > available) {
+                setError(
+                    `Saldo insuficiente: ${selectedLot ? "esse lote" : `"${selectedVariation.name}"`} tem ${available} em estoque.`,
+                )
+                return
+            }
         }
 
         try {
             await createStockMovement({
                 product_id: selectedProduct.id,
+                variation_id: selectedVariation.id,
                 type,
                 quantity: amount,
+                ...(type === "in" && expirationDate ? { expiration_date: expirationDate } : {}),
+                ...(type === "out" && selectedLot ? { lot_id: selectedLot.id } : {}),
             })
             onSaved(
                 `${type === "in" ? "Entrada" : "Saída"} de ${amount} un. registrada: ${selectedProduct.name}.`,
@@ -101,7 +149,7 @@ export function MovementFormModal({
                     <label className={labelClass}>Produto</label>
                     <select
                         value={productId}
-                        onChange={(e) => setProductId(Number(e.target.value))}
+                        onChange={(e) => handleProductChange(Number(e.target.value))}
                         required
                         className={inputClass}
                     >
@@ -121,6 +169,27 @@ export function MovementFormModal({
                         </p>
                     )}
                 </div>
+
+                {variations.length > 1 && (
+                    <div>
+                        <label className={labelClass}>Variação</label>
+                        <select
+                            value={variationId}
+                            onChange={(e) => handleVariationChange(Number(e.target.value))}
+                            required
+                            className={inputClass}
+                        >
+                            <option value={0} disabled>
+                                Selecione
+                            </option>
+                            {variations.map((variation) => (
+                                <option key={variation.id} value={variation.id}>
+                                    {variation.name} ({variation.stock_quantity} un.)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 <div>
                     <label className={labelClass}>Tipo</label>
@@ -154,6 +223,39 @@ export function MovementFormModal({
                         className={inputClass}
                     />
                 </div>
+
+                {type === "in" && (
+                    <div>
+                        <label className={labelClass}>Validade (opcional)</label>
+                        <input
+                            type="date"
+                            value={expirationDate}
+                            onChange={(e) => setExpirationDate(e.target.value)}
+                            className={inputClass}
+                        />
+                    </div>
+                )}
+
+                {type === "out" && availableLots.length > 0 && (
+                    <div>
+                        <label className={labelClass}>De onde tirar</label>
+                        <select
+                            value={lotId}
+                            onChange={(e) => setLotId(Number(e.target.value))}
+                            className={inputClass}
+                        >
+                            <option value={0}>Automático (vence primeiro)</option>
+                            {availableLots.map((lot) => (
+                                <option key={lot.id} value={lot.id}>
+                                    {lot.expiration_date
+                                        ? `Vence em ${formatDate(lot.expiration_date)}`
+                                        : "Sem validade"}{" "}
+                                    ({lot.quantity} un.)
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                )}
 
                 {error && <p className="text-sm text-red-600">{error}</p>}
 

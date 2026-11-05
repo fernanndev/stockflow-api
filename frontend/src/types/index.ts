@@ -9,6 +9,19 @@ export interface Category {
     name: string
 }
 
+export interface Lot {
+    id: number
+    quantity: number
+    expiration_date: string | null
+}
+
+export interface Variation {
+    id: number
+    name: string
+    stock_quantity: number
+    lots: Lot[]
+}
+
 export interface Product {
     id: number
     name: string
@@ -22,6 +35,7 @@ export interface Product {
     expiration_date: string | null
     image_url: string | null
     category: Category
+    variations: Variation[]
 }
 
 export interface Packaging {

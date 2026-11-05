@@ -5,6 +5,9 @@ export interface StockMovementCreateInput{
     product_id: number
     type: "in" | "out"
     quantity: number
+    variation_id?: number
+    lot_id?: number
+    expiration_date?: string
 }
 
 export async function getStockMovements(productId?: number): Promise<StockMovement[]> {
