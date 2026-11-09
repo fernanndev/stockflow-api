@@ -31,6 +31,6 @@ class LotService:
             result = lot
 
         self.db.commit()
-        self.sb.refresh(result)
+        self.db.refresh(result)
 
         return result
