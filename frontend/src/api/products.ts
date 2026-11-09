@@ -20,7 +20,6 @@ export interface ProductUpdateInput {
     cost_price?: number | null
     minimum_stock: number
     size?: string | null
-    expiration_date?: string | null
     category_id: number
 }
 

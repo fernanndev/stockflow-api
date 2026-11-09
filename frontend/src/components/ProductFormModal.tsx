@@ -139,7 +139,6 @@ export function ProductFormModal({
                     cost_price: form.cost_price === "" ? null : Number(form.cost_price),
                     minimum_stock: Number(form.minimum_stock),
                     size: form.size || null,
-                    expiration_date: form.expiration_date,
                     category_id: form.category_id,
                 })
             } else {
@@ -284,17 +283,19 @@ export function ProductFormModal({
                     />
                 </div>
 
-                <div>
-                    <label className={labelClass}>Validade</label>
-                    <input
-                        type="date"
-                        value={form.expiration_date ?? ""}
-                        onChange={(e) =>
-                            setForm({ ...form, expiration_date: e.target.value || null })
-                        }
-                        className={inputClass}
-                    />
-                </div>
+                {!product && (
+                    <div>
+                        <label className={labelClass}>Validade do estoque inicial</label>
+                        <input
+                            type="date"
+                            value={form.expiration_date ?? ""}
+                            onChange={(e) =>
+                                setForm({ ...form, expiration_date: e.target.value || null })
+                            }
+                            className={inputClass}
+                        />
+                    </div>
+                )}
 
                 <div className="sm:col-span-2">
                     <label className={labelClass}>Foto (opicional)</label>
