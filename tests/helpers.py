@@ -43,3 +43,9 @@ def create_variation(client, headers, product_id, name="Blue"):
     assert response.status_code == 201
 
     return response.json()
+
+def post_sale(client, headers, items, **extra):
+    payload = {"items": items}
+    payload.update(extra)
+
+    return client.post("/sales/", json=payload, headers=headers)

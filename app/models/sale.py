@@ -24,6 +24,7 @@ class Sale(BaseModel):
     __tablename__ = "sales"
 
     customer_name: Mapped[str | None] = mapped_column(String(150))
+    customer_phone: Mapped[str | None] = mapped_column(String(20))
     status: Mapped[SaleStatus] = mapped_column(
         Enum(SaleStatus, native_enum=False, length=20), default=SaleStatus.COMPLETED
     )
