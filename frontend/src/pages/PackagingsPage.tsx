@@ -4,6 +4,7 @@ import { ConfirmDialog } from "../components/ConfirmDialog"
 import { Notice } from "../components/Notice"
 import { PackagingFormModal } from "../components/PackagingFormModal"
 import { PackagingPurchaseModal } from "../components/PackagingPurchaseModal"
+import { PackagingSummaryModal } from "../components/PackagingSummaryModal"
 import { useNotice } from "../hooks/useNotice"
 import type { Packaging } from "../types"
 import { formatCurrency, formatUnitCost } from "../utils/format"
@@ -35,6 +36,8 @@ export function PackagingsPage() {
     const [showForm, setShowForm] = useState(false)
     const [editingPackaging, setEditingPackaging] = useState<Packaging | null>(null)
     const [purchasingPackaging, setPurchasingPackaging] = useState<Packaging | null>(null)
+    const [summaryPackagingId, setSummaryPackagingId] = useState<number | null>(null)
+    const summaryPackaging = packagings.find((packaging) => packaging.id === summaryPackagingId) ?? null
     const [packagingToDelete, setPackagingToDelete] = useState<Packaging | null>(null)
     const { notice, showNotice } = useNotice()
 
@@ -61,7 +64,7 @@ export function PackagingsPage() {
     }
 
     async function handleSaved(message: string) {
-        setShowForm(true)
+        setShowForm(false)
         await loadData()
         showNotice(message)
     }
@@ -132,9 +135,13 @@ export function PackagingsPage() {
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 <PackagingThumb packaging={packaging} />
-                                                <span className="font-medium text-slate-900">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSummaryPackagingId(packaging.id)}
+                                                    className="text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                                                >
                                                     {packaging.name}
-                                                </span>
+                                                </button>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-slate-700">
@@ -185,9 +192,13 @@ export function PackagingsPage() {
                                 <div className="flex items-center gap-3">
                                     <PackagingThumb packaging={packaging} />
                                     <div className="min-w-0">
-                                        <p className="truncate font-medium text-slate-900">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSummaryPackagingId(packaging.id)}
+                                            className="block max-w-full truncate text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                                        >
                                             {packaging.name}
-                                        </p>
+                                        </button>
                                         <p className="text-sm text-slate-500">
                                             {packaging.stock_quantity} un ·{" "}
                                             {formatUnitCost(packaging.unit_cost)} cada
@@ -221,6 +232,21 @@ export function PackagingsPage() {
                         ))}
                     </ul>
                 </>
+            )}
+
+            {summaryPackaging && (
+                <PackagingSummaryModal
+                    packaging={summaryPackaging}
+                    onClose={() => setSummaryPackagingId(null)}
+                    onPurchase={() => {
+                        setSummaryPackagingId(null)
+                        setPurchasingPackaging(summaryPackaging)
+                    }}
+                    onEdit={() => {
+                        setSummaryPackagingId(null)
+                        openEdit(summaryPackaging)
+                    }}
+                />
             )}
 
             <PackagingFormModal 
