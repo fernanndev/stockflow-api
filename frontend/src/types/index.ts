@@ -49,6 +49,7 @@ export interface Packaging {
 export interface StockMovement { 
     id: number
     product_id: number
+    variation_id: number
     type: "in" | "out"
     quantity: number
     created_at: string

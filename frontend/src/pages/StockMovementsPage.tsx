@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom"
 import { getProducts } from "../api/products"
 import { getStockMovements } from "../api/stockMovements"
 import { MovementFormModal } from "../components/MovementFormModal"
+import { MovementSummaryModal } from "../components/MovementSummaryModal"
 import { Notice } from "../components/Notice"
 import { Pagination } from "../components/Pagination"
 import { useNotice } from "../hooks/useNotice"
@@ -10,6 +11,16 @@ import type { Product, StockMovement } from "../types"
 import { normalizeText } from "../utils/format"
 
 const PAGE_SIZE = 15
+
+// the variation name only matters when the product has more than one
+function variationLabel(movement: StockMovement): string | null {
+    if (movement.product.variations.length < 2) return null
+
+    return (
+        movement.product.variations.find((variation) => variation.id === movement.variation_id)
+            ?.name ?? null
+    )
+}
 
 export function StockMovementsPage() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -26,6 +37,7 @@ export function StockMovementsPage() {
     const [page, setPage] = useState(1)
     const [showForm, setShowForm] = useState(false)
     const { notice, showNotice } = useNotice()
+    const [selectedMovement, setSelectedMovement] = useState<StockMovement | null>(null)
 
     function setFilter(key: string, value: string) {
         const next = new URLSearchParams(searchParams)
@@ -160,7 +172,11 @@ export function StockMovementsPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {visibleMovements.map((movement) => (
-                                    <tr key={movement.id} className="hover:bg-slate-50">
+                                    <tr
+                                        key={movement.id}
+                                        onClick={() => setSelectedMovement(movement)}
+                                        className="cursor-pointer hover:bg-slate-50"
+                                    >
                                         <td className="whitespace-nowrap px-4 py-3 text-slate-600">
                                             {new Date(movement.created_at).toLocaleString("pt-BR", {
                                                 dateStyle: "short",
@@ -171,9 +187,9 @@ export function StockMovementsPage() {
                                             <span className="font-medium text-slate-900">
                                                 {movement.product.name}
                                             </span>
-                                            {movement.product.size && (
-                                                <span className="ml-2 text-xs text-slate-500">
-                                                    {movement.product.size}
+                                            {variationLabel(movement) && (
+                                                <span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                                                    {variationLabel(movement)}
                                                 </span>
                                             )}
                                         </td>
@@ -205,7 +221,8 @@ export function StockMovementsPage() {
                         {visibleMovements.map((movement) => (
                             <li
                                 key={movement.id}
-                                className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4"
+                                onClick={() => setSelectedMovement(movement)}
+                                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4"
                             >
                                 <div className="min-w-0">
                                     <p className="truncate font-medium text-slate-900">
@@ -219,6 +236,7 @@ export function StockMovementsPage() {
                                             dateStyle: "short",
                                             timeStyle: "short",
                                         })}
+                                        {variationLabel(movement) ? ` · ${variationLabel(movement)}` : ""}
                                     </p>
                                 </div>
                                 <div className="text-right">
@@ -250,6 +268,13 @@ export function StockMovementsPage() {
                 onClose={() => setShowForm(false)}
                 onSaved={handleSaved}
             />
+
+            {selectedMovement && (
+                <MovementSummaryModal
+                    movement={selectedMovement}
+                    onClose={() => setSelectedMovement(null)}
+                />
+            )}
 
             <Notice message={notice} />
         </div>
