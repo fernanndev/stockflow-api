@@ -101,3 +101,28 @@ class SaleResponse(BaseModel):
     balance: float
 
     model_config = {"from_attributes": True}
+
+
+class SaleListResponse(BaseModel):
+    sales: list[SaleResponse]
+    # canceled sales are not counted in the totals
+    total_sold: float
+    total_paid: float
+    total_open: float
+
+
+class OpenCreditSaleResponse(BaseModel):
+    id: int
+    created_at: datetime
+    total: float
+    paid_amount: float
+    balance: float
+
+    model_config = {"from_attributes": True}
+
+
+class CustomerDebtResponse(BaseModel):
+    customer_name: str
+    customer_phone: str | None
+    balance: float
+    sales: list[OpenCreditSaleResponse]

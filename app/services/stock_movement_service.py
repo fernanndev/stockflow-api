@@ -109,7 +109,7 @@ class StockMovementService:
 
         reversal = StockMovement(
             product_id=movement.product_id,
-            variation=movement.variation_id,
+            variation_id=movement.variation_id,
             type=MovementType.IN,
             quantity=movement.quantity,
             reason=reason,

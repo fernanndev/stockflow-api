@@ -1,3 +1,4 @@
+from datetime import date, datetime, timezone
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
@@ -9,7 +10,12 @@ from app.repositories.packaging import PackagingRepository
 from app.repositories.product import ProductRepository
 from app.repositories.sale import SaleRepository
 
-from app.schemas.sale import SaleCreate, SaleItemCreate, SalePackagingCreate
+from app.schemas.sale import (
+    SaleCreate,
+    SaleItemCreate,
+    SalePackagingCreate,
+    SalePaymentCreate,
+)
 
 from app.services.stock_movement_service import StockMovementService
 
@@ -47,6 +53,105 @@ class SaleService:
 
         if not sale:
             raise ValueError("Sale not found.")
+
+        return sale
+
+    def list_all(
+        self,
+        start_date: date | None,
+        end_date: date | None,
+        status: SaleStatus | None,
+    ) -> dict:
+        if start_date and end_date and start_date > end_date:
+            raise ValueError("The start date is after the end date.")
+
+        sales = self.repository.list_all(start_date, end_date, status)
+        active = [sale for sale in sales if sale.status == SaleStatus.COMPLETED]
+
+        return {
+            "sales": sales,
+            "total_sold": sum((sale.total for sale in active), Decimal(0)),
+            "total_paid": sum((sale.paid_amount for sale in active), Decimal(0)),
+            "total_open": sum((sale.balance for sale in active), Decimal(0)),
+        }
+
+    def open_credits(self) -> list[dict]:
+        """Customers who still owe something, biggest debt first."""
+        debts: dict[str, dict] = {}
+
+        # oldest first, so the name and phone kept are the most recent ones
+        for sale in self.repository.list_with_customer():
+            if sale.balance <= 0:
+                continue
+
+            key = sale.customer_phone or sale.customer_name.casefold()
+            debt = debts.setdefault(
+                key,
+                {
+                    "customer_name": sale.customer_name,
+                    "customer_phone": sale.customer_phone,
+                    "balance": Decimal(0),
+                    "sales": [],
+                },
+            )
+
+            debt["customer_name"] = sale.customer_name
+            debt["customer_phone"] = sale.customer_phone or debt["customer_phone"]
+            debt["balance"] += sale.balance
+            debt["sales"].append(sale)
+
+        return sorted(debts.values(), key=lambda debt: debt["balance"], reverse=True)
+
+    def add_payment(self, sale_id: int, data: SalePaymentCreate) -> Sale:
+        sale = self.get(sale_id)
+
+        if sale.status == SaleStatus.CANCELED:
+            raise ValueError("A canceled sale cannot receive payments.")
+
+        amount = money(data.amount)
+
+        if amount > sale.balance:
+            raise ValueError("The payment is higher than the remaining balance.")
+
+        sale.payments.append(SalePayment(amount=amount, method=data.method))
+
+        self.db.commit()
+        self.db.refresh(sale)
+
+        return sale
+
+    def cancel(self, sale_id: int) -> Sale:
+        sale = self.get(sale_id)
+
+        if sale.status == SaleStatus.CANCELED:
+            raise ValueError("The sale is already canceled.")
+
+        try:
+            # list(): reversing adds new movements to sale.movements while we loop
+            for movement in list(sale.movements):
+                if movement.type == MovementType.OUT:
+                    self.movements.reverse(movement, MovementReason.SALE_CANCELED, sale)
+
+            for used in sale.packagings:
+                # the packaging may have been deleted since the sale
+                packaging = (
+                    self.packaging_repository.get_by_id(used.packaging_id)
+                    if used.packaging_id
+                    else None
+                )
+
+                if packaging:
+                    packaging.stock_quantity += used.quantity
+
+            sale.status = SaleStatus.CANCELED
+            sale.canceled_at = datetime.now(timezone.utc)
+
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+
+        self.db.refresh(sale)
 
         return sale
 
@@ -116,7 +221,7 @@ class SaleService:
             raise ValueError("Packaging not found.")
 
         if item.quantity > packaging.stock_quantity:
-            raise ValueError(f'Insufficient stock fo packaging"{packaging.name}".')
+            raise ValueError(f'Insufficient stock of packaging "{packaging.name}".')
 
         packaging.stock_quantity -= item.quantity
 
@@ -142,6 +247,6 @@ class SaleService:
         if paid > total:
             raise ValueError("The payments are higher than the sale total.")
 
-        # not fully paid = credit ("fiado") we must know who owes
+        # not fully paid = credit ("fiado"): we must know who owes
         if paid < total and not sale.customer_name:
             raise ValueError("Inform the customer: the sale is not fully paid.")
