@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { getSales } from "../api/sales"
 import { Notice } from "../components/Notice"
 import { Pagination } from "../components/Pagination"
@@ -118,11 +118,19 @@ export function SalesPage() {
 
     return (
         <div className="mx-auto max-w-6xl p-4 sm:p-8">
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Vendas</h1>
-                <p className="text-sm text-slate-500">
-                    {filtered.length} {filtered.length === 1 ? "venda" : "vendas"}
-                </p>
+            <div className="mb-6 flex items-start justify-between gap-3">
+                <div>
+                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Vendas</h1>
+                    <p className="text-sm text-slate-500">
+                        {filtered.length} {filtered.length === 1 ? "venda" : "vendas"}
+                    </p>
+                </div>
+                <Link
+                    to="/sales/new"
+                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                >
+                    + Nova venda
+                </Link>
             </div>
 
             <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">

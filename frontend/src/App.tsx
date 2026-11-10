@@ -8,6 +8,7 @@ import { ProductsPage } from "./pages/ProductsPage"
 import { StockMovementsPage } from "./pages/StockMovementsPage"
 import { PackagingsPage } from "./pages/PackagingsPage"
 import { SalesPage } from "./pages/SalesPage"
+import { NewSalePage } from "./pages/NewSalePage"
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/stock-movements" element={<StockMovementsPage />} />
           <Route path="/packagings" element={<PackagingsPage />} />
           <Route path="/sales" element={<SalesPage />} />
+          <Route path="/sales/new" element={<NewSalePage />} />
         </Route>
       </Route>
     </Routes>
