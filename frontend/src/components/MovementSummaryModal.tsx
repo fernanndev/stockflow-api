@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 
 import type { StockMovement } from "../types"
 import { getImageUrl } from "../utils/image"
+import { REASON_LABELS } from "../utils/movements"
 
 import { Modal } from "./Modal"
 
@@ -27,7 +28,7 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
 
     return (
         <Modal open title="Resumo de movimentação" onClose={onClose} widthClass="max-w-lg">
-            <div>
+            <div className="flex items-center gap-4">
                 {imageSrc && (
                     <img
                         src={imageSrc}
@@ -39,7 +40,7 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
                     <p className="font-medium text-slate-900">{product.name}</p>
                     <p>
                         {product.category.name}
-                        {product.size ? `· ${product.size}` : ""}
+                        {product.size ? ` · ${product.size}` : ""}
                     </p>
                 </div>
             </div>
@@ -52,13 +53,16 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
                                 : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
                         }
                     >
-                        {isEntry ? "Entrada" : "Saida"}
+                        {isEntry ? "Entrada" : "Saída"}
                     </span>
                 </Field>
+                {movement.reason && (
+                    <Field label="Motivo">{REASON_LABELS[movement.reason]}</Field>
+                )}
                 <Field label="Quantidade">
-                    <span className={isEntry ? "text-emreald-700" : "text-red-700"}>
+                    <span className={isEntry ? "text-emerald-700" : "text-red-700"}>
                         {isEntry ? "+" : "-"}
-                        {movement.quantity}un.
+                        {movement.quantity} un.
                     </span>
                 </Field>
                 <Field label="Data e hora">
@@ -88,7 +92,7 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
                 <button
                     type="button"
                     onClick={onClose}
-                    className="rounded bg-brand-600 px-4 py-2 text-shite hover:bg-brand-700"
+                    className="rounded bg-brand-600 px-4 py-2 text-white hover:bg-brand-700"
                 >
                     Fechar
                 </button>

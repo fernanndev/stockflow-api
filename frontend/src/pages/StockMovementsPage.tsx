@@ -9,6 +9,7 @@ import { Pagination } from "../components/Pagination"
 import { useNotice } from "../hooks/useNotice"
 import type { Product, StockMovement } from "../types"
 import { normalizeText } from "../utils/format"
+import { REASON_LABELS } from "../utils/movements" 
 
 const PAGE_SIZE = 15
 
@@ -203,6 +204,11 @@ export function StockMovementsPage() {
                                             >
                                                 {movement.type === "in" ? "Entrada" : "Saída"}
                                             </span>
+                                            {movement.reason && (
+                                                <span className="ml-2 text-xs text-slate-500">
+                                                    {REASON_LABELS[movement.reason]}
+                                                </span>
+                                            )}
                                         </td>
                                         <td
                                             className={`px-4 py-3 text-right font-medium tabular-nums ${
@@ -252,6 +258,9 @@ export function StockMovementsPage() {
                                     </p>
                                     <p className="text-xs text-slate-500">
                                         {movement.type === "in" ? "Entrada" : "Saída"}
+                                        {movement.reason
+                                            ? ` · ${REASON_LABELS[movement.reason]}`
+                                            : ""}
                                     </p>
                                 </div>
                             </li>

@@ -14,6 +14,14 @@ interface MovementFormModalProps {
 
 type MovementType = "in" | "out"
 
+type ExitReason = "expired" | "loss" | "other"
+
+const REASON_OPTIONS: { value: ExitReason; label: string }[] = [
+    { value: "expired", label: "Produto vencido" },
+    { value: "loss", label: "Perda ou quebra" },
+    { value: "other", label: "Outro" },
+]
+
 const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
 const labelClass = "mb-1 block text-sm font-medium text-slate-700"
 
@@ -45,6 +53,7 @@ export function MovementFormModal({
     const [type, setType] = useState<MovementType>("in")
     const [quantity, setQuantity] = useState("")
     const [expirationDate, setExpirationDate] = useState("")
+    const [reason, setReason] = useState<ExitReason | "">("")
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
@@ -55,6 +64,7 @@ export function MovementFormModal({
             setType("in")
             setQuantity("")
             setExpirationDate("")
+            setReason("")
             setError(null)
         }
     }, [open, defaultProductId])
@@ -109,6 +119,11 @@ export function MovementFormModal({
             return
         }
 
+        if (type === "out" && !reason) {
+            setError("Informe o motivo da saída.")
+            return
+        }
+
         if (type === "out") {
             const available = selectedLot ? selectedLot.quantity : selectedVariation.stock_quantity
 
@@ -128,6 +143,7 @@ export function MovementFormModal({
                 quantity: amount,
                 ...(type === "in" && expirationDate ? { expiration_date: expirationDate } : {}),
                 ...(type === "out" && selectedLot ? { lot_id: selectedLot.id } : {}),
+                ...(type === "out" && reason ? { reason } : {}),
             })
             onSaved(
                 `${type === "in" ? "Entrada" : "Saída"} de ${amount} un. registrada: ${selectedProduct.name}.`,
@@ -233,6 +249,30 @@ export function MovementFormModal({
                             onChange={(e) => setExpirationDate(e.target.value)}
                             className={inputClass}
                         />
+                    </div>
+                )}
+
+                {type === "out" && (
+                    <div>
+                        <label className={labelClass}>Movito da saída</label>
+                        <select
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value as ExitReason)}
+                            required
+                            className={inputClass}
+                        >
+                            <option value="" disabled>
+                                Selecione
+                            </option>
+                            {REASON_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </select>
+                        <p className="mt-1 text-xs text-slate-500">
+                            Vendas e brindes serão registrados na tela de Vendas.
+                        </p>
                     </div>
                 )}
 

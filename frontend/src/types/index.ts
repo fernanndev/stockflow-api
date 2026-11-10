@@ -46,12 +46,23 @@ export interface Packaging {
     image_url: string | null
 }
 
+export type MovementReason =
+    | "sale"
+    | "gift"
+    | "expired"
+    | "loss"
+    | "other"
+    | "sale_canceled"
+
+
 export interface StockMovement { 
     id: number
     product_id: number
     variation_id: number
     type: "in" | "out"
     quantity: number
+    reason: MovementReason | null
+    sale_id: number | null
     created_at: string
     product: Product
 }

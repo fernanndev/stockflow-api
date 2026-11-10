@@ -8,6 +8,7 @@ export interface StockMovementCreateInput{
     variation_id?: number
     lot_id?: number
     expiration_date?: string
+    reason?: "expired" | "loss" | "other"
 }
 
 export async function getStockMovements(productId?: number): Promise<StockMovement[]> {
