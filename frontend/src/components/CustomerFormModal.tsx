@@ -9,7 +9,7 @@ interface CustomerFormModalProps {
     open: boolean
     customer: Customer | null
     onClose: () => void
-    onSaved: (message: string) => void
+    onSaved: (message: string, customer: Customer) => void
 }
 
 interface FormState {
@@ -66,13 +66,11 @@ export function CustomerFormModal({ open, customer, onClose, onSaved }: Customer
         setSaving(true)
 
         try {
-            if (customer) {
-                await updateCustomer(customer.id, payload)
-            } else {
-                await createCustomer(payload)
-            }
+            const saved = customer
+                ? await updateCustomer(customer.id, payload)
+                : await createCustomer(payload)
 
-            onSaved(customer ? "Cliente atualizado." : "Cliente cadastrado.")
+            onSaved(customer ? "Cliente atualizado." : "Cliente cadastrado.", saved)
         } catch (e) {
             // 400 = duplicated (same phone, or same name when there is no phone)
             setError(

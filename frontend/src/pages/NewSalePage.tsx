@@ -4,15 +4,18 @@ import { Link, useNavigate } from "react-router-dom"
 
 import { getPackagings } from "../api/packagings"
 import { getProducts } from "../api/products"
-import { createSale, getSales } from "../api/sales"
+import { createSale } from "../api/sales"
+import { getCustomers } from "../api/customers"
 
 import { Pagination } from "../components/Pagination"
 import { SaleProductCard } from "../components/SaleProductCard"
+import { CustomerFormModal } from "../components/CustomerFormModal"
+import { CustomerPicker } from "../components/CustomerPicker"
 
-import type { Packaging, PaymentMethod, Product } from "../types"
+import type { Packaging, PaymentMethod, Product, Customer } from "../types"
 
 import { formatCurrency, normalizeText } from "../utils/format"
-import { PAYMENT_METHOD_OPTIONS, formatPhone } from "../utils/sales"
+import { PAYMENT_METHOD_OPTIONS } from "../utils/sales"
 
 interface ItemLine {
     key: number
@@ -33,11 +36,6 @@ interface PaymentLine {
     key: number
     method: PaymentMethod
     amount: string
-}
-
-interface KnownCustomer {
-    name: string
-    phone: string | null
 }
 
 const inputClass = "ui-input w-full"
@@ -77,7 +75,7 @@ export function NewSalePage() {
 
     const [products, setProducts] = useState<Product[]>([])
     const [packagings, setPackagings] = useState<Packaging[]>([])
-    const [customers, setCustomers] = useState<KnownCustomer[]>([])
+    const [customers, setCustomers] = useState<Customer[]>([])
     const [loadError, setLoadError] = useState<string | null>(null)
 
     const [search, setSearch] = useState("")
@@ -86,8 +84,8 @@ export function NewSalePage() {
     const [items, setItems] = useState<ItemLine[]>([])
     const [usedPackagings, setUsedPackagings] = useState<PackagingLine[]>([])
     const [payments, setPayments] = useState<PaymentLine[]>([])
-    const [customerName, setCustomerName] = useState("")
-    const [customerPhone, setCustomerPhone] = useState("")
+    const [customer, setCustomer] = useState<Customer | null>(null)
+    const [showCustomerForm, setShowCustomerForm] = useState(false)
 
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
@@ -96,34 +94,17 @@ export function NewSalePage() {
     useEffect(() => {
         async function load() {
             try {
-                const [productList, packagingList, sales] = await Promise.all([
+                const [productList, packagingList, customerList] = await Promise.all([
                     getProducts(),
                     getPackagings(),
-                    getSales(),
+                    getCustomers(),
                 ])
 
                 setProducts(productList)
                 setPackagings(packagingList)
-
-                // sales come newest first: the first time a name shows up is its latest phone
-                const known = new Map<string, KnownCustomer>()
-
-                for (const sale of sales.sales) {
-                    if (!sale.customer_name) continue
-
-                    const key = sale.customer_name.toLowerCase()
-                    const current = known.get(key)
-
-                    if (!current) {
-                        known.set(key, { name: sale.customer_name, phone: sale.customer_phone })
-                    } else if (!current.phone && sale.customer_phone) {
-                        current.phone = sale.customer_phone
-                    }
-                }
-
-                setCustomers([...known.values()])
+                setCustomers(customerList)
             } catch {
-                setLoadError("Não foi possível carregar produtos e embalagens.")
+                setLoadError("Não foi possível carregar produtos, embalagens e clientes.")
             }
         }
 
@@ -277,14 +258,10 @@ export function NewSalePage() {
     }
 
     // ---- customer ----
-    function handleCustomerName(value: string) {
-        setCustomerName(value)
-
-        if (customerPhone) return
-
-        const match = customers.find((c) => c.name.toLowerCase() === value.trim().toLowerCase())
-
-        if (match?.phone) setCustomerPhone(formatPhone(match.phone))
+    function handleCustomerSaved(_message: string, created: Customer) {
+        setCustomers((current) => [...current, created])
+        setCustomer(created)
+        setShowCustomerForm(false)
     }
 
     // ---- submit ----
@@ -335,15 +312,8 @@ export function NewSalePage() {
             return
         }
 
-        if (remainingCents > 0 && !customerName.trim()) {
-            setError("Falta pagar uma parte: informe o cliente para registrar como fiado.")
-            return
-        }
-
-        const phoneDigits = customerPhone.replace(/\D/g, "")
-
-        if (phoneDigits && (phoneDigits.length < 10 || phoneDigits.length > 13)) {
-            setError("Telefone inválido. Use DDD + número, por exemplo (11) 91234-5678.")
+        if (remainingCents > 0 && !customer) {
+            setError("Falta pagar uma parte: escolha o cliente para registrar como fiado.")
             return
         }
 
@@ -351,8 +321,7 @@ export function NewSalePage() {
 
         try {
             await createSale({
-                customer_name: customerName.trim() || null,
-                customer_phone: phoneDigits || null,
+                customer_id: customer?.id ?? null,
                 items: items.map((line) => ({
                     product_id: line.product.id,
                     variation_id: line.variationId,
@@ -386,6 +355,7 @@ export function NewSalePage() {
     const itemCount = items.reduce((sum, line) => sum + toQuantity(line.quantity), 0)
 
     return (
+        <>
         <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-8 sm:py-8 lg:pb-8">
             <div className="mb-6">
                 <Link to="/sales" className="text-sm text-slate-500 hover:underline">
@@ -710,34 +680,12 @@ export function NewSalePage() {
                                 <h3 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">
                                     Cliente (obrigatório se for fiado)
                                 </h3>
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className={labelClass}>Nome</label>
-                                        <input
-                                            type="text"
-                                            list="known-customers"
-                                            value={customerName}
-                                            onChange={(e) => handleCustomerName(e.target.value)}
-                                            maxLength={150}
-                                            className={inputClass}
-                                        />
-                                        <datalist id="known-customers">
-                                            {customers.map((customer) => (
-                                                <option key={customer.name} value={customer.name} />
-                                            ))}
-                                        </datalist>
-                                    </div>
-                                    <div>
-                                        <label className={labelClass}>Telefone (WhatsApp)</label>
-                                        <input
-                                            type="tel"
-                                            value={customerPhone}
-                                            onChange={(e) => setCustomerPhone(e.target.value)}
-                                            placeholder="(11) 91234-5678"
-                                            className={inputClass}
-                                        />
-                                    </div>
-                                </div>
+                                <CustomerPicker
+                                    customers={customers}
+                                    selected={customer}
+                                    onSelect={setCustomer}
+                                    onNewCustomer={() => setShowCustomerForm(true)}
+                                />
                             </section>
 
                             {/* Payments */}
@@ -899,5 +847,14 @@ export function NewSalePage() {
                 </button>
             </div>
         </form>
+
+        {/* Outside the <form>: the customer form has its own <form>, and saving it must not finish the sale */}
+        <CustomerFormModal
+            open={showCustomerForm}
+            customer={null}
+            onClose={() => setShowCustomerForm(false)}
+            onSaved={handleCustomerSaved}
+        />
+        </>
     )
 }

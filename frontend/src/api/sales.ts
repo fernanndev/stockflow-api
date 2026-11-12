@@ -28,6 +28,7 @@ export async function cancelSale(id: number): Promise<Sale> {
 }
 
 export interface SaleCreateInput {
+    customer_id?: number | null
     customer_name?: string | null
     customer_phone?: string | null
     items: {
