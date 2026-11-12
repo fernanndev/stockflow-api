@@ -14,7 +14,7 @@ interface MovementSummaryModalProps {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
             <dd className="mt-0.5 text-sm text-slate-900">{children}</dd>
         </div>
     )
@@ -33,7 +33,7 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
                     <img
                         src={imageSrc}
                         alt={product.name}
-                        className="h-20 w-20 shrink-0 rounded border border-slate-200 object-cover"
+                        className="h-20 w-20 shrink-0 rounded-lg border border-slate-200 object-cover"
                     />
                 )}
                 <div className="min-w-0">
@@ -49,8 +49,8 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
                 <Field label="Tipo">
                     <span className={
                             isEntry
-                                ? "rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                                : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+                                ? "badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                                : "badge bg-red-50 text-red-700 ring-1 ring-red-600/15"
                         }
                     >
                         {isEntry ? "Entrada" : "Saída"}
@@ -85,18 +85,18 @@ export function MovementSummaryModal({ movement, onClose }: MovementSummaryModal
             <div className="mt-6  flex flex-wrap justify-end gap-3 text-sm font-medium">
                 <Link
                     to={`/products?product_id=${product.id}`}
-                    className="rounded border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                    className="btn btn-secondary"
                 >
                     Ver produto
                 </Link>
                 <button
                     type="button"
                     onClick={onClose}
-                    className="rounded bg-brand-600 px-4 py-2 text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     Fechar
                 </button>
             </div>
         </Modal>
     )
-}
+}

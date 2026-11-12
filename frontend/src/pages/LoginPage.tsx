@@ -6,8 +6,8 @@ import { BrandLogo } from "../components/BrandLogo"
 import axios from "axios"
 
 const inputClass = 
-    "mb-4 w-full rounded border border-slate-300 px-3 py-2 text-base sm:text-sm"
-const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+    "ui-input mb-4 w-full"
+const labelClass = "ui-label"
 
 export function LoginPage() {
     const [email, setEmail] = useState("")
@@ -40,7 +40,7 @@ export function LoginPage() {
         <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
             <form
                 onSubmit={handleSubmit}
-                className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+                className="card w-full max-w-sm rounded-2xl p-6 shadow-sm sm:p-8"
             >
                 <h1 className="sr-only">StockFlow</h1>
                 <div className="mb-2">
@@ -79,7 +79,7 @@ export function LoginPage() {
 
                 <button
                     type="submit"
-                    className="w-full rounded bg-brand-600 py-2.5 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary w-full"
                 >
                     Entrar
                 </button>
@@ -87,4 +87,4 @@ export function LoginPage() {
             </form>
         </div>
     )
-}
+}

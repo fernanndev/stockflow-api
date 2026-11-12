@@ -99,10 +99,10 @@ export function StockMovementsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    <h1 className="page-title">
                         Movimentações de estoque
                     </h1>
                     <p className="text-sm text-slate-500">
@@ -112,7 +112,7 @@ export function StockMovementsPage() {
                 </div>
                 <button
                     onClick={() => setShowForm(true)}
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     + Registrar movimentação
                 </button>
@@ -124,12 +124,12 @@ export function StockMovementsPage() {
                     placeholder="Buscar por produto"
                     value={search}
                     onChange={(e) => setFilter("q", e.target.value)}
-                    className="w-full max-w-sm rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="ui-input w-full sm:max-w-sm"
                 />
                 <select
                     value={typeFilter ?? ""}
                     onChange={(e) => setFilter("type", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
+                    className="ui-input w-full sm:w-auto"
                 >
                     <option value="">Todos os tipos</option>
                     <option value="in">Entradas</option>
@@ -143,7 +143,7 @@ export function StockMovementsPage() {
                 {hasFilter && (
                     <Link
                         to="/stock-movements"
-                        className="text-sm text-brand-600 hover:underline"
+                        className="text-sm font-medium text-brand-700 hover:underline"
                         onClick={() => setPage(1)}
                     >
                         Limpar filtros
@@ -154,16 +154,16 @@ export function StockMovementsPage() {
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
             {filtered.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                <p className="empty-state">
                     {movements.length === 0
                         ? "Nenhuma movimentação registrada ainda."
                         : "Nenhuma movimentação encontrada."}
                 </p>
             ) : (
                 <>
-                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                    <div className="card hidden overflow-x-auto md:block">
                         <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="table-head">
                                 <tr>
                                     <th className="px-4 py-3 font-medium">Data</th>
                                     <th className="px-4 py-3 font-medium">Produto</th>
@@ -189,7 +189,7 @@ export function StockMovementsPage() {
                                                 {movement.product.name}
                                             </span>
                                             {variationLabel(movement) && (
-                                                <span className="ml-2 rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                                                <span className="badge ml-2 bg-slate-100 text-slate-600">
                                                     {variationLabel(movement)}
                                                 </span>
                                             )}
@@ -198,8 +198,8 @@ export function StockMovementsPage() {
                                             <span
                                                 className={
                                                     movement.type === "in"
-                                                        ? "rounded bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                                                        : "rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700"
+                                                        ? "badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                                                        : "badge bg-red-50 text-red-700 ring-1 ring-red-600/15"
                                                 }
                                             >
                                                 {movement.type === "in" ? "Entrada" : "Saída"}
@@ -228,7 +228,7 @@ export function StockMovementsPage() {
                             <li
                                 key={movement.id}
                                 onClick={() => setSelectedMovement(movement)}
-                                className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-4"
+                                className="card flex cursor-pointer items-center justify-between gap-3 p-4 transition active:bg-slate-50"
                             >
                                 <div className="min-w-0">
                                     <p className="truncate font-medium text-slate-900">
@@ -288,4 +288,4 @@ export function StockMovementsPage() {
             <Notice message={notice} />
         </div>
     )
-}
+}

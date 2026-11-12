@@ -15,10 +15,10 @@ export function Layout() {
     const { logout } = useAuth()
 
     const linkClass = ({ isActive }: { isActive: boolean }) =>
-        `whitespace-nowrap border-b-2 pb-1 ${
+        `inline-flex min-h-9 shrink-0 items-center whitespace-nowrap rounded-lg px-3 text-sm transition ${
             isActive
-                ? "border-brand-600 font-medium text-brand-700"
-                : "border-transparent text-slate-600 hover:text-slate-900"
+                ? "bg-brand-50 font-semibold text-brand-700"
+                : "font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900"
         }`
 
     const links = NAV_LINKS.map((link) => (
@@ -29,26 +29,30 @@ export function Layout() {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <nav className="border-b border-slate-200 bg-white">
-                <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
-                    <div className="flex items-center gap-8">
-                        <span className="text-lg font-semibold tracking-tight text-brand-700">
+            <nav className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+                <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-8 sm:py-3">
+                    <div className="flex min-w-0 items-center gap-6">
+                        <span className="shrink-0">
                             <BrandLogo size="md" />
                         </span>
-                        
-                        <div className="hidden gap-6 text-sm sm:flex">{links}</div>
+
+                        <div className="hidden items-center gap-1 lg:flex">{links}</div>
                     </div>
 
                     <button
                         onClick={logout}
-                        className="text-sm font-medium text-slate-500 hover:text-red-600"
+                        className="btn btn-ghost btn-sm -mr-2 text-slate-500 hover:text-red-600"
                     >
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4" />
+                        </svg>
                         Sair
                     </button>
                 </div>
 
-                <div className="flex gap-6 overflow-x-auto border-t border-slate-100 px-4 pt-3 text-sm sm:hidden">
+                <div className="scroll-fade-x flex gap-1 overflow-x-auto px-3 pb-2 [scrollbar-width:none] sm:px-7 lg:hidden [&::-webkit-scrollbar]:hidden">
                     {links}
+                    <span className="w-6 shrink-0" aria-hidden="true" />
                 </div>
             </nav>
 

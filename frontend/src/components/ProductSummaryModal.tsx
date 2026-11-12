@@ -20,7 +20,7 @@ interface ProductSummaryModalProps {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
             <dd className="mt-0.5 text-sm text-slate-900">{children}</dd>
         </div>
     )
@@ -40,7 +40,7 @@ export function ProductSummaryModal({
                 <img
                     src={imageSrc}
                     alt={product.name}
-                    className="mb-4 max-h-64 w-full rounded bg-slate-50 object-contain"
+                    className="mb-4 max-h-64 w-full rounded-lg bg-slate-50 object-contain"
                 />
             )}
 
@@ -83,7 +83,7 @@ export function ProductSummaryModal({
 
             {product.variations.length > 1 && (
                 <div className="mt-4 border-t border-slate-100 pt-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-400">Variações</p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Variações</p>
                     <ul className="mt-1 space-y-1 text-sm text-slate-700">
                         {product.variations.map((variation) => (
                             <li key={variation.id} className="flex justify-between">
@@ -99,24 +99,24 @@ export function ProductSummaryModal({
                 <button
                     type="button"
                     onClick={onOpenLots}
-                    className="rounded border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                    className="btn btn-secondary"
                 >
                     Lotes
                 </button>
                 <Link
                     to={`/stock-movements?product_id=${product.id}`}
-                    className="rounded border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                    className="btn btn-secondary"
                 >
                     Movimentações
                 </Link>
                 <button
                     type="button"
                     onClick={onEdit}
-                    className="rounded bg-brand-600 px-4 py-2 text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     Editar
                 </button>
             </div>
         </Modal>
     )
-}
+}

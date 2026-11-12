@@ -51,14 +51,14 @@ export function CategoryFormModal({ open, category, onClose, onSaved }: Category
         >
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="mb-1 block text-sm font-medium text-slate-700">Nome</label>
+                    <label className="ui-label">Nome</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         required
                         autoFocus
-                        className="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+                        className="ui-input w-full"
                     />
                 </div>
 
@@ -68,13 +68,13 @@ export function CategoryFormModal({ open, category, onClose, onSaved }: Category
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                        className="btn btn-ghost"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
-                        className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                        className="btn btn-primary"
                     >
                         {category ? "Salvar alterações" : "Adicionar categoria"}
                     </button>
@@ -82,4 +82,4 @@ export function CategoryFormModal({ open, category, onClose, onSaved }: Category
             </form>
         </Modal>
     )
-}
+}

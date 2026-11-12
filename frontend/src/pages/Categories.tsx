@@ -133,10 +133,10 @@ export function CategoriesPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-slate-900">
+                    <h1 className="page-title">
                         Categorias
                     </h1>
                     <p className="text-sm text-slate-500">
@@ -145,7 +145,7 @@ export function CategoriesPage() {
                 </div>
                 <button
                     onClick={openCreate}
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 whitespace-nowrap"
+                    className="btn btn-primary"
                 >
                     + Nova categoria
                 </button>
@@ -157,12 +157,12 @@ export function CategoriesPage() {
                     placeholder="Buscar categoria"
                     value={search}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full max-w-sm rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="ui-input w-full sm:max-w-sm"
                 />
                 {search && (
                     <button
                         onClick={() => handleSearch("")}
-                        className="text-sm text-brand-600 hover:underline"
+                        className="text-sm font-medium text-brand-700 hover:underline"
                     >
                         Limpar busca
                     </button>
@@ -172,16 +172,16 @@ export function CategoriesPage() {
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
             {filtered.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                <p className="empty-state">
                     {categories.length === 0
                         ? "Nenhuma categoria cadastrada. Crie a primeira em \"+ Nova categoria\"."
                         : "Nenhuma categoria encontrada."}
                 </p>
             ) : (
                 <>
-                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                    <div className="card hidden overflow-x-auto md:block">
                         <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="table-head">
                                 <tr>
                                     <th className="px-4 py-3 font-medium">Categoria</th>
                                     <th className="px-4 py-3 font-medium">Produtos</th>
@@ -223,13 +223,13 @@ export function CategoriesPage() {
                                                 <div className="flex justify-end gap-4 text-sm font-medium">
                                                     <button
                                                         onClick={stop(() => openEdit(category))}
-                                                        className="text-brand-600 hover:text-brand-700"
+                                                        className="font-medium text-brand-700 hover:text-brand-800"
                                                     >
                                                         Editar
                                                     </button>
                                                     <button
                                                         onClick={stop(() => requestDelete(category))}
-                                                        className="text-red-600 hover:text-red-800"
+                                                        className="font-medium text-red-600 hover:text-red-800"
                                                     >
                                                         Excluir
                                                     </button>
@@ -250,7 +250,7 @@ export function CategoriesPage() {
                                 <li
                                     key={category.id}
                                     onClick={() => goToProducts(category)}
-                                    className="cursor-pointer rounded-lg border border-slate-200 bg-white p-4 active:bg-slate-50"
+                                    className="card cursor-pointer p-4 transition hover:border-slate-300 active:bg-slate-50"
                                 >
                                     <div className="flex items-center justify-between gap-3">
                                         <p className="font-medium text-slate-900">
@@ -259,7 +259,7 @@ export function CategoriesPage() {
                                         {count > 0 ? (
                                             <Link
                                                 to={`/products?category_id=${category.id}`}
-                                                className="whitespace-nowrap text-sm text-brand-600"
+                                                className="whitespace-nowrap text-sm text-brand-700"
                                             >
                                                 {count} {count === 1 ? "produto" : "produtos"}
                                             </Link>
@@ -272,13 +272,13 @@ export function CategoriesPage() {
                                     <div className="mt-3 grid grid-cols-2 gap-2 text-sm font-medium">
                                         <button
                                             onClick={stop(() => openEdit(category))}
-                                            className="rounded border border-slate-300 py-2.5 text-brand-700 hover:bg-slate-50"
+                                            className="btn btn-secondary text-brand-700"
                                         >
                                             Editar
                                         </button>
                                         <button
                                             onClick={stop(() => requestDelete(category))}
-                                            className="rounded border border-red-200 py-2.5 text-red-600 hover:bg-red-50"
+                                            className="btn btn-danger-outline"
                                         >
                                             Excluir
                                         </button>
@@ -312,4 +312,4 @@ export function CategoriesPage() {
             <Notice message={notice} />
         </div>
     )
-}
+}

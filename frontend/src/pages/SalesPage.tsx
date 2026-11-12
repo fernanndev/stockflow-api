@@ -24,7 +24,7 @@ const PERIOD_OPTIONS: { value: Period; label: string }[] = [
 
 const EMPTY: SaleList = { sales: [], total_sold: 0, total_paid: 0, total_open: 0 }
 
-const inputClass = "rounded border border-slate-300 px-3 py-2 text-sm"
+const inputClass = "ui-input"
 
 function periodRange(period: Period, from: string, to: string) {
     const today = new Date()
@@ -117,42 +117,40 @@ export function SalesPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6 flex items-start justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Vendas</h1>
+                    <h1 className="page-title">Vendas</h1>
                     <p className="text-sm text-slate-500">
                         {filtered.length} {filtered.length === 1 ? "venda" : "vendas"}
                     </p>
                 </div>
                 <Link
                     to="/sales/new"
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     + Nova venda
                 </Link>
             </div>
 
-            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-l-4 border-slate-200 border-l-slate-300 bg-white p-4">
-                    <p className="text-sm font-medium text-slate-500">Vendido</p>
-                    <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+            <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                <div className="card col-span-2 p-4 sm:col-span-1 sm:p-5">
+                    <p className="flex items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm"><span className="h-2 w-2 rounded-full bg-brand-600" aria-hidden="true" />Vendido</p>
+                    <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums text-slate-900 sm:text-2xl">
                         {formatCurrency(data.total_sold)}
                     </p>
                 </div>
-                <div className="rounded-lg border border-l-4 border-slate-200 border-l-emerald-500 bg-white p-4">
-                    <p className="text-sm font-medium text-slate-500">Recebido</p>
-                    <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                <div className="card p-4 sm:p-5">
+                    <p className="flex items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm"><span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />Recebido</p>
+                    <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums text-slate-900 sm:text-2xl">
                         {formatCurrency(data.total_paid)}
                     </p>
                 </div>
                 <div
-                    className={`rounded-lg border border-l-4 border-slate-200 bg-white p-4 ${
-                        data.total_open > 0 ? "border-l-amber-500" : "border-l-slate-300"
-                    }`}
+                    className="card p-4 sm:p-5"
                 >
-                    <p className="text-sm font-medium text-slate-500">Em aberto (fiado)</p>
-                    <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">
+                    <p className="flex items-center gap-2 text-xs font-medium text-slate-500 sm:text-sm"><span className={`h-2 w-2 rounded-full ${data.total_open > 0 ? "bg-amber-500" : "bg-slate-300"}`} aria-hidden="true" />Em aberto (fiado)</p>
+                    <p className={`mt-1 text-xl font-semibold tracking-tight tabular-nums sm:text-2xl ${data.total_open > 0 ? "text-amber-700" : "text-slate-900"}`}>
                         {formatCurrency(data.total_open)}
                     </p>
                 </div>
@@ -164,7 +162,7 @@ export function SalesPage() {
                     placeholder="Buscar por cliente ou produto"
                     value={search}
                     onChange={(e) => setFilter("q", e.target.value)}
-                    className={`${inputClass} w-full max-w-sm`}
+                    className={`${inputClass} w-full sm:max-w-sm`}
                 />
                 <select
                     value={period}
@@ -209,20 +207,20 @@ export function SalesPage() {
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
             {filtered.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                <p className="empty-state">
                     Nenhuma venda encontrada neste período.
                 </p>
             ) : (
                 <>
-                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                    <div className="card hidden overflow-x-auto md:block">
                         <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="table-head">
                                 <tr>
-                                    <th className="px-4 py-3 font-medium">Data</th>
-                                    <th className="px-4 py-3 font-medium">Cliente</th>
-                                    <th className="px-4 py-3 font-medium">Itens</th>
-                                    <th className="px-4 py-3 text-right font-medium">Total</th>
-                                    <th className="px-4 py-3 font-medium">Situação</th>
+                                    <th className="px-3 py-3 font-medium">Data</th>
+                                    <th className="px-3 py-3 font-medium">Cliente</th>
+                                    <th className="px-3 py-3 font-medium">Itens</th>
+                                    <th className="px-3 py-3 text-right font-medium">Total</th>
+                                    <th className="px-3 py-3 font-medium">Situação</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -235,23 +233,23 @@ export function SalesPage() {
                                             onClick={() => setSelectedId(sale.id)}
                                             className="cursor-pointer hover:bg-slate-50"
                                         >
-                                            <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                                            <td className="whitespace-nowrap px-3 py-3 text-slate-600">
                                                 {new Date(sale.created_at).toLocaleString("pt-BR", {
                                                     dateStyle: "short",
                                                     timeStyle: "short",
                                                 })}
                                             </td>
-                                            <td className="px-4 py-3 text-slate-900">
+                                            <td className="px-3 py-3 text-slate-900">
                                                 {sale.customer_name ?? "—"}
                                             </td>
                                             <td
-                                                className="max-w-xs truncate px-4 py-3 text-slate-600"
+                                                className="max-w-[14rem] truncate px-3 py-3 lg:max-w-xs text-slate-600"
                                                 title={itemsSummary(sale)}
                                             >
                                                 {itemsSummary(sale)}
                                             </td>
                                             <td
-                                                className={`whitespace-nowrap px-4 py-3 text-right font-medium tabular-nums ${
+                                                className={`whitespace-nowrap px-3 py-3 text-right font-medium tabular-nums ${
                                                     sale.status === "canceled"
                                                         ? "text-slate-400 line-through"
                                                         : "text-slate-900"
@@ -259,9 +257,9 @@ export function SalesPage() {
                                             >
                                                 {formatCurrency(sale.total)}
                                             </td>
-                                            <td className="px-4 py-3">
+                                            <td className="px-3 py-3">
                                                 <span
-                                                    className={`rounded px-2 py-0.5 text-xs font-medium ${situation.className}`}
+                                                    className={`badge ${situation.className}`}
                                                 >
                                                     {situation.label}
                                                 </span>
@@ -286,7 +284,7 @@ export function SalesPage() {
                                 <li
                                     key={sale.id}
                                     onClick={() => setSelectedId(sale.id)}
-                                    className="cursor-pointer rounded-lg border border-slate-200 bg-white p-4"
+                                    className="card cursor-pointer p-4 transition hover:border-slate-300 active:bg-slate-50"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -319,7 +317,7 @@ export function SalesPage() {
                                                 ? `falta ${formatCurrency(sale.balance)} `
                                                 : ""}
                                             <span
-                                                className={`rounded px-2 py-0.5 font-medium ${situation.className}`}
+                                                className={`badge ${situation.className}`}
                                             >
                                                 {situation.label}
                                             </span>
@@ -346,4 +344,4 @@ export function SalesPage() {
             <Notice message={notice} />
         </div>
     )
-}
+}

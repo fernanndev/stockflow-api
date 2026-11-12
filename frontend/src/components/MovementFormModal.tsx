@@ -22,8 +22,8 @@ const REASON_OPTIONS: { value: ExitReason; label: string }[] = [
     { value: "other", label: "Outro" },
 ]
 
-const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
-const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+const inputClass = "ui-input w-full"
+const labelClass = "ui-label"
 
 const TYPE_OPTIONS: { value: MovementType; label: string; activeClass: string }[] = [
     {
@@ -215,7 +215,7 @@ export function MovementFormModal({
                                 key={option.value}
                                 type="button"
                                 onClick={() => setType(option.value)}
-                                className={`rounded border px-3 py-2 text-sm font-medium ${
+                                className={`min-h-11 rounded-lg border px-3 py-2 text-sm font-medium transition sm:min-h-10 ${
                                     type === option.value
                                         ? option.activeClass
                                         : "border-slate-300 text-slate-600 hover:bg-slate-50"
@@ -303,13 +303,13 @@ export function MovementFormModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                        className="btn btn-ghost"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
-                        className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                        className="btn btn-primary"
                     >
                         Registrar
                     </button>
@@ -317,4 +317,4 @@ export function MovementFormModal({
             </form>
         </Modal>
     )
-}
+}

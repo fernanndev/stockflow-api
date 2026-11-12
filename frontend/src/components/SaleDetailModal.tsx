@@ -20,8 +20,8 @@ interface SaleDetailModalProps {
     onChanged: (message: string) => void
 }
 
-const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
-const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+const inputClass = "ui-input w-full"
+const labelClass = "ui-label"
 
 function Row({
     label,
@@ -105,14 +105,14 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                             })}
                         </p>
                         <span
-                            className={`rounded px-2 py-0.5 text-xs font-medium ${situation.className}`}
+                            className={`badge ${situation.className}`}
                         >
                             {situation.label}
                         </span>
                     </div>
 
                     {sale.canceled_at && (
-                        <p className="rounded bg-slate-100 px-3 py-2 text-sm text-slate-600">
+                        <p className="rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-600">
                             Cancelada em{" "}
                             {new Date(sale.canceled_at).toLocaleString("pt-BR", {
                                 dateStyle: "short",
@@ -124,7 +124,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
 
                     {sale.customer_name && (
                         <div className="text-sm">
-                            <p className="text-xs uppercase tracking-wide text-slate-400">Cliente</p>
+                            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Cliente</p>
                             <p className="mt-0.5 font-medium text-slate-900">{sale.customer_name}</p>
                             {sale.customer_phone && (
                                 <p className="text-slate-600">{formatPhone(sale.customer_phone)}</p>
@@ -143,8 +143,8 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                     )}
 
                     <div>
-                        <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Itens</p>
-                        <ul className="divide-y divide-slate-100 rounded border border-slate-200">
+                        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">Itens</p>
+                        <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200">
                             {sale.items.map((item) => (
                                 <li
                                     key={item.id}
@@ -154,7 +154,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                                         <p className="font-medium text-slate-900">
                                             {item.product_name}
                                             {item.is_gift && (
-                                                <span className="ml-2 rounded bg-violet-100 px-2 py-0.5 text-xs font-medium text-violet-700">
+                                                <span className="badge ml-2 bg-violet-50 text-violet-700 ring-1 ring-violet-600/15">
                                                     Brinde
                                                 </span>
                                             )}
@@ -178,7 +178,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
 
                     {sale.packagings.length > 0 && (
                         <div>
-                            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
                                 Embalagens usadas
                             </p>
                             <p className="text-sm text-slate-700">
@@ -215,7 +215,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
 
                     {sale.payments.length > 0 && (
                         <div>
-                            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+                            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">
                                 Pagamentos
                             </p>
                             <ul className="space-y-1 text-sm">
@@ -239,7 +239,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                     {hasBalance && (
                         <form
                             onSubmit={handlePayment}
-                            className="space-y-3 rounded border border-slate-200 bg-slate-50 p-3"
+                            className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
                         >
                             <p className="text-sm font-medium text-slate-700">
                                 Registrar pagamento
@@ -274,7 +274,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                                className="btn btn-primary"
                             >
                                 Registrar pagamento
                             </button>
@@ -288,7 +288,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                             <button
                                 type="button"
                                 onClick={() => setConfirmCancel(true)}
-                                className="rounded border border-red-300 px-4 py-2 text-red-600 hover:bg-red-50"
+                                className="btn btn-danger-outline"
                             >
                                 Cancelar venda
                             </button>
@@ -298,7 +298,7 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded px-4 py-2 text-slate-600 hover:bg-slate-100"
+                            className="btn btn-ghost"
                         >
                             Fechar
                         </button>
@@ -316,4 +316,4 @@ export function SaleDetailModal({ sale, onClose, onChanged }: SaleDetailModalPro
             />
         </>
     )
-}
+}

@@ -152,10 +152,10 @@ export function ProductsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
-            <div className="mb-6 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    <h1 className="page-title">
                         Produtos
                     </h1>
                     <p className="text-sm text-slate-500">
@@ -165,7 +165,7 @@ export function ProductsPage() {
                 </div>
                 <button
                     onClick={openCreate}
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     + Novo produto
                 </button>
@@ -177,12 +177,12 @@ export function ProductsPage() {
                     placeholder="Buscar por nome, descrição ou tamanho"
                     value={search}
                     onChange={(e) => setFilter("q", e.target.value)}
-                    className="w-full max-w-sm rounded border border-slate-300 px-3 py-2 text-sm"
+                    className="ui-input w-full sm:max-w-sm"
                 />
                 <select
                     value={categoryId ?? ""}
                     onChange={(e) => setFilter("category_id", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
+                    className="ui-input w-full sm:w-auto"
                 >
                     <option value="">Todas as categorias</option>
                     {categories.map((category) => (
@@ -194,7 +194,7 @@ export function ProductsPage() {
                 <select
                     value={status ?? ""}
                     onChange={(e) => setFilter("status", e.target.value)}
-                    className="rounded border border-slate-300 px-3 py-2 text-sm w-full sm:w-auto"
+                    className="ui-input w-full sm:w-auto"
                 >
                     <option value="">Todas as situações</option>
                     <option value="low_stock">Estoque baixo</option>
@@ -203,7 +203,7 @@ export function ProductsPage() {
                 {hasFilter && (
                     <button
                         onClick={() => setSearchParams({})}
-                        className="text-sm text-brand-600 hover:underline"
+                        className="text-sm font-medium text-brand-700 hover:underline"
                     >
                         Limpar filtros
                     </button>
@@ -213,28 +213,28 @@ export function ProductsPage() {
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
             {visibleProducts.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                <p className="empty-state">
                     Nenhum produto encontrado.
                 </p>
             ) : (
                 <>
-                    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white hidden lg:block">
+                    <div className="card hidden overflow-x-auto xl:block">
                         <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="table-head">
                                 <tr>
-                                    <th className="px-4 py-3 font-medium">Produto</th>
-                                    <th className="px-4 py-3 font-medium">Categoria</th>
-                                    <th className="px-4 py-3 text-right font-medium">Preço</th>
-                                    <th className="px-4 py-3 text-right font-medium">Lucro</th>
-                                    <th className="px-4 py-3 text-right font-medium">Estoque</th>
-                                    <th className="px-4 py-3 font-medium">Validade</th>
-                                    <th className="px-4 py-3 text-right font-medium">Ações</th>
+                                    <th className="px-3 py-3 font-medium">Produto</th>
+                                    <th className="px-3 py-3 font-medium">Categoria</th>
+                                    <th className="px-3 py-3 text-right font-medium">Preço</th>
+                                    <th className="px-3 py-3 text-right font-medium">Lucro</th>
+                                    <th className="px-3 py-3 text-right font-medium">Estoque</th>
+                                    <th className="px-3 py-3 font-medium">Validade</th>
+                                    <th className="px-3 py-3 text-right font-medium">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {visibleProducts.map((product) => (
                                     <tr key={product.id} className="hover:bg-slate-50">
-                                        <td className="px-4 py-3">
+                                        <td className="px-3 py-3">
                                             <div className="flex items-center gap-3">
                                                 <ProductThumb
                                                     product={product}
@@ -244,7 +244,7 @@ export function ProductsPage() {
                                                     <button
                                                         type="button"
                                                         onClick={() => setSummaryProductId(product.id)}
-                                                        className="text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                                                        className="min-w-[9rem] text-left font-medium text-slate-900 hover:text-brand-700 hover:underline"
                                                     >
                                                         {product.name}
                                                     </button>
@@ -256,20 +256,20 @@ export function ProductsPage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-slate-600">
+                                        <td className="px-3 py-3 text-slate-600">
                                             {product.category.name}
                                         </td>
-                                        <td className="px-4 py-3 text-right text-slate-900">
+                                        <td className="px-3 py-3 text-right text-slate-900">
                                             {formatCurrency(product.price)}
                                         </td>
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="px-3 py-3 text-right">
                                             <ProfitValue value={product.unit_profit} />
                                         </td>
-                                        <td className="whitespace-nowrap px-4 py-3 text-right">
+                                        <td className="whitespace-nowrap px-3 py-3 text-right">
                                             <span className="font-medium text-slate-900">
                                                 {product.stock_quantity}
                                             </span>
-                                            <span className="text-slate-400">
+                                            <span className="text-slate-500">
                                                 {" "}
                                                 / mín. {product.minimum_stock}
                                             </span>
@@ -278,7 +278,7 @@ export function ProductsPage() {
                                                 minimum={product.minimum_stock}
                                             />
                                         </td>
-                                        <td className="whitespace-nowrap px-4 py-3 text-slate-600">
+                                        <td className="whitespace-nowrap px-3 py-3 text-slate-600">
                                             {product.expiration_date ? (
                                                 <>
                                                     {formatDate(product.expiration_date)}
@@ -288,8 +288,8 @@ export function ProductsPage() {
                                                 "—"
                                             )}
                                         </td>
-                                        <td className="whitespace-nowrap px-4 py-3">
-                                            <div className="flex justify-end gap-4 text-sm font-medium">
+                                        <td className="whitespace-nowrap px-3 py-3">
+                                            <div className="flex justify-end gap-3 text-sm font-medium">
                                                 <button
                                                     onClick={() => setLotsProductId(product.id)}
                                                     className="text-slate-600 hover:text-slate-900"
@@ -298,13 +298,13 @@ export function ProductsPage() {
                                                 </button>
                                                 <button
                                                     onClick={() => openEdit(product)}
-                                                    className="text-brand-600 hover:text-brand-700"
+                                                    className="font-medium text-brand-700 hover:text-brand-800"
                                                 >
                                                     Editar
                                                 </button>
                                                 <button
                                                     onClick={() => requestDelete(product)}
-                                                    className="text-red-600 hover:text-red-800"
+                                                    className="font-medium text-red-600 hover:text-red-800"
                                                 >
                                                     Excluir
                                                 </button>
@@ -316,11 +316,11 @@ export function ProductsPage() {
                         </table>
                     </div>
 
-                    <ul className="space-y-3 lg:hidden">
+                    <ul className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:hidden">
                         {visibleProducts.map((product) => (
                             <li
                                 key={product.id}
-                                className="rounded-lg border border-slate-200 bg-white p-4"
+                                className="card flex flex-col p-4"
                             >
                                 <div className="flex items-start gap-3">
                                     <ProductThumb
@@ -337,23 +337,22 @@ export function ProductsPage() {
                                         </button>
                                         <p className="text-sm text-slate-500">
                                             {product.category.name}
-                                            {product.size ? ` .${product.size}` : ""}
+                                            {product.size ? ` · ${product.size}` : ""}
                                         </p>
                                     </div>
-                                    <p className="whitespace-nowrap font-medium text-slate-900">
+                                    <p className="whitespace-nowrap font-semibold tabular-nums text-slate-900">
                                         {formatCurrency(product.price)}
                                     </p>
                                 </div>
 
-                                <dl className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3 text-sm">
+                                <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-slate-100 pt-3 text-sm">
                                     <div>
-                                        <dt className="text-xs uppercase tracking-wide text-slate-400">
+                                        <dt className="text-xs font-medium text-slate-500">
                                             Estoque
                                         </dt>
-                                        <dd className="mt-0.5 text-slate-900">
-                                            {product.stock_quantity}
-                                            <span className="text-slate-400">
-                                                {" "}
+                                        <dd className="mt-0.5 flex flex-wrap items-center gap-y-1 text-slate-900">
+                                            <span className="font-semibold">{product.stock_quantity}</span>
+                                            <span className="ml-1 text-slate-500">
                                                 / mín. {product.minimum_stock}
                                             </span>
                                             <StockBadge
@@ -363,18 +362,18 @@ export function ProductsPage() {
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt className="text-xs uppercase tracking-wide text-slate-400">
+                                        <dt className="text-xs font-medium text-slate-500">
+                                            Lucro por unidade
+                                        </dt>
+                                        <dd className="mt-0.5 font-medium">
+                                            <ProfitValue value={product.unit_profit} />
+                                        </dd>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <dt className="text-xs font-medium text-slate-500">
                                             Validade
                                         </dt>
-                                        <div>
-                                            <dt className="text-xs uppercase tracking-wide text-slate-400">
-                                                Lucro por unidade
-                                            </dt>
-                                            <dd className="mt-0.05">
-                                                <ProfitValue value={product.unit_profit} />
-                                            </dd>
-                                        </div>
-                                        <dd className="mt-0.5 text-slate-900">
+                                        <dd className="mt-0.5 flex flex-wrap items-center gap-y-1 text-slate-900">
                                             {product.expiration_date ? (
                                                 <>
                                                     {formatDate(product.expiration_date)}
@@ -383,34 +382,34 @@ export function ProductsPage() {
                                                     />
                                                 </>
                                             ) : (
-                                                "—"
+                                                <span className="text-slate-500">Sem validade</span>
                                             )}
                                         </dd>
                                     </div>
                                 </dl>
 
-                                <div className="grid-cols-2">
+                                <div className="mt-auto grid grid-cols-2 gap-2 pt-4 sm:grid-cols-4 md:grid-cols-2">
                                     <button
                                         onClick={() => setLotsProductId(product.id)}
-                                        className="rounded border border-slate-300 py-2.5 text-slate-700 hover: bg-slate-50"
+                                        className="btn btn-secondary"
                                     >
                                         Lotes
                                     </button>
                                     <Link
                                         to={`/stock-movements?product_id=${product.id}`}
-                                        className="rounded border border-slate-300 py-2.5 text-center text-slate-700 hover:bg-slate-50"
+                                        className="btn btn-secondary"
                                     >
                                         Movimentar
                                     </Link>
                                     <button
                                         onClick={() => openEdit(product)}
-                                        className="rounded border border-slate-300 py-2.5 text-brand-700 hover:bg-slate-50"
+                                        className="btn btn-secondary text-brand-700"
                                     >
                                         Editar
                                     </button>
                                     <button
                                         onClick={() => requestDelete(product)}
-                                        className="rounded border border-red-200 py-2.5 text-red-600 hover:bg-red-50"
+                                        className="btn btn-danger-outline"
                                     >
                                         Excluir
                                     </button>
@@ -439,7 +438,7 @@ export function ProductsPage() {
                     <img
                         src={previewSrc}
                         alt={previewProduct?.name}
-                        className="mx-auto max-h-[70vh] rounded object-contain"
+                        className="mx-auto max-h-[70vh] rounded-lg object-contain"
                     />
                 )}
             </Modal>
@@ -487,4 +486,4 @@ export function ProductsPage() {
             <Notice message={notice} />
         </div>
     )
-}
+}

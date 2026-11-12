@@ -11,8 +11,8 @@ interface PackagingPurchaseModalProps {
     onSaved: (message: string) => void
 }
 
-const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
-const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+const inputClass = "ui-input w-full"
+const labelClass = "ui-label"
 
 export function PackagingPurchaseModal({
     open,
@@ -84,7 +84,7 @@ export function PackagingPurchaseModal({
                 <div className="space-y-4"> 
                     <p className="text-sm text-slate-700">Confica os valores antes de salvar:</p>
 
-                    <div className="space-y-2 rounded bg-slate-50 p-3 text-sm text-slate-900">
+                    <div className="space-y-2 rounded-lg bg-slate-50 p-3 text-sm text-slate-900">
                         <p className="font-medium">
                             {quantityNumber} embalagens por {formatCurrency(totalNumber)} = {" "}
 
@@ -107,7 +107,7 @@ export function PackagingPurchaseModal({
                             type="button"
                             onClick={() => setStep("form")}
                             disabled={saving}
-                            className="rounded px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                            className="btn btn-ghost"
                         >
                             Voltar
                         </button>
@@ -115,7 +115,7 @@ export function PackagingPurchaseModal({
                             type="button"
                             onClick={save}
                             disabled={saving}
-                            className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                            className="btn btn-primary"
                         >
                             Confirmar compra
                         </button>
@@ -171,13 +171,13 @@ export function PackagingPurchaseModal({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="rounded px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                            className="btn btn-ghost"
                         >
                             Cancelar
                         </button>
                         <button
                             type="submit"
-                            className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                            className="btn btn-primary"
                         >
                             Continuar
                         </button>
@@ -186,4 +186,4 @@ export function PackagingPurchaseModal({
             )}
         </Modal>
     )
-}
+}

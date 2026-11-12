@@ -30,8 +30,8 @@ interface FormState {
     category_id: number
 }
 
-const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
-const labelClass = "mb-1 block text-sm font-medium text-slate-700"
+const inputClass = "ui-input w-full"
+const labelClass = "ui-label"
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"]
@@ -300,7 +300,7 @@ export function ProductFormModal({
                 <div className="sm:col-span-2">
                     <label className={labelClass}>Foto (opicional)</label>
                     <div className="flex items-center gap-4">
-                        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-200 bg-slate-50 text-sx text-slate-400">
+                        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-400">
                             {showImage ? (
                                 <img
                                     src={showImage}
@@ -316,13 +316,13 @@ export function ProductFormModal({
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp"
                                 onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-                                className="block text-sm text-slate-600 file:mr-3 file:rounded file:border-0 file:bg-slate-100 file:px-3 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+                                className="block w-full text-sm text-slate-600 file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-lg file:border file:border-slate-300 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 file:shadow-xs hover:file:bg-slate-50"
                             />
                             {product?.image_url && !removeImage && !imageFile && (
                                 <button
                                     type="button"
                                     onClick={() => setRemoveImage(true)}
-                                    className="text-sm text-red-600 hover:underline"
+                                    className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                                 >
                                     Remover foto atual
                                 </button>
@@ -342,13 +342,13 @@ export function ProductFormModal({
                     <button
                         type="button"
                         onClick={onClose}
-                        className="rounded px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                        className="btn btn-ghost"
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
-                        className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                        className="btn btn-primary"
                     >
                         {product ? "Salvar alterações" : "Adicionar produto"}
                     </button>
@@ -356,4 +356,4 @@ export function ProductFormModal({
             </form>
         </Modal>
     )
-}
+}

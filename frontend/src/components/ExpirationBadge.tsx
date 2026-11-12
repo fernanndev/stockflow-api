@@ -5,7 +5,7 @@ export function ExpirationBadge({ isoDate }: { isoDate: string }) {
 
     if (days < 0) {
         return (
-            <span className="ml-2 rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+            <span className="badge ml-2 bg-red-50 text-red-700 ring-1 ring-red-600/15">
                 Vencido
             </span>
         )
@@ -13,11 +13,11 @@ export function ExpirationBadge({ isoDate }: { isoDate: string }) {
 
     if (days <= EXPIRING_SOON_DAYS) {
         return (
-            <span className="ml-2 rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800">
+            <span className="badge ml-2 bg-amber-50 text-amber-800 ring-1 ring-amber-600/20">
                 {days === 0 ? "Vence hoje": `Vence em ${days} ${days === 1? "dia" : "dias"}`}
             </span>
         )
     }
 
     return null
-}
+}

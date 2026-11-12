@@ -15,7 +15,7 @@ function PackagingThumb({ packaging }: {packaging: Packaging}) {
 
     if (!src) {
         return (
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-slate-100 text-sm font-medium text-slate-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-semibold text-brand-700">
                 {packaging.name.charAt(0).toUpperCase()}
             </div>
         )
@@ -25,7 +25,7 @@ function PackagingThumb({ packaging }: {packaging: Packaging}) {
         <img
             src={src}
             alt={packaging.name}
-            className="h-10 w-10 shrink-0 rounded border border-slate-200 object-cover"
+            className="h-10 w-10 shrink-0 rounded-lg border border-slate-200 object-cover"
         />
     )
 }
@@ -92,10 +92,10 @@ export function PackagingsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                    <h1 className="page-title">
                         Embalagens
                     </h1>
                     <p className="text-sm text-slate-500">
@@ -104,7 +104,7 @@ export function PackagingsPage() {
                 </div>
                 <button
                     onClick={openCreate}
-                    className="whitespace-nowrap rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     + Nova embalagem
                 </button>
@@ -113,14 +113,14 @@ export function PackagingsPage() {
             {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
             {packagings.length === 0? (
-                <p className="rounded-lg border border-dashed border-slate-300 p-10 text-center text-sm text-slate-500">
+                <p className="empty-state">
                     Nenhuma embalagem cadastrada. Crie a primeira em "+ Nova embalagem"
                 </p>
             ): (
                 <>
-                    <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white md:block">
+                    <div className="card hidden overflow-x-auto md:block">
                         <table className="w-full text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                            <thead className="table-head">
                                 <tr>
                                     <th className="px-4 py-3 font-medium">Embalagem</th>
                                     <th className="px-4 py-3 font-medium">Estoque</th>
@@ -159,19 +159,19 @@ export function PackagingsPage() {
                                             <div className="flex justify-end gap-4 text-sm font-medium">
                                                 <button
                                                     onClick={() => setPurchasingPackaging(packaging)}
-                                                    className="text-brand-600 hover:text-brand-700"
+                                                    className="font-medium text-brand-700 hover:text-brand-800"
                                                 >
                                                     Registrar compra
                                                 </button>
                                                 <button
                                                     onClick={() => openEdit(packaging)}
-                                                    className="text-brand-600 hover:text-brand-700"
+                                                    className="font-medium text-brand-700 hover:text-brand-800"
                                                 >
                                                     Editar
                                                 </button>
                                                 <button
                                                     onClick={() => setPackagingToDelete(packaging)}
-                                                    className="text-red-600 hover:text-red-800"
+                                                    className="font-medium text-red-600 hover:text-red-800"
                                                 >
                                                     Excluir
                                                 </button>
@@ -187,7 +187,7 @@ export function PackagingsPage() {
                         {packagings.map((packaging) => (
                             <li
                                 key={packaging.id}
-                                className="rounded-lg border border-slate-200 bg-white p-4"
+                                className="card p-4"
                             >
                                 <div className="flex items-center gap-3">
                                     <PackagingThumb packaging={packaging} />
@@ -209,20 +209,20 @@ export function PackagingsPage() {
                                 <div className="mt-3 space-y-2 text-sm font-medium">
                                     <button
                                         onClick={() => setPurchasingPackaging(packaging)}
-                                        className="w-full rounded bg-brand-600 py-2.5 text-white hover:bg-brand-700"
+                                        className="btn btn-primary w-full"
                                     >
                                         Registrar compra
                                     </button>
                                     <div className="grid grid-cols-2 gap-2">
                                         <button
                                             onClick={() => openEdit(packaging)}
-                                            className="rounded border border-slate-300 py-2.5 text-brand-700 hover:bg-slate50"
+                                            className="btn btn-secondary text-brand-700"
                                         >
                                             Editar
                                         </button>
                                         <button
                                             onClick={() => setPackagingToDelete(packaging)}
-                                            className="rounded border border-red-200 py-2.5 text-red-600 hover:bg-red-50"
+                                            className="btn btn-danger-outline"
                                         >
                                             Excluir
                                         </button>
@@ -274,4 +274,4 @@ export function PackagingsPage() {
             <Notice message={notice} />
         </div>
     )
-}
+}

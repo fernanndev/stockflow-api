@@ -34,7 +34,7 @@ interface KnownCustomer {
     phone: string | null
 }
 
-const inputClass = "w-full rounded border border-slate-300 px-3 py-2 text-sm"
+const inputClass = "ui-input w-full"
 const labelClass = "mb-1 block text-xs font-medium text-slate-500"
 
 function toNumber(value: string): number {
@@ -330,9 +330,9 @@ export function NewSalePage() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="mx-auto max-w-6xl p-4 sm:p-8">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6 flex items-center justify-between gap-3">
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Nova venda</h1>
+                <h1 className="page-title">Nova venda</h1>
                 <Link to="/sales" className="text-sm font-medium text-slate-600 hover:underline">
                     Voltar
                 </Link>
@@ -344,7 +344,7 @@ export function NewSalePage() {
                 <div className="space-y-6 lg:col-span-2">
                     {/* Items */}
                     <section>
-                        <h2 className="mb-2 text-sm font-semibold text-slate-700">Produtos</h2>
+                        <h2 className="mb-3 text-sm font-semibold text-slate-900">Produtos</h2>
 
                         <input
                             type="search"
@@ -355,7 +355,7 @@ export function NewSalePage() {
                         />
 
                         {search && (
-                            <ul className="mt-2 divide-y divide-slate-100 rounded border border-slate-200 bg-white">
+                            <ul className="mt-2 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
                                 {matches.length === 0 && (
                                     <li className="px-3 py-2 text-sm text-slate-500">
                                         Nenhum produto encontrado.
@@ -384,7 +384,7 @@ export function NewSalePage() {
                         )}
 
                         {items.length === 0 ? (
-                            <p className="mt-3 rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                            <p className="empty-state mt-3 p-6">
                                 Busque um produto acima para começar a venda.
                             </p>
                         ) : (
@@ -400,7 +400,7 @@ export function NewSalePage() {
                                     return (
                                         <li
                                             key={line.key}
-                                            className="rounded-lg border border-slate-200 bg-white p-3"
+                                            className="card p-3"
                                         >
                                             <div className="flex items-start justify-between gap-3">
                                                 <div className="min-w-0">
@@ -415,7 +415,7 @@ export function NewSalePage() {
                                                                     variationId: Number(e.target.value),
                                                                 })
                                                             }
-                                                            className="mt-1 rounded border border-slate-300 px-2 py-1 text-sm"
+                                                            className="ui-input mt-1 px-2"
                                                         >
                                                             {line.product.variations.map((variation) => (
                                                                 <option
@@ -436,7 +436,7 @@ export function NewSalePage() {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeItem(line.key)}
-                                                    className="text-sm text-red-600 hover:underline"
+                                                    className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                                                 >
                                                     Remover
                                                 </button>
@@ -505,7 +505,7 @@ export function NewSalePage() {
 
                     {/* Packagings */}
                     <section>
-                        <h2 className="mb-2 text-sm font-semibold text-slate-700">
+                        <h2 className="mb-3 text-sm font-semibold text-slate-900">
                             Embalagens usadas (opcional)
                         </h2>
 
@@ -536,7 +536,7 @@ export function NewSalePage() {
                                     return (
                                         <li
                                             key={line.key}
-                                            className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+                                            className="card flex items-center justify-between gap-3 px-3 py-2"
                                         >
                                             <span className="min-w-0 truncate text-sm text-slate-900">
                                                 {packaging?.name}
@@ -550,13 +550,13 @@ export function NewSalePage() {
                                                     onChange={(e) =>
                                                         updatePackaging(line.key, e.target.value)
                                                     }
-                                                    className="w-20 rounded border border-slate-300 px-2 py-1 text-sm"
+                                                    className="ui-input w-20 px-2"
                                                     aria-label="Quantidade de embalagens"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() => removePackaging(line.key)}
-                                                    className="text-sm text-red-600 hover:underline"
+                                                    className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                                                 >
                                                     Remover
                                                 </button>
@@ -570,7 +570,7 @@ export function NewSalePage() {
 
                     {/* Customer */}
                     <section>
-                        <h2 className="mb-2 text-sm font-semibold text-slate-700">
+                        <h2 className="mb-3 text-sm font-semibold text-slate-900">
                             Cliente (obrigatório se for fiado)
                         </h2>
                         <div className="grid gap-3 sm:grid-cols-2">
@@ -610,7 +610,7 @@ export function NewSalePage() {
                             <button
                                 type="button"
                                 onClick={addPayment}
-                                className="text-sm font-medium text-brand-600 hover:underline"
+                                className="text-sm font-medium text-brand-700 hover:underline"
                             >
                                 + Adicionar pagamento
                             </button>
@@ -656,7 +656,7 @@ export function NewSalePage() {
                                         <button
                                             type="button"
                                             onClick={() => removePayment(line.key)}
-                                            className="text-sm text-red-600 hover:underline"
+                                            className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
                                         >
                                             Remover
                                         </button>
@@ -669,7 +669,7 @@ export function NewSalePage() {
 
                 {/* Summary */}
                 <aside className="lg:col-span-1">
-                    <div className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 lg:sticky lg:top-6">
+                    <div className="card space-y-3 p-4 sm:p-5 lg:sticky lg:top-24">
                         <h2 className="text-sm font-semibold text-slate-700">Resumo</h2>
 
                         <dl className="space-y-1 text-sm">
@@ -729,7 +729,7 @@ export function NewSalePage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="w-full rounded bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-50"
+                            className="btn btn-primary w-full py-2.5"
                         >
                             {saving ? "Registrando..." : "Registrar venda"}
                         </button>
@@ -738,4 +738,4 @@ export function NewSalePage() {
             </div>
         </form>
     )
-}
+}

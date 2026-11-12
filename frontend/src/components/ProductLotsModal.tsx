@@ -20,7 +20,7 @@ interface ProductLotsModalProps {
     onChanged: (message: string) => Promise<void>
 }
 
-const inputClass = "rounded border border-slate-300 px-3 py-2 text-sm"
+const inputClass = "ui-input"
 const smallButtonClass = "text-sm font-medium"
 
 // lots that still have stock, earliest expiration first, no expiration last
@@ -217,7 +217,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                             <button
                                                 type="button"
                                                 onClick={() => startRename(variation)}
-                                                className={`${smallButtonClass} text-brand-600 hover:text-brand-700`}
+                                                className={`${smallButtonClass} font-medium text-brand-700 hover:text-brand-800`}
                                             >
                                                 Renomear
                                             </button>
@@ -225,7 +225,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                                 <button
                                                     type="button"
                                                     onClick={() => setVariationToDelete(variation)}
-                                                    className={`${smallButtonClass} text-red-600 hover:text-red-800`}
+                                                    className={`${smallButtonClass} font-medium text-red-600 hover:text-red-800`}
                                                 >
                                                     Excluir
                                                 </button>
@@ -243,7 +243,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                         <li key={lot.id} className="py-2">
                                             {editingLot?.id === lot.id ? (
                                                 confirmingLot ? (
-                                                    <div className="rounded bg-yellow-50 p-3 text-sm text-yellow-900">
+                                                    <div className="rounded-lg bg-amber-50 p-3 text-sm text-yellow-900">
                                                         <p>
                                                             Quantidade atual{" "}
                                                             <strong>{lot.quantity}</strong> →{" "}
@@ -267,7 +267,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                                                 onClick={() =>
                                                                     saveLot(lot, Number(lotQuantity))
                                                                 }
-                                                                className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+                                                                className="btn btn-primary btn-sm"
                                                             >
                                                                 Confirmar
                                                             </button>
@@ -323,7 +323,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                                             </button>
                                                             <button
                                                                 type="submit"
-                                                                className="rounded bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-700"
+                                                                className="btn btn-primary btn-sm"
                                                             >
                                                                 Salvar
                                                             </button>
@@ -351,7 +351,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                                         <button
                                                             type="button"
                                                             onClick={() => startEditLot(lot)}
-                                                            className={`${smallButtonClass} text-brand-600 hover:text-brand-700`}
+                                                            className={`${smallButtonClass} font-medium text-brand-700 hover:text-brand-800`}
                                                         >
                                                             Corrigir
                                                         </button>
@@ -377,7 +377,7 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                 />
                 <button
                     type="submit"
-                    className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     Adicionar
                 </button>
@@ -394,4 +394,4 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
             />
         </Modal>
     )
-}
+}

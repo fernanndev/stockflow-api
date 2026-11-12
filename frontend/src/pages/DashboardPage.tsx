@@ -40,20 +40,20 @@ export function DashboardPage() {
     }
 
     if (!dashboard) {
-        return <p className="p-4 sm:p-8 text-gray-500">Carregando...</p>
+        return <p className="p-4 sm:p-8 text-slate-500">Carregando...</p>
     }
 
         return (
-        <div className="mx-auto max-w-6xl p-4 sm:p-8">
-            <div className="mb-8 flex items-end justify-between">
+        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-1 sm:mb-8">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    <h1 className="page-title">
                         Visão geral
                     </h1>
-                    <p className="text-sm text-slate-500">O que precisa da sua atenção hoje</p>
+                    <p className="mt-1 text-sm text-slate-500">O que precisa da sua atenção hoje</p>
                 </div>
                 {updatedAt && (
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-slate-500">
                         Atualizado às{" "}
                         {updatedAt.toLocaleTimeString("pt-BR", {
                             hour: "2-digit",
@@ -63,7 +63,7 @@ export function DashboardPage() {
                 )}
             </div>
 
-            <div className="mb-4 grid gap-4 sm:grid-cols-2">
+            <div className="mb-3 grid grid-cols-2 gap-3 sm:mb-4 sm:gap-4">
                 <KpiCard
                     label="Estoque baixo"
                     value={dashboard.low_stock_count}
@@ -84,7 +84,7 @@ export function DashboardPage() {
                 />
             </div>
 
-            <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-8 grid grid-cols-2 gap-3 sm:mb-10 sm:gap-4 lg:grid-cols-4">
                 <KpiCard label="Produtos" value={dashboard.total_products} to="/products" />
                 <KpiCard label="Categorias" value={dashboard.total_categories} to="/categories" />
                 <KpiCard
@@ -104,26 +104,26 @@ export function DashboardPage() {
             <div className="grid gap-8 lg:grid-cols-2">
                 <section>
                     <div className="mb-3 flex items-baseline justify-between">
-                        <h2 className="text-base font-semibold text-slate-900">Estoque baixo</h2>
+                        <h2 className="text-base font-semibold tracking-tight text-slate-900">Estoque baixo</h2>
                         <Link
                             to="/products?status=low_stock"
-                            className="text-sm text-brand-600 hover:underline"
+                            className="text-sm font-medium text-brand-700 hover:underline"
                         >
                             Ver todos
                         </Link>
                     </div>
 
                     {lowStock.length === 0 ? (
-                        <p className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                        <p className="empty-state p-6">
                             Nenhum produto abaixo do mínimo.
                         </p>
                     ) : (
-                        <ul className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white">
+                        <ul className="card divide-y divide-slate-100 overflow-hidden">
                             {lowStock.map((product) => (
                                 <li key={product.id}>
                                     <Link
                                         to={`/products?product_id=${product.id}`}
-                                        className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50"
+                                        className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-slate-50"
                                     >
                                         <div>
                                             <p className="font-medium text-slate-900">
@@ -146,28 +146,28 @@ export function DashboardPage() {
 
                 <section>
                     <div className="mb-3 flex items-baseline justify-between">
-                        <h2 className="text-base font-semibold text-slate-900">
+                        <h2 className="text-base font-semibold tracking-tight text-slate-900">
                             Vencidos ou perto de vencer
                         </h2>
                         <Link
                             to="/products?status=expiring"
-                            className="text-sm text-brand-600 hover:underline"
+                            className="text-sm font-medium text-brand-700 hover:underline"
                         >
                             Ver todos
                         </Link>
                     </div>
 
                     {expiring.length === 0 ? (
-                        <p className="rounded-lg border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                        <p className="empty-state p-6">
                             Nenhum produto vencendo nos próximos {EXPIRING_SOON_DAYS} dias.
                         </p>
                     ) : (
-                        <ul className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white">
+                        <ul className="card divide-y divide-slate-100 overflow-hidden">
                             {expiring.map((product) => (
                                 <li key={product.id}>
                                     <Link
                                         to={`/products?product_id=${product.id}`}
-                                        className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50"
+                                        className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-slate-50"
                                     >
                                         <div>
                                             <p className="font-medium text-slate-900">
@@ -193,4 +193,4 @@ export function DashboardPage() {
             </div>
         </div>
     )
-}
+}

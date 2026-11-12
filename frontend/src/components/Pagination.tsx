@@ -4,7 +4,7 @@ interface PaginationProps {
     onChange: (page: number) => void
 }
 
-const buttonClass = "rounded border border-slate-300 px-3 py-1 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent"
+const buttonClass = "btn btn-secondary btn-sm"
 
 export function Pagination({ page, totalPages, onChange }: PaginationProps) {
     if (totalPages <= 1) return null
@@ -32,4 +32,4 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
             </div>
         </div>
     )
-}
+}

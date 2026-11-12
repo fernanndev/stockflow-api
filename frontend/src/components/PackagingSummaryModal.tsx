@@ -14,7 +14,7 @@ interface PackagingSummaryModalProps {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div>
-            <dt className="text-xs uppercase tracking-wide text-slate-400">{label}</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
             <dd className="mt-0.5 text-sm text-slate-900">{children}</dd>
         </div>
     )
@@ -34,7 +34,7 @@ export function PackagingSummaryModal({
                 <img
                     src={imageSrc}
                     alt={packaging.name}
-                    className="mb-4 max-h-64 w-full rounded bg-slate-50 object-contain"
+                    className="mb-4 max-h-64 w-full rounded-lg bg-slate-50 object-contain"
                 />
             )}
 
@@ -50,18 +50,18 @@ export function PackagingSummaryModal({
                 <button
                     type="button"
                     onClick={onPurchase}
-                    className="rounded border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                    className="btn btn-secondary"
                 >
                     Registrar compra
                 </button>
                 <button
                     type="button"
                     onClick={onEdit}
-                    className="rounded bg-brand-600 px-4 py-2 text-white hover:bg-brand-700"
+                    className="btn btn-primary"
                 >
                     Editar
                 </button>
             </div>
         </Modal>
     )
-}
+}
