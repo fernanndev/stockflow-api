@@ -45,7 +45,7 @@ class SaleRepository:
         """Completed sales that have a customer, oldest first (candidates for open credit.)"""
         query = self._with_children(self.db.query(Sale)).filter(
             Sale.status == SaleStatus.COMPLETED,
-            Sale.customer_name.isnot(None),
+            Sale.customer_id.isnot(None)
         )
 
         return query.order_by(Sale.created_at, Sale.id).all()
@@ -56,4 +56,5 @@ class SaleRepository:
             selectinload(Sale.items),
             selectinload(Sale.packagings),
             selectinload(Sale.payments),
+            selectinload(Sale.customer),
         )

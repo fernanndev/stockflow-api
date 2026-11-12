@@ -10,6 +10,8 @@ from app.repositories.packaging import PackagingRepository
 from app.repositories.product import ProductRepository
 from app.repositories.sale import SaleRepository
 
+from app.services.customer_service import CustomerService
+
 from app.schemas.sale import (
     SaleCreate,
     SaleItemCreate,
@@ -77,26 +79,22 @@ class SaleService:
 
     def open_credits(self) -> list[dict]:
         """Customers who still owe something, biggest debt first."""
-        debts: dict[str, dict] = {}
+        debts: dict[int, dict] = {}
 
-        # oldest first, so the name and phone kept are the most recent ones
         for sale in self.repository.list_with_customer():
             if sale.balance <= 0:
                 continue
 
-            key = sale.customer_phone or sale.customer_name.casefold()
             debt = debts.setdefault(
-                key,
+                sale.customer_id,
                 {
-                    "customer_name": sale.customer_name,
-                    "customer_phone": sale.customer_phone,
+                    "customer_name": sale.customer.name,
+                    "customer_phone": sale.customer.phone,
                     "balance": Decimal(0),
                     "sales": [],
                 },
             )
 
-            debt["customer_name"] = sale.customer_name
-            debt["customer_phone"] = sale.customer_phone or debt["customer_phone"]
             debt["balance"] += sale.balance
             debt["sales"].append(sale)
 
@@ -156,12 +154,12 @@ class SaleService:
         return sale
 
     def _build(self, data: SaleCreate) -> Sale:
+        customer = CustomerService(self.db).find_or_create(
+            data.customer_name, data.customer_phone
+        )
+
         sale = self.repository.create(
-            Sale(
-                customer_name=data.customer_name,
-                customer_phone=data.customer_phone,
-                status=SaleStatus.COMPLETED,
-            )
+            Sale(customer=customer, status=SaleStatus.COMPLETED)
         )
 
         for item in data.items:
@@ -248,5 +246,5 @@ class SaleService:
             raise ValueError("The payments are higher than the sale total.")
 
         # not fully paid = credit ("fiado"): we must know who owes
-        if paid < total and not sale.customer_name:
+        if paid < total and sale.customer is None:
             raise ValueError("Inform the customer: the sale is not fully paid.")

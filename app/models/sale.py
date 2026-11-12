@@ -23,8 +23,10 @@ class PaymentMethod(str, enum.Enum):
 class Sale(BaseModel):
     __tablename__ = "sales"
 
-    customer_name: Mapped[str | None] = mapped_column(String(150))
-    customer_phone: Mapped[str | None] = mapped_column(String(20))
+    customer_id: Mapped[int | None] = mapped_column(
+        ForeignKey("customers.id", ondelete="RESTRICT"), index=True
+    )
+    customer: Mapped["Customer | None"] = relationship()
     status: Mapped[SaleStatus] = mapped_column(
         Enum(SaleStatus, native_enum=False, length=20), default=SaleStatus.COMPLETED
     )
@@ -59,6 +61,15 @@ class Sale(BaseModel):
     def balance(self) -> Decimal:
         # what the customer still owes: zero (or less) means the sale is settled
         return self.total - self.paid_amount
+
+    # the name and phone live on the customer: one place to edit, every sale follows
+    @property
+    def customer_name(self) -> str | None:
+        return self.customer.name if self.customer else None
+
+    @property
+    def customer_phone(self) -> str | None:
+        return self.customer.phone if self.customer else None
 
 
 class SaleItem(BaseModel):
