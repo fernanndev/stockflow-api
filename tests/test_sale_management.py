@@ -251,7 +251,7 @@ def test_open_credits_are_grouped_by_customer(client, auth_headers):
     body = response.json()
     assert response.status_code == 200
     assert [(debt["customer_name"], debt["balance"]) for debt in body] == [
-        ("Ana Silva", 180.0),
+        ("Ana", 180.0),
         ("Bruno", 100.0),
     ]
     assert body[0]["customer_phone"] == "11912345678"
