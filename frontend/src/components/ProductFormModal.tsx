@@ -187,7 +187,7 @@ export function ProductFormModal({
                 <div>
                     <label className={labelClass}>Nome</label>
                     <input 
-                        type="next"
+                        type="text"
                         value={form.name}
                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                         required
@@ -238,7 +238,7 @@ export function ProductFormModal({
                 </div>
 
                 <div>
-                    <label className={labelClass}>Custo (opicional)</label>
+                    <label className={labelClass}>Custo (opcional)</label>
                     <input
                         type="number"
                         step="0.01"
@@ -298,7 +298,7 @@ export function ProductFormModal({
                 )}
 
                 <div className="sm:col-span-2">
-                    <label className={labelClass}>Foto (opicional)</label>
+                    <label className={labelClass}>Foto (opcional)</label>
                     <div className="flex items-center gap-4">
                         <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-400">
                             {showImage ? (
@@ -356,4 +356,4 @@ export function ProductFormModal({
             </form>
         </Modal>
     )
-}
+}
