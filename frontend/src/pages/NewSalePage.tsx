@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom"
 import { getPackagings } from "../api/packagings"
 import { getProducts } from "../api/products"
 import { createSale, getSales } from "../api/sales"
+import { Pagination } from "../components/Pagination"
+import { SaleProductCard } from "../components/SaleProductCard"
 import type { Packaging, PaymentMethod, Product } from "../types"
 import { formatCurrency, normalizeText } from "../utils/format"
 import { PAYMENT_METHOD_OPTIONS, formatPhone } from "../utils/sales"
@@ -55,6 +57,16 @@ function defaultVariationId(product: Product): number {
     return (withStock ?? product.variations[0]).id
 }
 
+const PAGE_SIZE = 12
+
+function chipClass(active: boolean): string {
+    return `shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition ${
+        active
+            ? "border-brand-700 bg-brand-700 text-white"
+            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+    }`
+}
+
 export function NewSalePage() {
     const navigate = useNavigate()
     const nextKey = useRef(1)
@@ -65,6 +77,8 @@ export function NewSalePage() {
     const [loadError, setLoadError] = useState<string | null>(null)
 
     const [search, setSearch] = useState("")
+    const [categoryId, setCategoryId] = useState<number | null>(null)
+    const [page, setPage] = useState(1)
     const [items, setItems] = useState<ItemLine[]>([])
     const [usedPackagings, setUsedPackagings] = useState<PackagingLine[]>([])
     const [payments, setPayments] = useState<PaymentLine[]>([])
@@ -132,21 +146,49 @@ export function NewSalePage() {
     const costCents = itemsCostCents + packagingsCostCents
     const profitCents = totalCents - costCents
 
-    // ---- products ----
-    const matches = search
-        ? products
-              .filter((product) => normalizeText(product.name).includes(normalizeText(search)))
-              .slice(0, 8)
-        : []
+   // ---- products ----
+   const categories = [
+        ...new Map(products.map((p) => [p.category.id, p.category] as const)).values(),
+   ].sort((a, b) => a.name.localeCompare(b.name))
 
-    function addProduct(product: Product) {
-        const variationId = defaultVariationId(product)
+   const filteredProducts = products
+        .filter((product) => categoryId === null || product.category.id === categoryId)
+        .filter((product) => normalizeText(product.name).includes(normalizeText(search)))
+        // products without stock got to the end
+        .sort((a, b) => Number(b.stock_quantity > 0) - Number(a.stock_quantity > 0))
+
+    const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE))
+    const currentPage = Math.min(page, totalPages)
+    const visibleProducts = filteredProducts.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE,
+    )
+
+    // units of each variation already in the sale (the cards use it to respect the stock)
+    const inSale = new Map<number, number>()
+
+    for (const line of items) {
+        inSale.set(line.variationId, (inSale.get(line.variationId) ?? 0) + toQuantity(line.quantity))
+    }
+
+    function changeSearch(value: string) {
+        setSearch(value)
+        setPage(1)
+    }
+
+    function changeCategory(id: number | null) {
+        setCategoryId(id)
+        setPage(1)
+    }
+
+    function addProduct(product: Product, variationId: number = defaultVariationId(product)) {
         const existing = items.find(
             (line) => line.product.id === product.id && line.variationId === variationId,
         )
 
         if (existing) {
-            updateItem(existing.key, { quantity: String(toQuantity(existing.quantity) + 1) })
+            updateItem(existing.key, { quantity: String(toQuantity(existing.quantity) + 1) 
+            })
         } else {
             setItems((current) => [
                 ...current,
@@ -160,8 +202,6 @@ export function NewSalePage() {
                 },
             ])
         }
-
-        setSearch("")
     }
 
     function updateItem(key: number, patch: Partial<ItemLine>) {
@@ -343,48 +383,59 @@ export function NewSalePage() {
             {loadError && <p className="mb-4 text-sm text-red-600">{loadError}</p>}
 
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
-                {/* Left: find products (the card grid replaces this in the next step) */}
+                {/* Left: product catalog */}
                 <section className="min-w-0">
                     <input
                         type="search"
                         placeholder="Buscar produto pelo nome"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => changeSearch(e.target.value)}
                         className={inputClass}
                     />
 
-                    {search ? (
-                        <ul className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                            {matches.length === 0 && (
-                                <li className="px-3 py-3 text-sm text-slate-500">
-                                    Nenhum produto encontrado.
-                                </li>
-                            )}
-                            {matches.map((product) => (
-                                <li key={product.id}>
-                                    <button
-                                        type="button"
-                                        disabled={product.stock_quantity <= 0}
-                                        onClick={() => addProduct(product)}
-                                        className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                    >
-                                        <span className="min-w-0 truncate font-medium text-slate-900">
-                                            {product.name}
-                                        </span>
-                                        <span className="shrink-0 text-xs text-slate-500">
-                                            {product.stock_quantity > 0
-                                                ? `${product.stock_quantity} em estoque · ${formatCurrency(product.price)}`
-                                                : "sem estoque"}
-                                        </span>
-                                    </button>
+                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        <button
+                            type="button"
+                            onClick={() => changeCategory(null)}
+                            className={chipClass(categoryId === null)}
+                        >
+                            Todos
+                        </button>
+                        {categories.map((category) => (
+                            <button
+                                key={category.id}
+                                type="button"
+                                onClick={() => changeCategory(category.id)}
+                                className={chipClass(categoryId === category.id)}
+                            >
+                                {category.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    <p className="mt-3 text-xs text-slate-500">
+                        {filteredProducts.length}{" "}
+                        {filteredProducts.length === 1 ? "produto" : "produtos"} · toque para
+                        adicionar à venda
+                    </p>
+
+                    {filteredProducts.length === 0 ? (
+                        <p className="empty-state mt-3">Nenhum produto encontrado.</p>
+                    ) : (
+                        <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4">
+                            {visibleProducts.map((product) => (
+                                <li key={product.id} className="flex">
+                                    <SaleProductCard
+                                        product={product}
+                                        inSale={inSale}
+                                        onAdd={addProduct}
+                                    />
                                 </li>
                             ))}
                         </ul>
-                    ) : (
-                        <p className="empty-state mt-3">
-                            Busque um produto acima para adicionar à venda.
-                        </p>
                     )}
+
+                    <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
                 </section>
 
                 {/* Right: the current sale */}

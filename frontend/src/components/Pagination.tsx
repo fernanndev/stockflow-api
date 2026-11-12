@@ -16,6 +16,7 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
             </span>
             <div className="flex gap-2">
                 <button
+                    type="button"
                     onClick={() => onChange(page - 1)}
                     disabled={page === 1}
                     className={buttonClass}
@@ -23,6 +24,7 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
                     Anterior
                 </button>
                 <button
+                    type="button"
                     onClick={() => onChange(page + 1)}
                     disabled={page === totalPages}
                     className={buttonClass}
@@ -32,4 +34,4 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
             </div>
         </div>
     )
-}
+}
