@@ -190,3 +190,29 @@ def test_a_customer_without_sales_can_be_deleted(client, auth_headers):
 
     assert response.status_code == 204
     assert list_customers(client, auth_headers) == []
+
+def test_a_sale_can_use_a_registered_customer_by_id(client, auth_headers, engine):
+    product = make_product(client, auth_headers)
+    created = client.post(
+        "/customers/", json={"name": "Bia", "phone": "11912345678"}, headers=auth_headers
+    ).json()
+
+    response = sell(client, auth_headers, product, customer_id=created["id"])
+
+    assert response.status_code == 201
+    assert response.json()["customer_name"] == "Bia"
+    assert response.json()["customer_phone"] == "11912345678"
+    assert response.json()["balance"] == 100.0
+    # no duplicate customer was created
+    assert all_customers(engine) == [("Bia", "11912345678")]
+
+
+def test_a_sale_with_an_unknown_customer_id_changes_nothing(client, auth_headers):
+    product = make_product(client, auth_headers)
+
+    response = sell(
+        client, auth_headers, product, customer_id=9999, payments=[pay(100.0)]
+    )
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Customer not found."

@@ -25,6 +25,7 @@ class SalePaymentCreate(BaseModel):
 
 
 class SaleCreate(BaseModel):
+    customer_id: int | None = None
     customer_name: str | None = Field(default=None, max_length=150)
     customer_phone: str | None = Field(default=None, max_length=30)
     items: list[SaleItemCreate] = Field(min_length=1)

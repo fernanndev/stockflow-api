@@ -40,6 +40,13 @@ class CustomerService:
 
         return None
 
+    def for_sale(self, customer_id: int | None, name: str | None, phone: str | None) -> Customer | None:
+        """A registered customer (by id) wins; otherwise name/phone are looked up"""
+        if customer_id is not None:
+            return self._get(customer_id)
+
+        return self.find_or_create(name, phone)
+
     def create(self, data: CustomerCreate) -> dict:
         self._check_unique(data.name, data.phone, None)
 

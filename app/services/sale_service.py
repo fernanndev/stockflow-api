@@ -154,8 +154,8 @@ class SaleService:
         return sale
 
     def _build(self, data: SaleCreate) -> Sale:
-        customer = CustomerService(self.db).find_or_create(
-            data.customer_name, data.customer_phone
+        customer = CustomerService(self.db).for_sale(
+            data.customer_id, data.customer_name, data.customer_phone
         )
 
         sale = self.repository.create(
