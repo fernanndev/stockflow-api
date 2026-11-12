@@ -329,413 +329,454 @@ export function NewSalePage() {
         }
     }
 
+    const itemCount = items.reduce((sum, line) => sum + toQuantity(line.quantity), 0)
+
     return (
-        <form onSubmit={handleSubmit} className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
-            <div className="mb-6 flex items-center justify-between gap-3">
-                <h1 className="page-title">Nova venda</h1>
-                <Link to="/sales" className="text-sm font-medium text-slate-600 hover:underline">
-                    Voltar
+        <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
+            <div className="mb-6">
+                <Link to="/sales" className="text-sm text-slate-500 hover:underline">
+                    ← Vendas
                 </Link>
+                <h1 className="page-title">Nova venda</h1>
             </div>
 
             {loadError && <p className="mb-4 text-sm text-red-600">{loadError}</p>}
 
-            <div className="grid gap-6 lg:grid-cols-3">
-                <div className="space-y-6 lg:col-span-2">
-                    {/* Items */}
-                    <section>
-                        <h2 className="mb-3 text-sm font-semibold text-slate-900">Produtos</h2>
+            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+                {/* Left: find products (the card grid replaces this in the next step) */}
+                <section className="min-w-0">
+                    <input
+                        type="search"
+                        placeholder="Buscar produto pelo nome"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className={inputClass}
+                    />
 
-                        <input
-                            type="search"
-                            placeholder="Buscar produto para adicionar"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className={inputClass}
-                        />
+                    {search ? (
+                        <ul className="mt-3 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white">
+                            {matches.length === 0 && (
+                                <li className="px-3 py-3 text-sm text-slate-500">
+                                    Nenhum produto encontrado.
+                                </li>
+                            )}
+                            {matches.map((product) => (
+                                <li key={product.id}>
+                                    <button
+                                        type="button"
+                                        disabled={product.stock_quantity <= 0}
+                                        onClick={() => addProduct(product)}
+                                        className="flex w-full items-center justify-between gap-3 px-3 py-3 text-left text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <span className="min-w-0 truncate font-medium text-slate-900">
+                                            {product.name}
+                                        </span>
+                                        <span className="shrink-0 text-xs text-slate-500">
+                                            {product.stock_quantity > 0
+                                                ? `${product.stock_quantity} em estoque · ${formatCurrency(product.price)}`
+                                                : "sem estoque"}
+                                        </span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="empty-state mt-3">
+                            Busque um produto acima para adicionar à venda.
+                        </p>
+                    )}
+                </section>
 
-                        {search && (
-                            <ul className="mt-2 divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
-                                {matches.length === 0 && (
-                                    <li className="px-3 py-2 text-sm text-slate-500">
-                                        Nenhum produto encontrado.
-                                    </li>
-                                )}
-                                {matches.map((product) => (
-                                    <li key={product.id}>
-                                        <button
-                                            type="button"
-                                            disabled={product.stock_quantity <= 0}
-                                            onClick={() => addProduct(product)}
-                                            className="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-                                        >
-                                            <span className="min-w-0 truncate font-medium text-slate-900">
-                                                {product.name}
-                                            </span>
-                                            <span className="shrink-0 text-xs text-slate-500">
-                                                {product.stock_quantity > 0
-                                                    ? `${product.stock_quantity} em estoque · ${formatCurrency(product.price)}`
-                                                    : "sem estoque"}
-                                            </span>
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                {/* Right: the current sale */}
+                <aside className="lg:sticky lg:top-20">
+                    <div className="card flex flex-col lg:max-h-[calc(100vh-6.5rem)]">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                            <h2 className="text-base font-semibold text-slate-900">Venda atual</h2>
+                            <span className="badge bg-brand-50 text-brand-700">
+                                {itemCount} {itemCount === 1 ? "item" : "itens"}
+                            </span>
+                        </div>
 
-                        {items.length === 0 ? (
-                            <p className="empty-state mt-3 p-6">
-                                Busque um produto acima para começar a venda.
-                            </p>
-                        ) : (
-                            <ul className="mt-3 space-y-3">
-                                {items.map((line) => {
-                                    const stock = stockOf(line)
-                                    const lineTotal = line.isGift
-                                        ? 0
-                                        : (toCents(toNumber(line.unitPrice)) *
-                                              toQuantity(line.quantity)) /
-                                          100
+                        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
+                            {/* Items */}
+                            <section>
+                                {items.length === 0 ? (
+                                    <p className="py-4 text-center text-sm text-slate-500">
+                                        Nenhum produto adicionado.
+                                    </p>
+                                ) : (
+                                    <ul className="space-y-3">
+                                        {items.map((line) => {
+                                            const stock = stockOf(line)
+                                            const lineTotal = line.isGift
+                                                ? 0
+                                                : (toCents(toNumber(line.unitPrice)) *
+                                                      toQuantity(line.quantity)) /
+                                                  100
 
-                                    return (
-                                        <li
-                                            key={line.key}
-                                            className="card p-3"
-                                        >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <p className="font-medium text-slate-900">
-                                                        {line.product.name}
-                                                    </p>
-                                                    {line.product.variations.length > 1 ? (
-                                                        <select
-                                                            value={line.variationId}
-                                                            onChange={(e) =>
-                                                                updateItem(line.key, {
-                                                                    variationId: Number(e.target.value),
-                                                                })
-                                                            }
-                                                            className="ui-input mt-1 px-2"
-                                                        >
-                                                            {line.product.variations.map((variation) => (
-                                                                <option
-                                                                    key={variation.id}
-                                                                    value={variation.id}
+                                            return (
+                                                <li
+                                                    key={line.key}
+                                                    className="rounded-lg border border-slate-200 p-3"
+                                                >
+                                                    <div className="flex items-start justify-between gap-3">
+                                                        <div className="min-w-0">
+                                                            <p className="font-medium text-slate-900">
+                                                                {line.product.name}
+                                                            </p>
+                                                            {line.product.variations.length > 1 ? (
+                                                                <select
+                                                                    value={line.variationId}
+                                                                    onChange={(e) =>
+                                                                        updateItem(line.key, {
+                                                                            variationId: Number(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        })
+                                                                    }
+                                                                    className="ui-input mt-1 px-2"
                                                                 >
-                                                                    {variation.name} (
-                                                                    {variation.stock_quantity})
-                                                                </option>
-                                                            ))}
-                                                        </select>
-                                                    ) : (
-                                                        <p className="text-xs text-slate-500">
-                                                            {stock} em estoque
+                                                                    {line.product.variations.map(
+                                                                        (variation) => (
+                                                                            <option
+                                                                                key={variation.id}
+                                                                                value={variation.id}
+                                                                            >
+                                                                                {variation.name} (
+                                                                                {variation.stock_quantity}
+                                                                                )
+                                                                            </option>
+                                                                        ),
+                                                                    )}
+                                                                </select>
+                                                            ) : (
+                                                                <p className="text-xs text-slate-500">
+                                                                    {stock} em estoque
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeItem(line.key)}
+                                                            className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                        >
+                                                            Remover
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="mt-3 grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <label className={labelClass}>
+                                                                Quantidade
+                                                            </label>
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                step="1"
+                                                                value={line.quantity}
+                                                                onChange={(e) =>
+                                                                    updateItem(line.key, {
+                                                                        quantity: e.target.value,
+                                                                    })
+                                                                }
+                                                                className={inputClass}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label className={labelClass}>
+                                                                Preço unitário
+                                                            </label>
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                step="0.01"
+                                                                value={line.unitPrice}
+                                                                disabled={line.isGift}
+                                                                onChange={(e) =>
+                                                                    updateItem(line.key, {
+                                                                        unitPrice: e.target.value,
+                                                                    })
+                                                                }
+                                                                className={inputClass}
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-3 flex items-center justify-between">
+                                                        <label className="flex items-center gap-2 text-sm text-slate-700">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={line.isGift}
+                                                                onChange={(e) =>
+                                                                    updateItem(line.key, {
+                                                                        isGift: e.target.checked,
+                                                                    })
+                                                                }
+                                                            />
+                                                            Brinde
+                                                        </label>
+                                                        <p className="text-sm font-semibold tabular-nums text-slate-900">
+                                                            {formatCurrency(lineTotal)}
+                                                        </p>
+                                                    </div>
+
+                                                    {toQuantity(line.quantity) > stock && (
+                                                        <p className="mt-2 text-xs text-red-600">
+                                                            Só há {stock} em estoque.
                                                         </p>
                                                     )}
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeItem(line.key)}
-                                                    className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                                                >
-                                                    Remover
-                                                </button>
-                                            </div>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                )}
+                            </section>
 
-                                            <div className="mt-3 grid grid-cols-2 items-end gap-3 sm:grid-cols-4">
-                                                <div>
-                                                    <label className={labelClass}>Quantidade</label>
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        step="1"
-                                                        value={line.quantity}
-                                                        onChange={(e) =>
-                                                            updateItem(line.key, {
-                                                                quantity: e.target.value,
-                                                            })
-                                                        }
-                                                        className={inputClass}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className={labelClass}>Preço unitário</label>
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.01"
-                                                        value={line.unitPrice}
-                                                        disabled={line.isGift}
-                                                        onChange={(e) =>
-                                                            updateItem(line.key, {
-                                                                unitPrice: e.target.value,
-                                                            })
-                                                        }
-                                                        className={`${inputClass} disabled:bg-slate-100 disabled:text-slate-400`}
-                                                    />
-                                                </div>
-                                                <label className="flex items-center gap-2 pb-2 text-sm text-slate-700">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={line.isGift}
-                                                        onChange={(e) =>
-                                                            updateItem(line.key, {
-                                                                isGift: e.target.checked,
-                                                            })
-                                                        }
-                                                    />
-                                                    Brinde
-                                                </label>
-                                                <p className="pb-2 text-right text-sm font-semibold tabular-nums text-slate-900">
-                                                    {formatCurrency(lineTotal)}
-                                                </p>
-                                            </div>
+                            {/* Packagings */}
+                            <section>
+                                <h3 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                                    Embalagens usadas (opcional)
+                                </h3>
 
-                                            {toQuantity(line.quantity) > stock && (
-                                                <p className="mt-2 text-xs text-red-600">
-                                                    Só há {stock} em estoque.
-                                                </p>
-                                            )}
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        )}
-                    </section>
-
-                    {/* Packagings */}
-                    <section>
-                        <h2 className="mb-3 text-sm font-semibold text-slate-900">
-                            Embalagens usadas (opcional)
-                        </h2>
-
-                        <select
-                            value=""
-                            onChange={(e) => {
-                                if (e.target.value) addPackaging(Number(e.target.value))
-                            }}
-                            className={inputClass}
-                        >
-                            <option value="">Adicionar embalagem...</option>
-                            {packagings.map((packaging) => (
-                                <option
-                                    key={packaging.id}
-                                    value={packaging.id}
-                                    disabled={packaging.stock_quantity <= 0}
+                                <select
+                                    value=""
+                                    onChange={(e) => {
+                                        if (e.target.value) addPackaging(Number(e.target.value))
+                                    }}
+                                    className={inputClass}
                                 >
-                                    {packaging.name} ({packaging.stock_quantity} em estoque)
-                                </option>
-                            ))}
-                        </select>
-
-                        {usedPackagings.length > 0 && (
-                            <ul className="mt-3 space-y-2">
-                                {usedPackagings.map((line) => {
-                                    const packaging = packagings.find((p) => p.id === line.packagingId)
-
-                                    return (
-                                        <li
-                                            key={line.key}
-                                            className="card flex items-center justify-between gap-3 px-3 py-2"
+                                    <option value="">Adicionar embalagem...</option>
+                                    {packagings.map((packaging) => (
+                                        <option
+                                            key={packaging.id}
+                                            value={packaging.id}
+                                            disabled={packaging.stock_quantity <= 0}
                                         >
-                                            <span className="min-w-0 truncate text-sm text-slate-900">
-                                                {packaging?.name}
-                                            </span>
-                                            <div className="flex shrink-0 items-center gap-3">
+                                            {packaging.name} ({packaging.stock_quantity} em estoque)
+                                        </option>
+                                    ))}
+                                </select>
+
+                                {usedPackagings.length > 0 && (
+                                    <ul className="mt-3 space-y-2">
+                                        {usedPackagings.map((line) => {
+                                            const packaging = packagings.find(
+                                                (p) => p.id === line.packagingId,
+                                            )
+
+                                            return (
+                                                <li
+                                                    key={line.key}
+                                                    className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2"
+                                                >
+                                                    <span className="min-w-0 truncate text-sm text-slate-900">
+                                                        {packaging?.name}
+                                                    </span>
+                                                    <div className="flex shrink-0 items-center gap-2">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            step="1"
+                                                            value={line.quantity}
+                                                            onChange={(e) =>
+                                                                updatePackaging(
+                                                                    line.key,
+                                                                    e.target.value,
+                                                                )
+                                                            }
+                                                            className="ui-input w-16 px-2"
+                                                            aria-label="Quantidade de embalagens"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removePackaging(line.key)}
+                                                            className="rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                        >
+                                                            Remover
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                            )
+                                        })}
+                                    </ul>
+                                )}
+                            </section>
+
+                            {/* Customer */}
+                            <section>
+                                <h3 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                                    Cliente (obrigatório se for fiado)
+                                </h3>
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className={labelClass}>Nome</label>
+                                        <input
+                                            type="text"
+                                            list="known-customers"
+                                            value={customerName}
+                                            onChange={(e) => handleCustomerName(e.target.value)}
+                                            maxLength={150}
+                                            className={inputClass}
+                                        />
+                                        <datalist id="known-customers">
+                                            {customers.map((customer) => (
+                                                <option key={customer.name} value={customer.name} />
+                                            ))}
+                                        </datalist>
+                                    </div>
+                                    <div>
+                                        <label className={labelClass}>Telefone (WhatsApp)</label>
+                                        <input
+                                            type="tel"
+                                            value={customerPhone}
+                                            onChange={(e) => setCustomerPhone(e.target.value)}
+                                            placeholder="(11) 91234-5678"
+                                            className={inputClass}
+                                        />
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Payments */}
+                            <section>
+                                <div className="mb-2 flex items-center justify-between">
+                                    <h3 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                                        Pagamento
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        onClick={addPayment}
+                                        className="text-sm font-medium text-brand-700 hover:underline"
+                                    >
+                                        + Adicionar
+                                    </button>
+                                </div>
+
+                                {payments.length === 0 ? (
+                                    <p className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-sm text-slate-500">
+                                        Nenhum pagamento: a venda inteira fica como fiado.
+                                    </p>
+                                ) : (
+                                    <ul className="space-y-2">
+                                        {payments.map((line) => (
+                                            <li
+                                                key={line.key}
+                                                className="grid grid-cols-[1fr_1fr_auto] items-center gap-2"
+                                            >
+                                                <select
+                                                    value={line.method}
+                                                    onChange={(e) =>
+                                                        updatePayment(line.key, {
+                                                            method: e.target.value as PaymentMethod,
+                                                        })
+                                                    }
+                                                    className={inputClass}
+                                                >
+                                                    {PAYMENT_METHOD_OPTIONS.map(([value, label]) => (
+                                                        <option key={value} value={value}>
+                                                            {label}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                                 <input
                                                     type="number"
-                                                    min="1"
-                                                    step="1"
-                                                    value={line.quantity}
+                                                    min="0.01"
+                                                    step="0.01"
+                                                    value={line.amount}
                                                     onChange={(e) =>
-                                                        updatePackaging(line.key, e.target.value)
+                                                        updatePayment(line.key, {
+                                                            amount: e.target.value,
+                                                        })
                                                     }
-                                                    className="ui-input w-20 px-2"
-                                                    aria-label="Quantidade de embalagens"
+                                                    className={inputClass}
+                                                    aria-label="Valor pago"
                                                 />
                                                 <button
                                                     type="button"
-                                                    onClick={() => removePackaging(line.key)}
-                                                    className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
+                                                    onClick={() => removePayment(line.key)}
+                                                    aria-label="Remover pagamento"
+                                                    className="flex h-9 w-9 items-center justify-center rounded-md text-lg text-red-600 transition hover:bg-red-50"
                                                 >
-                                                    Remover
+                                                    ×
                                                 </button>
-                                            </div>
-                                        </li>
-                                    )
-                                })}
-                            </ul>
-                        )}
-                    </section>
-
-                    {/* Customer */}
-                    <section>
-                        <h2 className="mb-3 text-sm font-semibold text-slate-900">
-                            Cliente (obrigatório se for fiado)
-                        </h2>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            <div>
-                                <label className={labelClass}>Nome</label>
-                                <input
-                                    type="text"
-                                    list="known-customers"
-                                    value={customerName}
-                                    onChange={(e) => handleCustomerName(e.target.value)}
-                                    maxLength={150}
-                                    className={inputClass}
-                                />
-                                <datalist id="known-customers">
-                                    {customers.map((customer) => (
-                                        <option key={customer.name} value={customer.name} />
-                                    ))}
-                                </datalist>
-                            </div>
-                            <div>
-                                <label className={labelClass}>Telefone (WhatsApp)</label>
-                                <input
-                                    type="tel"
-                                    value={customerPhone}
-                                    onChange={(e) => setCustomerPhone(e.target.value)}
-                                    placeholder="(11) 91234-5678"
-                                    className={inputClass}
-                                />
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Payments */}
-                    <section>
-                        <div className="mb-2 flex items-center justify-between">
-                            <h2 className="text-sm font-semibold text-slate-700">Pagamento</h2>
-                            <button
-                                type="button"
-                                onClick={addPayment}
-                                className="text-sm font-medium text-brand-700 hover:underline"
-                            >
-                                + Adicionar pagamento
-                            </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </section>
                         </div>
 
-                        {payments.length === 0 ? (
-                            <p className="rounded-lg border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">
-                                Nenhum pagamento: a venda inteira fica como fiado.
-                            </p>
-                        ) : (
-                            <ul className="space-y-2">
-                                {payments.map((line) => (
-                                    <li
-                                        key={line.key}
-                                        className="grid grid-cols-[1fr_1fr_auto] items-center gap-3"
-                                    >
-                                        <select
-                                            value={line.method}
-                                            onChange={(e) =>
-                                                updatePayment(line.key, {
-                                                    method: e.target.value as PaymentMethod,
-                                                })
-                                            }
-                                            className={inputClass}
-                                        >
-                                            {PAYMENT_METHOD_OPTIONS.map(([value, label]) => (
-                                                <option key={value} value={value}>
-                                                    {label}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        <input
-                                            type="number"
-                                            min="0.01"
-                                            step="0.01"
-                                            value={line.amount}
-                                            onChange={(e) =>
-                                                updatePayment(line.key, { amount: e.target.value })
-                                            }
-                                            className={inputClass}
-                                            aria-label="Valor pago"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removePayment(line.key)}
-                                            className="-my-1 rounded-md px-2 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
-                                        >
-                                            Remover
-                                        </button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </section>
-                </div>
-
-                {/* Summary */}
-                <aside className="lg:col-span-1">
-                    <div className="card space-y-3 p-4 sm:p-5 lg:sticky lg:top-24">
-                        <h2 className="text-sm font-semibold text-slate-700">Resumo</h2>
-
-                        <dl className="space-y-1 text-sm">
-                            <div className="flex justify-between">
-                                <dt className="text-slate-500">Total</dt>
-                                <dd className="text-lg font-semibold tabular-nums text-slate-900">
-                                    {formatCurrency(totalCents / 100)}
-                                </dd>
-                            </div>
-                            <div className="flex justify-between">
-                                <dt className="text-slate-500">Pago</dt>
-                                <dd className="font-medium tabular-nums text-slate-900">
-                                    {formatCurrency(paidCents / 100)}
-                                </dd>
-                            </div>
-                            {remainingCents > 0 && (
+                        {/* Summary + finish button, always visible at the bottom of the panel */}
+                        <div className="space-y-3 border-t border-slate-100 p-4">
+                            <dl className="space-y-1 text-sm">
                                 <div className="flex justify-between">
-                                    <dt className="text-slate-500">Falta pagar (fiado)</dt>
-                                    <dd className="font-medium tabular-nums text-amber-700">
-                                        {formatCurrency(remainingCents / 100)}
+                                    <dt className="text-slate-500">Custo</dt>
+                                    <dd className="tabular-nums text-slate-700">
+                                        {costKnown ? formatCurrency(costCents / 100) : "—"}
                                     </dd>
                                 </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-slate-500">Lucro estimado</dt>
+                                    <dd
+                                        className={`font-medium tabular-nums ${
+                                            !costKnown
+                                                ? "text-slate-400"
+                                                : profitCents >= 0
+                                                  ? "text-emerald-700"
+                                                  : "text-red-700"
+                                        }`}
+                                    >
+                                        {costKnown ? formatCurrency(profitCents / 100) : "—"}
+                                    </dd>
+                                </div>
+                                <div className="flex items-baseline justify-between border-t border-slate-100 pt-2">
+                                    <dt className="font-medium text-slate-700">Total</dt>
+                                    <dd className="text-xl font-semibold tabular-nums text-slate-900">
+                                        {formatCurrency(totalCents / 100)}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between">
+                                    <dt className="text-slate-500">Pago</dt>
+                                    <dd className="font-medium tabular-nums text-slate-900">
+                                        {formatCurrency(paidCents / 100)}
+                                    </dd>
+                                </div>
+                                {remainingCents > 0 && (
+                                    <div className="flex justify-between rounded-md bg-amber-50 px-2 py-1.5">
+                                        <dt className="text-amber-800">Falta pagar · fica como fiado</dt>
+                                        <dd className="font-medium tabular-nums text-amber-800">
+                                            {formatCurrency(remainingCents / 100)}
+                                        </dd>
+                                    </div>
+                                )}
+                                {remainingCents < 0 && (
+                                    <p className="text-red-600">Pagamentos passam do total.</p>
+                                )}
+                            </dl>
+
+                            {!costKnown && items.length > 0 && (
+                                <p className="text-xs text-slate-500">
+                                    Algum produto está sem preço de custo, então o lucro não é
+                                    calculado.
+                                </p>
                             )}
-                            {remainingCents < 0 && (
-                                <p className="text-red-600">Pagamentos passam do total.</p>
-                            )}
-                            <div className="flex justify-between border-t border-slate-100 pt-2">
-                                <dt className="text-slate-500">Custo</dt>
-                                <dd className="tabular-nums text-slate-700">
-                                    {costKnown ? formatCurrency(costCents / 100) : "—"}
-                                </dd>
-                            </div>
-                            <div className="flex justify-between">
-                                <dt className="text-slate-500">Lucro</dt>
-                                <dd
-                                    className={`font-medium tabular-nums ${
-                                        !costKnown
-                                            ? "text-slate-400"
-                                            : profitCents >= 0
-                                              ? "text-emerald-700"
-                                              : "text-red-700"
-                                    }`}
-                                >
-                                    {costKnown ? formatCurrency(profitCents / 100) : "—"}
-                                </dd>
-                            </div>
-                        </dl>
 
-                        {!costKnown && items.length > 0 && (
-                            <p className="text-xs text-slate-500">
-                                Algum produto está sem preço de custo, então o lucro não é calculado.
-                            </p>
-                        )}
+                            {error && <p className="text-sm text-red-600">{error}</p>}
 
-                        {error && <p className="text-sm text-red-600">{error}</p>}
-
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="btn btn-primary w-full py-2.5"
-                        >
-                            {saving ? "Registrando..." : "Registrar venda"}
-                        </button>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="btn btn-primary w-full justify-between py-2.5"
+                            >
+                                <span>{saving ? "Registrando..." : "Finalizar venda"}</span>
+                                <span className="tabular-nums">
+                                    {formatCurrency(totalCents / 100)}
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </aside>
             </div>
         </form>
     )
-}
+}
