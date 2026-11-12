@@ -5,10 +5,12 @@ import { BrandLogo } from "./BrandLogo"
 const NAV_LINKS = [
     { to: "/", label: "Dashboard", end: true },
     { to: "/sales", label: "Vendas", end: false },
+    { to: "/customers", label: "Clientes", end: false },
     { to: "/categories", label: "Categorias", end: false },
     { to: "/products", label: "Produtos", end: false },
     { to: "/stock-movements", label: "Movimentações", end: false },
     { to: "/packagings", label: "Embalagens", end: false },
+    
 ]
 
 export function Layout() {

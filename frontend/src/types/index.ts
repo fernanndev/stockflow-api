@@ -133,3 +133,18 @@ export interface SaleList {
     total_paid: number
     total_open: number
 }
+
+export interface Customer {
+    id: number
+    name: string
+    phone: string | null
+    notes: string | null 
+    purchases: number
+    total_spent: number
+    last_purchase_at: number
+    open_balance: number
+}
+
+export interface CustomerDetail extends Customer {
+    sales: Sale[]
+}

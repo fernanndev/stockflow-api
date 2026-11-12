@@ -9,6 +9,7 @@ import { StockMovementsPage } from "./pages/StockMovementsPage"
 import { PackagingsPage } from "./pages/PackagingsPage"
 import { SalesPage } from "./pages/SalesPage"
 import { NewSalePage } from "./pages/NewSalePage"
+import { CustomersPage } from "./pages/CustomersPage"
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/packagings" element={<PackagingsPage />} />
           <Route path="/sales" element={<SalesPage />} />
           <Route path="/sales/new" element={<NewSalePage />} />
+          <Route path="/customers" element={<CustomersPage />} />
         </Route>
       </Route>
     </Routes>
