@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { isAxiosError } from "axios"
 import { Link, useNavigate } from "react-router-dom"
+
 import { getPackagings } from "../api/packagings"
 import { getProducts } from "../api/products"
 import { createSale, getSales } from "../api/sales"
+
 import { Pagination } from "../components/Pagination"
 import { SaleProductCard } from "../components/SaleProductCard"
+
 import type { Packaging, PaymentMethod, Product } from "../types"
+
 import { formatCurrency, normalizeText } from "../utils/format"
 import { PAYMENT_METHOD_OPTIONS, formatPhone } from "../utils/sales"
 
@@ -87,6 +91,7 @@ export function NewSalePage() {
 
     const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false)
+    const [panelOpen, setPanelOpen] = useState(false)
 
     useEffect(() => {
         async function load() {
@@ -212,6 +217,15 @@ export function NewSalePage() {
         setItems((current) => current.filter((line) => line.key !== key))
     }
 
+    function changeQuantity(key: number, delta: number) {
+        const line = items.find((l) => l.key === key)
+
+        if (!line) return
+
+        updateItem(key, { quantity: String(Math.max(1, toQuantity(line.quantity) + delta)) 
+        })
+    }
+
     function stockOf(line: ItemLine): number {
         return line.product.variations.find((v) => v.id === line.variationId)?.stock_quantity ?? 0
     }
@@ -241,12 +255,12 @@ export function NewSalePage() {
     }
 
     // ---- payments ----
-    function addPayment() {
+    function addPayment(method: PaymentMethod = "pix") {
         setPayments((current) => [
             ...current,
             {
                 key: nextKey.current++,
-                method: "pix",
+                method,
                 amount: remainingCents > 0 ? (remainingCents / 100).toFixed(2) : "",
             },
         ])
@@ -372,7 +386,7 @@ export function NewSalePage() {
     const itemCount = items.reduce((sum, line) => sum + toQuantity(line.quantity), 0)
 
     return (
-        <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
+        <form onSubmit={handleSubmit} className="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-8 sm:py-8 lg:pb-8">
             <div className="mb-6">
                 <Link to="/sales" className="text-sm text-slate-500 hover:underline">
                     ← Vendas
@@ -439,13 +453,31 @@ export function NewSalePage() {
                 </section>
 
                 {/* Right: the current sale */}
-                <aside className="lg:sticky lg:top-20">
-                    <div className="card flex flex-col lg:max-h-[calc(100vh-6.5rem)]">
-                        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+                <aside
+                    onClick={(e) => {
+                        if (e.target === e.currentTarget) setPanelOpen(false)
+                    }}
+                    className={`lg:sticky lg:top-20 ${
+                        panelOpen
+                            ? "max-lg:fixed max-lg:inset-0 max-lg:z-40 max-lg:flex max-lg:items-end max-lg:bg-slate-900/40"
+                            : "max-lg:hidden"
+                    }`}
+                >
+                    <div className="card flex flex-col max-lg:max-h-[92dvh] max-lg:w-full max-lg:rounded-b-none lg:max-h-[calc(100vh-6.5rem)]">
+                        <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
                             <h2 className="text-base font-semibold text-slate-900">Venda atual</h2>
-                            <span className="badge bg-brand-50 text-brand-700">
-                                {itemCount} {itemCount === 1 ? "item" : "itens"}
-                            </span>
+                            <div className="flex items-center gap-3">
+                                <span className="badge bg-brand-50 text-brand-700">
+                                    {itemCount} {itemCount === 1 ? "item" : "itens"}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setPanelOpen(false)}
+                                    className="text-sm font-medium text-slate-500 hover:underline lg:hidden"
+                                >
+                                    Fechar
+                                </button>
+                            </div>
                         </div>
 
                         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
@@ -520,18 +552,38 @@ export function NewSalePage() {
                                                             <label className={labelClass}>
                                                                 Quantidade
                                                             </label>
-                                                            <input
-                                                                type="number"
-                                                                min="1"
-                                                                step="1"
-                                                                value={line.quantity}
-                                                                onChange={(e) =>
-                                                                    updateItem(line.key, {
-                                                                        quantity: e.target.value,
-                                                                    })
-                                                                }
-                                                                className={inputClass}
-                                                            />
+                                                            <div className="flex items-center gap-1">
+                                                                <button
+                                                                    type="button"
+                                                                    aria-label="Diminuir quantidade"
+                                                                    disabled={toQuantity(line.quantity) <= 1}
+                                                                    onClick={() => changeQuantity(line.key, -1)}
+                                                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-lg text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                                >
+                                                                    −
+                                                                </button>
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    step="1"
+                                                                    value={line.quantity}
+                                                                    onChange={(e) =>
+                                                                        updateItem(line.key, {
+                                                                            quantity: e.target.value,
+                                                                        })
+                                                                    }
+                                                                    className="ui-input w-full min-w-0 px-1 text-center"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    aria-label="Aumentar quantidade"
+                                                                    disabled={toQuantity(line.quantity) >= stock}
+                                                                    onClick={() => changeQuantity(line.key, 1)}
+                                                                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-300 text-lg text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         <div>
                                                             <label className={labelClass}>
@@ -690,17 +742,22 @@ export function NewSalePage() {
 
                             {/* Payments */}
                             <section>
-                                <div className="mb-2 flex items-center justify-between">
-                                    <h3 className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
-                                        Pagamento
-                                    </h3>
-                                    <button
-                                        type="button"
-                                        onClick={addPayment}
-                                        className="text-sm font-medium text-brand-700 hover:underline"
-                                    >
-                                        + Adicionar
-                                    </button>
+                                <h3 className="mb-2 text-xs font-semibold tracking-wide text-slate-500 uppercase">
+                                    Pagamento
+                                </h3>
+
+                                <div className="mb-3 flex flex-wrap gap-2">
+                                    {PAYMENT_METHOD_OPTIONS.map(([value, label]) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            disabled={remainingCents <= 0}
+                                            onClick={() => addPayment(value)}
+                                            className="rounded-full border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-brand-600 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            + {label}
+                                        </button>
+                                    ))}
                                 </div>
 
                                 {payments.length === 0 ? (
@@ -827,6 +884,19 @@ export function NewSalePage() {
                         </div>
                     </div>
                 </aside>
+            </div>
+            {/* Mobile: bar that opens the sale panel */}
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
+                <button
+                    type="button"
+                    onClick={() => setPanelOpen(true)}
+                    className="btn btn-primary flex w-full items-center justify-between"
+                >
+                    <span>
+                        {itemCount} {itemCount === 1 ? "item" : "itens"} · Ver venda
+                    </span>
+                    <span className="tabular-nums">{formatCurrency(totalCents / 100)}</span>
+                </button>
             </div>
         </form>
     )
