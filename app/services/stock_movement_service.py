@@ -15,6 +15,8 @@ from app.repositories.variation import VariationRepository
 
 from app.schemas.stock_movement import StockMovementCreate
 
+# the reasons a person may choose by hand; sale and gift are set by the sales screen
+MANUAL_EXIT_REASONS = {MovementReason.EXPIRED, MovementReason.LOSS, MovementReason.OTHER}
 
 
 class StockMovementService:
@@ -30,13 +32,16 @@ class StockMovementService:
         product = self.product_repository.get_by_id(data.product_id)
 
         if not product:
-            raise ValueError("Product not found")
+            raise ValueError("Product not found.")
+
+        self._check_reason(data)
 
         if data.type == MovementType.IN and data.lot_id is not None:
             raise ValueError("A lot can only be chosen for exits.")
 
         lot = self._find_lot(product, data.lot_id)
-        variation = self.find_variation(product, data.variation_id, lot)
+        variation = self.find_variation(product, data. variation_id, lot)
+        is_exit = data.type == MovementType.OUT
 
         movement = self.register(
             product=product,
@@ -45,12 +50,28 @@ class StockMovementService:
             quantity=data.quantity,
             lot=lot,
             expiration_date=data.expiration_date,
+            reason=data.reason,
+            # values of the day, so a loss can be costed later even if prices change
+            unit_price=product.price if is_exit else None,
+            unit_cost=product.cost_price if is_exit else None,
         )
 
         self.db.commit()
         self.db.refresh(movement)
 
         return movement
+
+    def _check_reason(self, data: StockMovementCreate) -> None:
+        if data.type == MovementType.IN:
+            if data.reason is not None:
+                raise ValueError("An entry does not have a reason.")
+            return
+
+        if data.reason is None:
+            raise ValueError("Choose the reason for the exit.")
+
+        if data.reason not in MANUAL_EXIT_REASONS:
+            raise ValueError("Choose expired, loss or other: sales and gifts are registered on the sales screen.")
 
     def register(
             self,

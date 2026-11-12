@@ -49,3 +49,14 @@ def post_sale(client, headers, items, **extra):
     payload.update(extra)
 
     return client.post("/sales/", json=payload, headers=headers)
+
+def register_movement(client, headers, product_id, movement_type, quantity, **extra):
+    payload = {"product_id": product_id, "type": movement_type, "quantity": quantity}
+
+    # a manual exit always needs a reason; tests that care about it pass their own
+    if movement_type == "out":
+        payload["reason"] = "other"
+
+    payload.update(extra)
+
+    return client.post("/stock-movements/", json=payload, headers=headers)
