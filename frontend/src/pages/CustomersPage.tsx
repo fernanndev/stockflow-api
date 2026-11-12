@@ -1,13 +1,20 @@
 import { isAxiosError } from "axios"
+
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
+
 import { deleteCustomer, getCustomers } from "../api/customers"
+
 import { ConfirmDialog } from "../components/ConfirmDialog"
 import { CustomerFormModal } from "../components/CustomerFormModal"
+import { CustomerSummaryModal } from "../components/CustomerSummaryModal"
 import { Notice } from "../components/Notice"
 import { Pagination } from "../components/Pagination"
+
 import { useNotice } from "../hooks/useNotice"
+
 import type { Customer } from "../types"
+
 import { formatCurrency, normalizeText } from "../utils/format"
 import { formatPhone } from "../utils/sales"
 
@@ -32,6 +39,8 @@ export function CustomersPage() {
     const [showForm, setShowForm] = useState(false)
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
     const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null)
+    const [summaryCustomerId, setSummaryCustomerId] = useState<number | null>(null)
+    const summaryCustomer = customers.find((customer) => customer.id === summaryCustomerId) ?? null
     const { notice, showNotice } = useNotice()
 
     function setFilter(key: string, value: string) {
@@ -92,6 +101,11 @@ export function CustomersPage() {
 
     async function handleSaved(message: string) {
         setShowForm(false)
+        await loadData()
+        showNotice(message)
+    }
+
+    async function handleSummaryChanged(message: string) {
         await loadData()
         showNotice(message)
     }
@@ -194,7 +208,11 @@ export function CustomersPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {visibleCustomers.map((customer) => (
-                                    <tr key={customer.id} className="hover:bg-slate-50">
+                                    <tr
+                                        key={customer.id}
+                                        onClick={() => setSummaryCustomerId(customer.id)}
+                                        className="cursor-pointer hover:bg-slate-50"
+                                    >
                                         <td className="px-4 py-3">
                                             <p className="font-medium text-slate-900">{customer.name}</p>
                                             {customer.phone && (
@@ -223,7 +241,10 @@ export function CustomersPage() {
                                                 ? formatCurrency(customer.open_balance)
                                                 : "—"}
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td
+                                            className="px-4 py-3"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
                                             <div className="flex justify-end gap-4 text-sm font-medium">
                                                 <button
                                                     onClick={() => openEdit(customer)}
@@ -247,7 +268,11 @@ export function CustomersPage() {
 
                     <ul className="space-y-3 md:hidden">
                         {visibleCustomers.map((customer) => (
-                            <li key={customer.id} className="card p-4">
+                            <li
+                                key={customer.id}
+                                onClick={() => setSummaryCustomerId(customer.id)}
+                                className="card cursor-pointer p-4 transition hover:border-slate-300 active:bg-slate-50"
+                            >
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0">
                                         <p className="truncate font-medium text-slate-900">
@@ -272,7 +297,10 @@ export function CustomersPage() {
                                     {formatLastPurchase(customer)}
                                 </p>
 
-                                <div className="mt-3 grid grid-cols-2 gap-2 text-sm font-medium">
+                                <div 
+                                    className="mt-3 grid grid-cols-2 gap-2 text-sm font-medium"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <button
                                         onClick={() => openEdit(customer)}
                                         className="btn btn-secondary text-brand-700"
@@ -293,6 +321,18 @@ export function CustomersPage() {
             )}
 
             <Pagination page={currentPage} totalPages={totalPages} onChange={setPage} />
+
+            {summaryCustomer && (
+                <CustomerSummaryModal
+                    customer={summaryCustomer}
+                    onClose={() => setSummaryCustomerId(null)}
+                    onEdit={() => {
+                        setSummaryCustomerId(null)
+                        openEdit(summaryCustomer)
+                    }}
+                    onChanged={handleSummaryChanged}
+                />
+            )}
 
             <CustomerFormModal
                 open={showForm}
