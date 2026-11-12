@@ -50,6 +50,12 @@ class SaleRepository:
 
         return query.order_by(Sale.created_at, Sale.id).all()
 
+    def list_by_customer(self, customer_id: int) -> list[Sale]:
+        """Every sale of one customer, newest first (canceled ones included)."""
+        query = self._with_children(self.db.query(Sale)).filter(Sale.customer_id == customer_id)
+
+        return query.order_by(Sale.created_at.desc(), Sale.id.desc()).all()
+
     def _with_children(self, query):
         # loads items and payments is one go instead of one query per sale
         return query.options(
