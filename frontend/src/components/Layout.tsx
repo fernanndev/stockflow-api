@@ -159,7 +159,7 @@ function StoreMenu() {
         }`
 
     return (
-        <div ref={ref} className="relative max-w-[12rem] min-w-0 shrink-0 sm:max-w-[16rem] lg:max-w-[12rem] xl:max-w-[16rem]">
+        <div ref={ref} className="relative max-w-[12rem] min-w-0 shrink-0 sm:max-w-[16rem]">
             <button
                 type="button"
                 onClick={() => setOpen((current) => !current)}
@@ -221,7 +221,7 @@ export function Layout() {
                     <div className="flex min-w-0 items-center gap-6">
                         <StoreMenu />
 
-                        <div className="hidden items-center gap-1 lg:flex">
+                        <div className="hidden items-center gap-1 xl:flex">
                             {MAIN_LINKS.map((link) => (
                                 <NavLink
                                     key={link.to}
@@ -236,7 +236,7 @@ export function Layout() {
                         </div>
                     </div>
 
-                    <div className="hidden items-center gap-2 lg:flex">
+                    <div className="hidden items-center gap-2 xl:flex">
                         <Link to="/sales/new" className="btn btn-primary btn-sm">
                             + Nova venda
                         </Link>
@@ -251,7 +251,7 @@ export function Layout() {
 
                     {/* the system mark: small, on the right, the store identity stays on the left */}
                     <div
-                        className="shrink-0 border-l border-slate-200 pl-4 opacity-80 lg:hidden xl:block"
+                        className="shrink-0 border-l border-slate-200 pl-3 sm:pl-4"
                         title="Sistema StockFlow"
                     >
                         <BrandLogo size="xs" />
@@ -259,14 +259,14 @@ export function Layout() {
                 </div>
             </nav>
 
-            <div className={showBottomBar ? "pb-20 sm:pb-28 lg:pb-0" : ""}>
+            <div className={showBottomBar ? "pb-20 sm:pb-28 xl:pb-0" : ""}>
                 <Outlet />
             </div>
 
             {showBottomBar && (
                 <nav
                     aria-label="Menu principal"
-                    className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:hidden"
+                    className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] xl:hidden"
                 >
                     <div className="mx-auto flex max-w-3xl items-end px-2 sm:px-6">
                         <NavLink to="/" end className={tabClass}>
@@ -306,7 +306,7 @@ export function Layout() {
 
             {moreOpen && (
                 <div
-                    className="fixed inset-0 z-40 flex items-end justify-center bg-slate-900/40 lg:hidden"
+                    className="fixed inset-0 z-40 flex items-end justify-center bg-slate-900/40 xl:hidden"
                     onClick={() => setMoreOpen(false)}
                 >
                     <div

@@ -4,9 +4,9 @@ import { getImageUrl } from "../utils/image"
 type Size = "sm" | "md" | "lg"
 
 const SIZES = {
-    sm: { logo: "h-6 max-w-[6rem]", tile: "h-7 w-7 text-sm", text: "text-base" },
-    md: { logo: "h-8 max-w-[8rem]", tile: "h-9 w-9 text-lg", text: "text-lg sm:text-xl" },
-    lg: { logo: "h-16 max-w-[12rem]", tile: "h-14 w-14 text-2xl", text: "text-2xl" },
+    sm: { logo: "h-8 max-w-[8rem]", tile: "h-7 w-7 text-sm", text: "text-base" },
+    md: { logo: "h-9 max-w-[10rem] sm:h-11", tile: "h-9 w-9 text-lg", text: "text-base sm:text-xl" },
+    lg: { logo: "h-20 max-w-[14rem]", tile: "h-14 w-14 text-2xl", text: "text-2xl" },
 }
 
 // The store identity: its logo (or an initial in the main color) and its name.
@@ -16,12 +16,12 @@ export function StoreBrand({ size = "md" }: { size?: Size }) {
     const logoUrl = getImageUrl(store.logo_url)
 
     return (
-        <span className="inline-flex min-w-0 items-center gap-2.5">
+        <span className="inline-flex min-w-0 items-center gap-2 sm:gap-2.5">
             {logoUrl ? (
                 <img
                     src={logoUrl}
                     alt=""
-                    className={`${logo} w-auto shrink-0 object-contain`}
+                    className={`${logo} w-auto shrink-0 rounded-md object-contain`}
                 />
             ) : (
                 <span

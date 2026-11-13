@@ -85,7 +85,7 @@ export function LoginPage() {
                     Entrar
                 </button>
 
-                <div className="mt-6 flex items-center justify-center gap-2 border-t border-slate-100 pt-4 text-xs text-slate-400">
+                <div className="mt-6 flex items-center justify-center gap-2 border-t border-slate-100 pt-4 text-sm text-slate-400">
                     Sistema
                     <BrandLogo size="xs" />
                 </div>

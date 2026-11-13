@@ -375,7 +375,7 @@ export function AppearancePage() {
                     </div>
                 </div>
 
-                <aside className="sticky top-[3.75rem] z-20 order-first lg:top-24 lg:order-2">
+                <aside className="sticky top-[4.5rem] z-20 order-first lg:top-24 lg:order-2">
                     <p className="mb-2 hidden text-xs font-medium tracking-wide text-slate-500 uppercase lg:block">
                         Pré-visualização
                     </p>
@@ -425,7 +425,7 @@ function PreviewBrand({ name, logoUrl }: { name: string; logoUrl: string | null 
     return (
         <span className="inline-flex min-w-0 items-center gap-2">
             {logoUrl ? (
-                <img src={logoUrl} alt="" className="h-7 max-w-[5rem] shrink-0 object-contain" />
+                <img src={logoUrl} alt="" className="h-9 max-w-[6rem] shrink-0 rounded-md object-contain" />
             ) : (
                 <span
                     aria-hidden="true"

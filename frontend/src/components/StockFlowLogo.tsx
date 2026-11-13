@@ -4,7 +4,7 @@ interface StockFlowProps {
 }
 
 const SIZES = {
-    xs: { icon: "h-4 w-4", text: "text-xs" },
+    xs: { icon: "h-6 w-6 sm:h-7 sm:w-7", text: "text-sm sm:text-base" },
     sm: { icon: "h-5 w-5", text: "text-base" },
     md: { icon: "h-7 w-7", text: "text-xl" },
     lg: { icon: "h-10 w-10", text: "text-3xl" },
