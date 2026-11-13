@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
 import { createStockMovement } from "../api/stockMovements"
 import type { Product } from "../types"
 import { formatDate } from "../utils/date"
@@ -55,9 +55,14 @@ export function MovementFormModal({
     const [expirationDate, setExpirationDate] = useState("")
     const [reason, setReason] = useState<ExitReason | "">("")
     const [error, setError] = useState<string | null>(null)
+    const [barcode, setBarcode] = useState("")
+    const [scanMessage, setScanMessage] = useState<{ ok: boolean; text: string } | null>(null)
+    const quantityRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
         if (open) {
+            setBarcode("")
+            setScanMessage(null)
             setProductId(defaultProductId)
             setVariationId(0)
             setLotId(0)
@@ -96,6 +101,37 @@ export function MovementFormModal({
     function handleVariationChange(newVariationId: number) {
         setVariationId(newVariationId)
         setLotId(0)
+    }
+
+    // a barcode reader types the code and presses Enter: pick that product and variation
+    function handleBarcodeKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key !== "Enter") return
+
+        // Enter must not submit the movement
+        event.preventDefault()
+
+        const code = event.currentTarget.value.trim()
+
+        if (!code) return
+
+        for (const product of products) {
+            const variation = product.variations.find((v) => v.barcode === code)
+
+            if (!variation) continue
+
+            handleProductChange(product.id)
+            setVariationId(variation.id)
+            setBarcode("")
+            setScanMessage({
+                ok: true,
+                text: `Selecionado: ${product.name}${variation.name === "Padrão" ? "" : ` (${variation.name})`}.`,
+            })
+            quantityRef.current?.focus()
+            return
+        }
+
+        setBarcode("")
+        setScanMessage({ ok: false, text: `Código ${code} não cadastrado.` })
     }
 
     async function handleSubmit(event: FormEvent) {
@@ -161,6 +197,28 @@ export function MovementFormModal({
             widthClass="max-w-md"
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label className={labelClass}>Código de barras (opcional)</label>
+                    <input
+                        type="text"
+                        value={barcode}
+                        onChange={(e) => setBarcode(e.target.value)}
+                        onKeyDown={handleBarcodeKeyDown}
+                        autoFocus={window.matchMedia("(min-width: 1024px)").matches}
+                        placeholder="Bipe com o leitor ou digite e aperte Enter"
+                        maxLength={50}
+                        className={inputClass}
+                    />
+                    {scanMessage && (
+                        <p
+                            role="status"
+                            className={`mt-1 text-xs ${scanMessage.ok ? "text-emerald-700" : "text-red-600"}`}
+                        >
+                            {scanMessage.text}
+                        </p>
+                    )}
+                </div>
+
                 <div>
                     <label className={labelClass}>Produto</label>
                     <select
@@ -230,6 +288,7 @@ export function MovementFormModal({
                 <div>
                     <label className={labelClass}>Quantidade</label>
                     <input
+                        ref={quantityRef}
                         type="number"
                         min={1}
                         placeholder="0"
@@ -254,7 +313,7 @@ export function MovementFormModal({
 
                 {type === "out" && (
                     <div>
-                        <label className={labelClass}>Movito da saída</label>
+                        <label className={labelClass}>Motivo da saída</label>
                         <select
                             value={reason}
                             onChange={(e) => setReason(e.target.value as ExitReason)}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type KeyboardEvent } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 
 import { getCategories } from "../api/categories"
@@ -62,6 +62,26 @@ export function ProductsPage() {
         }
 
         setSearchParams(next, { replace: true })
+    }
+
+    // a barcode reader types the code and presses Enter: open that product
+    function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key !== "Enter") return
+
+        event.preventDefault()
+
+        const code = event.currentTarget.value.trim()
+
+        if (!code) return
+
+        const found = products.find((product) =>
+            product.variations.some((variation) => variation.barcode === code),
+        )
+
+        if (found) {
+            setSummaryProductId(found.id)
+            setFilter("q", "")
+        }
     }
 
     async function loadData() {
@@ -179,9 +199,10 @@ export function ProductsPage() {
             <div className="mb-4 flex flex-wrap items-center gap-3">
                 <input
                     type="search"
-                    placeholder="Buscar por nome, descrição ou tamanho"
+                    placeholder="Buscar por nome, descrição, tamanho ou código de barras"
                     value={search}
                     onChange={(e) => setFilter("q", e.target.value)}
+                    onKeyDown={handleSearchKeyDown}
                     className="ui-input w-full sm:max-w-sm"
                 />
                 <select
