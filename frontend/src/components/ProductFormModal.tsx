@@ -6,6 +6,7 @@ import {
     uploadProductImage,
 } from "../api/products"
 import { getImageUrl } from "../utils/image"
+import { barcodeErrorMessage, ignoreEnter } from "../utils/barcode"
 import type { Category, Product } from "../types"
 import { Modal } from "./Modal"
 
@@ -26,6 +27,7 @@ interface FormState {
     stock_quantity: string
     minimum_stock: string
     size: string
+    barcode: string
     expiration_date: string | null
     category_id: number
 }
@@ -46,6 +48,7 @@ function buildInitialState(product: Product | null, defaultCategoryId: number) :
             stock_quantity: "",
             minimum_stock: String(product.minimum_stock),
             size: product.size ?? "",
+            barcode: product.variations.length === 1 ? (product.variations[0].barcode ?? "") : "",
             expiration_date: product.expiration_date,
             category_id: product.category.id,            
         }
@@ -59,6 +62,7 @@ function buildInitialState(product: Product | null, defaultCategoryId: number) :
         stock_quantity: "",
         minimum_stock: "",
         size: "",
+        barcode: "",
         expiration_date: null,
         category_id: defaultCategoryId,
     }
@@ -140,6 +144,10 @@ export function ProductFormModal({
                     minimum_stock: Number(form.minimum_stock),
                     size: form.size || null,
                     category_id: form.category_id,
+                    // with several variations the code belongs to each one (see Lotes)
+                    ...(product.variations.length === 1
+                        ? { barcode: form.barcode.trim() || null }
+                        : {}),
                 })
             } else {
                 saved = await createProduct({
@@ -151,13 +159,15 @@ export function ProductFormModal({
                     size: form.size || null,
                     expiration_date: form.expiration_date,
                     category_id: form.category_id,
+                    barcode: form.barcode.trim() || null,
                 })
             }
-        } catch {
+        } catch (e) {
             setError(
-                product
-                    ? "Não foi possível atualizar o produto."
-                    : "Não foi possível criar o produto.",
+                barcodeErrorMessage(e) ??
+                    (product
+                        ? "Não foi possível atualizar o produto."
+                        : "Não foi possível criar o produto."),
             )
             return
         }
@@ -258,6 +268,26 @@ export function ProductFormModal({
                         className={inputClass}
                     />
                 </div>
+
+                {!product || product.variations.length === 1 ? (
+                    <div className="sm:col-span-2">
+                        <label className={labelClass}>Código de barras (opcional)</label>
+                        <input
+                            type="text"
+                            value={form.barcode}
+                            onChange={(e) => setForm({ ...form, barcode: e.target.value })}
+                            onKeyDown={ignoreEnter}
+                            maxLength={50}
+                            placeholder="Bipe com o leitor ou digite o código"
+                            className={inputClass}
+                        />
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-500 sm:col-span-2">
+                        Este produto tem várias variações: o código de barras fica em cada uma, em
+                        "Lotes".
+                    </p>
+                )}
 
                 {!product && (
                     <div>

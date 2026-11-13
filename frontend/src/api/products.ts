@@ -11,6 +11,7 @@ export interface ProductCreateInput{
     size?: string | null
     expiration_date?: string | null
     category_id: number
+    barcode?: string | null
 }
 
 export interface ProductUpdateInput {
@@ -21,6 +22,7 @@ export interface ProductUpdateInput {
     minimum_stock: number
     size?: string | null
     category_id: number
+    barcode?: string | null
 }
 
 export async function getProducts(): Promise<Product[]> {

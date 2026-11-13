@@ -20,6 +20,7 @@ export interface Variation {
     name: string
     stock_quantity: number
     lots: Lot[]
+    barcode: string | null
 }
 
 export interface Product {

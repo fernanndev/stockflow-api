@@ -79,6 +79,11 @@ export function ProductSummaryModal({
                         "—"
                     )}
                 </Field>
+                {product.variations.length === 1 && (
+                    <Field label="Código de barras">
+                        {product.variations[0].barcode ?? "—"}
+                    </Field>
+                )}
             </dl>
 
             {product.variations.length > 1 && (
@@ -87,7 +92,14 @@ export function ProductSummaryModal({
                     <ul className="mt-1 space-y-1 text-sm text-slate-700">
                         {product.variations.map((variation) => (
                             <li key={variation.id} className="flex justify-between">
-                                <span>{variation.name}</span>
+                                <span>
+                                    {variation.name}
+                                    {variation.barcode && (
+                                        <span className="ml-2 font-mono text-xs text-slate-400">
+                                            {variation.barcode}
+                                        </span>
+                                    )}
+                                </span>
                                 <span className="font-medium">{variation.stock_quantity} un.</span>
                             </li>
                         ))}

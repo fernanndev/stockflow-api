@@ -1,14 +1,27 @@
 import { api } from "./client"
 import type { Lot, Variation } from "../types"
 
-export async function createVariation(productId: number, name: string): Promise<Variation> {
-    const response = await api.post<Variation>(`/products/${productId}/variations`, { name })
+export interface VariationInput {
+    name: string
+    // omitted = keep the current barcode; null clears it
+    barcode?: string | null
+}
+
+export async function createVariation(
+    productId: number,
+    name: string,
+    barcode: string | null = null,
+): Promise<Variation> {
+    const response = await api.post<Variation>(`/products/${productId}/variations`, {
+        name,
+        barcode,
+    })
 
     return response.data
 }
 
-export async function updateVariation(id: number, name: string): Promise<Variation> {
-    const response = await api.put<Variation>(`/variations/${id}`, { name })
+export async function updateVariation(id: number, data: VariationInput): Promise<Variation> {
+    const response = await api.put<Variation>(`/variations/${id}`, data)
     return response.data
 }
 

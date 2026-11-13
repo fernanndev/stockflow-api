@@ -86,7 +86,12 @@ export function ProductsPage() {
         if (productId && product.id !== productId) return false
         if (search) {
             const text = normalizeText(
-                [product.name, product.description ?? "", product.size ?? ""].join(" "),
+                [
+                    product.name,
+                    product.description ?? "",
+                    product.size ?? "",
+                    ...product.variations.map((variation) => variation.barcode ?? ""),
+                ].join(" "),
             )
             if (!text.includes(normalizeText(search))) return false
         }

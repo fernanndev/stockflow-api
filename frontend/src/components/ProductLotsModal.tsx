@@ -8,6 +8,7 @@ import {
 } from "../api/variations"
 
 import type { Lot, Product, Variation } from "../types"
+import { barcodeErrorMessage, ignoreEnter } from "../utils/barcode"
 import { formatDate } from "../utils/date"
 
 import { ConfirmDialog } from "./ConfirmDialog"
@@ -39,6 +40,10 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
     const [error, setError] = useState<string | null>(null)
 
     const [newName, setNewName] = useState("")
+    const [newBarcode, setNewBarcode] = useState("")
+
+    const [barcodeEditingId, setBarcodeEditingId] = useState<number | null>(null)
+    const [barcodeValue, setBarcodeValue] = useState("")
 
     const [renamingId, setRenamingId] = useState<number | null>(null)
     const [renameValue, setRenameValue] = useState("")
@@ -62,11 +67,15 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
         }
 
         try {
-            await createVariation(product.id, name)
+            await createVariation(product.id, name, newBarcode.trim() || null)
             setNewName("")
+            setNewBarcode("")
             await onChanged(`Variação "${name}" criada.`)
-        } catch {
-            setError("Não foi possível criar a variação. Verifique se já existe uma com esse nome.")
+        } catch (e) {
+            setError(
+                barcodeErrorMessage(e) ??
+                    "Não foi possível criar a variação. Verifique se já existe uma com esse nome.",
+            )
         }
     }
 
@@ -88,11 +97,34 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
         }
 
         try {
-            await updateVariation(variation.id, name)
+            // no barcode in the payload: the current one is kept
+            await updateVariation(variation.id, { name })
             setRenamingId(null)
             await onChanged(`Variação renomeada para "${name}".`)
         } catch {
             setError("Não foi possível renomear. Verifique se já existe uma variação com esse nome.")
+        }
+    }
+
+    function startBarcodeEdit(variation: Variation) {
+        setError(null)
+        setBarcodeEditingId(variation.id)
+        setBarcodeValue(variation.barcode ?? "")
+    }
+
+    async function handleBarcodeSave(event: FormEvent, variation: Variation) {
+        event.preventDefault()
+        setError(null)
+
+        try {
+            await updateVariation(variation.id, {
+                name: variation.name,
+                barcode: barcodeValue.trim() || null,
+            })
+            setBarcodeEditingId(null)
+            await onChanged(`Código de barras de "${variation.name}" atualizado.`)
+        } catch (e) {
+            setError(barcodeErrorMessage(e) ?? "Não foi possível salvar o código de barras.")
         }
     }
 
@@ -235,6 +267,56 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                                 )}
                             </div>
 
+                            {barcodeEditingId === variation.id ? (
+                                <form
+                                    onSubmit={(event) => handleBarcodeSave(event, variation)}
+                                    className="mt-2 flex flex-wrap gap-2"
+                                >
+                                    <input
+                                        value={barcodeValue}
+                                        onChange={(e) => setBarcodeValue(e.target.value)}
+                                        onKeyDown={ignoreEnter}
+                                        maxLength={50}
+                                        autoFocus
+                                        placeholder="Bipe ou digite o código (vazio apaga)"
+                                        className={`${inputClass} min-w-0 flex-1`}
+                                    />
+                                    <button
+                                        type="submit"
+                                        className={`${smallButtonClass} text-brand-600`}
+                                    >
+                                        Salvar
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setBarcodeEditingId(null)}
+                                        className={`${smallButtonClass} text-slate-500`}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </form>
+                            ) : (
+                                <p className="mt-1 flex flex-wrap items-center gap-x-3 text-sm text-slate-500">
+                                    {variation.barcode ? (
+                                        <>
+                                            Código:{" "}
+                                            <span className="font-mono text-slate-700">
+                                                {variation.barcode}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        "Sem código de barras"
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => startBarcodeEdit(variation)}
+                                        className={`${smallButtonClass} text-brand-700 hover:text-brand-800`}
+                                    >
+                                        {variation.barcode ? "Editar código" : "Adicionar código"}
+                                    </button>
+                                </p>
+                            )}
+
                             {lots.length === 0 ? (
                                 <p className="mt-3 text-sm text-slate-400">Sem estoque.</p>
                             ) : (
@@ -373,6 +455,14 @@ export function ProductLotsModal({ product, onClose, onChanged }: ProductLotsMod
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="Nova variação (ex.: Chocolate)"
                     maxLength={100}
+                    className={`${inputClass} min-w-0 flex-1`}
+                />
+                <input
+                    value={newBarcode}
+                    onChange={(e) => setNewBarcode(e.target.value)}
+                    onKeyDown={ignoreEnter}
+                    placeholder="Código de barras (opcional)"
+                    maxLength={50}
                     className={`${inputClass} min-w-0 flex-1`}
                 />
                 <button
