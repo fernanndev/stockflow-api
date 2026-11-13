@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
 import { isAxiosError } from "axios"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -91,6 +91,22 @@ export function NewSalePage() {
     const [saving, setSaving] = useState(false)
     const [panelOpen, setPanelOpen] = useState(false)
 
+    const [scanMessage, setScanMessage] = useState<{ ok: boolean; text: string } | null>(null)
+    const searchRef = useRef<HTMLInputElement>(null)
+
+    // the scan feedback disappears by itself
+    useEffect(() => {
+        if (!scanMessage) return
+
+        const timer = setTimeout(() => setScanMessage(null), 3000)
+        return () => clearTimeout(timer)
+    }, [scanMessage])
+
+    // on a computer the field is ready for the barcode reader; on a phone it would open the keyboard
+    useEffect(() => {
+        if (window.matchMedia("(min-width: 1024px)").matches) searchRef.current?.focus()
+    }, [])
+
     useEffect(() => {
         async function load() {
             try {
@@ -139,7 +155,11 @@ export function NewSalePage() {
 
    const filteredProducts = products
         .filter((product) => categoryId === null || product.category.id === categoryId)
-        .filter((product) => normalizeText(product.name).includes(normalizeText(search)))
+        .filter(
+            (product) =>
+                normalizeText(product.name).includes(normalizeText(search)) ||
+                product.variations.some((variation) => variation.barcode?.includes(search.trim())),
+        )
         // products without stock got to the end
         .sort((a, b) => Number(b.stock_quantity > 0) - Number(a.stock_quantity > 0))
 
@@ -187,6 +207,46 @@ export function NewSalePage() {
                     isGift: false,
                 },
             ])
+        }
+    }
+
+    // a barcode reader types the code and presses Enter, exactly like typing it by hand
+    function handleSearchKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+        if (event.key !== "Enter") return
+
+        // Enter must never finish the sale from this field
+        event.preventDefault()
+
+        const code = event.currentTarget.value.trim()
+
+        if (code) scanCode(code)
+    }
+
+    function scanCode(code: string) {
+        for (const product of products) {
+            const variation = product.variations.find((v) => v.barcode === code)
+
+            if (!variation) continue
+
+            const label =
+                variation.name === "Padrão" ? product.name : `${product.name} (${variation.name})`
+            const free = variation.stock_quantity - (inSale.get(variation.id) ?? 0)
+
+            if (free <= 0) {
+                setScanMessage({ ok: false, text: `Sem estoque de ${label}.` })
+            } else {
+                addProduct(product, variation.id)
+                setScanMessage({ ok: true, text: `Adicionado: ${label}` })
+            }
+
+            changeSearch("")
+            return
+        }
+
+        // only digits looks like an unregistered barcode; anything else was just a name search
+        if (/^\d{4,}$/.test(code)) {
+            setScanMessage({ ok: false, text: `Código ${code} não cadastrado.` })
+            changeSearch("")
         }
     }
 
@@ -370,12 +430,27 @@ export function NewSalePage() {
                 {/* Left: product catalog */}
                 <section className="min-w-0">
                     <input
+                        ref={searchRef}
                         type="search"
-                        placeholder="Buscar produto pelo nome"
+                        placeholder="Buscar por nome ou bipar o código de barras"
                         value={search}
                         onChange={(e) => changeSearch(e.target.value)}
+                        onKeyDown={handleSearchKeyDown}
                         className={inputClass}
                     />
+
+                    {scanMessage && (
+                        <p
+                            role="status"
+                            className={`mt-2 rounded-lg px-3 py-2 text-sm ${
+                                scanMessage.ok
+                                    ? "bg-emerald-50 text-emerald-800"
+                                    : "bg-red-50 text-red-700"
+                            }`}
+                        >
+                            {scanMessage.text}
+                        </p>
+                    )}
 
                     <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                         <button
