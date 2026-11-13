@@ -26,6 +26,9 @@ class VariationRepository:
             .first()
         )
 
+    def get_by_barcode(self, barcode: int) -> Variation | None:
+        return self.db.query(Variation).filter(Variation.barcode == barcode).first()
+
     def count_movements(self, variation_id: int) -> int:
         return (
             self.db.query(func.count(StockMovement.id))

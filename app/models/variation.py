@@ -9,6 +9,10 @@ class Variation(BaseModel):
 
     name: Mapped[str] = mapped_column(String(100))
 
+    # the code printed on the package (EAN, UPC...) Each flavor/size has its own,
+    # unique in the whole store; NULL (no barcode) can repeat
+    barcode: Mapped[str | None] = mapped_column(String(50), unique=True)
+
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship(back_populates="variations")
     lots: Mapped[list["Lot"]] = relationship(back_populates="variation", cascade="all, delete-orphan")

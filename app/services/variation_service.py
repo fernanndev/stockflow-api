@@ -21,8 +21,12 @@ class VariationService:
             raise ValueError("Product not found.")
 
         self._ensure_name_is_free(product_id, data.name)
+        self.ensure_barcode_is_free(data.barcode)
 
-        variation = self.repository.create(Variation(product_id=product_id, name=data.name))
+        variation = self.repository.create(
+            Variation(product_id=product_id, name=data.name, barcode=data.barcode)
+        )
+
         self.db.commit()
         self.db.refresh(variation)
 
@@ -30,6 +34,10 @@ class VariationService:
 
     def update(self, variation_id: int, data: VariationUpdate) -> Variation:
         variation = self._get(variation_id)
+        # omitted = keep the current barcode; null clears it
+        if "barcode" in data.model_fields_set:
+            self.ensure_barcode_is_free(data.barcode, ignore_id=variation_id)
+            variation.barcode = data.barcode
 
         self._ensure_name_is_free(variation.product_id, data.name, ignore_id=variation_id)
 
@@ -67,3 +75,14 @@ class VariationService:
 
         if existing and existing.id != ignore_id:
             raise ValueError("This product already has a variation with that name.")
+
+    def ensure_barcode_is_free(self, barcode: str | None, ignore_id: int | None = None) -> None:
+        if barcode is None:
+            return
+
+        existing = self.repository.get_by_barcode(barcode)
+
+        if existing and existing.id != ignore_id:
+            raise ValueError(
+                f'This barcode already belongs to "{existing.product.name}" ({existing.name}).'
+            )

@@ -9,7 +9,10 @@ from app.models.variation import Variation
 
 from app.repositories.category import CategoryRepository
 from app.repositories.product import ProductRepository
+
 from app.schemas.product import ProductCreate, ProductUpdate
+
+from app.services.variation_service import VariationService
 
 DEFAULT_VARIATION_NAME = "Padrão"
 
@@ -19,6 +22,7 @@ class ProductService:
     def __init__(self, db: Session):
         self.repository = ProductRepository(db)
         self.category_repository = CategoryRepository(db)
+        self.variation_service = VariationService(db)
 
     def create(self, data: ProductCreate) -> Product:
         category = self.category_repository.get_by_id(data.category_id)
@@ -36,8 +40,10 @@ class ProductService:
             category_id=data.category_id,
         )
 
+        self.variation_service.ensure_barcode_is_free(data.barcode)
+
         # Every product has at least one variation; the initial stock is its first lot.
-        variation = Variation(name=DEFAULT_VARIATION_NAME)
+        variation = Variation(name=DEFAULT_VARIATION_NAME, barcode=data.barcode)
 
         if data.stock_quantity > 0:
             variation.lots.append(Lot(quantity=data.stock_quantity, expiration_date=data.expiration_date))
@@ -59,6 +65,14 @@ class ProductService:
 
         if not category:
             raise ValueError("Category not found.")
+
+        if "barcode" in data.model_fields_set:
+            if len(product.variations) != 1:
+                raise ValueError("This product has several variations: set the barcode on each one.")
+
+            variation = product.variations[0]
+            self.variation_service.ensure_barcode_is_free(data.barcode, ignore_id=variation.id)
+            variation.barcode = data.barcode
 
         product.name = data.name
         product.description = data.description

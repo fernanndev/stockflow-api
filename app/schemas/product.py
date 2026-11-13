@@ -2,7 +2,7 @@ from datetime import date
 from pydantic import BaseModel
 
 from app.schemas.category import CategoryResponse
-from app.schemas.variation import VariationResponse
+from app.schemas.variation import Barcode, VariationResponse
 
 class ProductCreate(BaseModel):
     name: str
@@ -14,6 +14,8 @@ class ProductCreate(BaseModel):
     size: str | None = None
     expiration_date: date | None = None
     category_id: int
+    # goes to the product's first (default) variation
+    barcode: Barcode = None
 
 class ProductResponse(BaseModel):
     id: int
@@ -40,3 +42,5 @@ class ProductUpdate(BaseModel):
     minimum_stock: int = 0
     size: str | None
     category_id: int
+    # only for products with a single variation; omitted = keep the current one
+    barcode: Barcode = None
