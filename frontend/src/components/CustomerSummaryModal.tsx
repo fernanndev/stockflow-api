@@ -2,7 +2,13 @@ import { useCallback, useEffect, useState } from "react"
 import { getCustomer } from "../api/customers"
 import type { Customer, Sale } from "../types"
 import { formatCurrency } from "../utils/format"
-import { formatPhone, itemsSummary, saleSituation, whatsappLink } from "../utils/sales"
+import {
+    customerChargeMessage,
+    formatPhone,
+    itemsSummary,
+    saleSituation,
+    whatsappLink,
+} from "../utils/sales"
 import { Modal } from "./Modal"
 import { SaleDetailModal } from "./SaleDetailModal"
 
@@ -57,6 +63,12 @@ export function CustomerSummaryModal({
 
     const selectedSale = sales?.find((sale) => sale.id === selectedId) ?? null
     const recentSales = (sales ?? []).slice(0, RECENT_SALES)
+
+    // sales come newest first: open credits are shown that way, but charged oldest first
+    const openSales = (sales ?? []).filter(
+        (sale) => sale.status === "completed" && sale.balance > 0,
+    )
+    const openTotal = openSales.reduce((sum, sale) => sum + sale.balance, 0)
 
     async function handleSaleChanged(message: string) {
         await load()
@@ -118,6 +130,56 @@ export function CustomerSummaryModal({
                             </span>
                         </Field>
                     </dl>
+
+                    {openSales.length > 0 && (
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                            <p className="text-xs font-medium uppercase tracking-wide text-amber-800">
+                                Fiados em aberto
+                            </p>
+
+                            <ul className="mt-2 space-y-1">
+                                {openSales.map((sale) => (
+                                    <li key={sale.id}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedId(sale.id)}
+                                            className="flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left text-sm transition hover:bg-amber-100"
+                                        >
+                                            <span className="min-w-0 truncate text-slate-700">
+                                                {new Date(sale.created_at).toLocaleDateString("pt-BR")}{" "}
+                                                · {itemsSummary(sale)}
+                                            </span>
+                                            <span className="shrink-0 font-semibold tabular-nums text-amber-800">
+                                                {formatCurrency(sale.balance)}
+                                            </span>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            {customer.phone ? (
+                                <a
+                                    href={whatsappLink(
+                                        customer.phone,
+                                        customerChargeMessage(
+                                            customer.name,
+                                            [...openSales].reverse(),
+                                        ),
+                                    )}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="btn btn-primary mt-3 w-full"
+                                >
+                                    Cobrar no WhatsApp · {formatCurrency(openTotal)}
+                                </a>
+                            ) : (
+                                <p className="mt-3 text-xs text-amber-800">
+                                    Para cobrar pelo WhatsApp, cadastre o telefone do cliente em
+                                    "Editar".
+                                </p>
+                            )}
+                        </div>
+                    )}
 
                     <div>
                         <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-500">

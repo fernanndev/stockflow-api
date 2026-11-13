@@ -85,3 +85,25 @@ export function chargeMessage(sale: Sale): string {
 
     return `${greeting} Tudo bem? Passando para lembrar do valor de ${formatCurrency(sale.balance)} que ficou em aberto na sua compra. Quando puder, me avise. Obrigado!`
 }
+
+// one message for everything the customer owes, with one line per open sale
+export function customerChargeMessage(name: string, openSales: Sale[]): string {
+    const firstName = name.split(" ")[0]
+    const greeting = firstName ? `Olá, ${firstName}!` : "Olá!"
+    const total = openSales.reduce((sum, sale) => sum + sale.balance, 0)
+
+    let message = `${greeting} Tudo bem? Passando para lembrar do valor de ${formatCurrency(total)} que ficou em aberto`
+
+    if (openSales.length > 1) {
+        const lines = openSales.map(
+            (sale) =>
+                `• ${new Date(sale.created_at).toLocaleDateString("pt-BR")}: ${formatCurrency(sale.balance)}`,
+        )
+
+        message += `:\n${lines.join("\n")}\n`
+    } else {
+        message += "."
+    }
+
+    return `${message}\nQuando puder, me avise. Obrigado!`
+}
