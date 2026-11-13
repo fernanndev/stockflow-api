@@ -7,3 +7,4 @@ from app.models.variation import Variation
 from app.models.lot import Lot
 from app.models.sale import Sale, SaleItem, SalePackaging, SalePayment
 from app.models.customer import Customer
+from app.models.store_settings import StoreSettings
