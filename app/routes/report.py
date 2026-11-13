@@ -1,10 +1,15 @@
-from fastapi import APIRouter, Depends
+from datetime import date
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.auth.dependecies import get_current_user
+
 from app.database.dependencies import get_db
+
 from app.schemas.product import ProductResponse
-from app.schemas.report import DashboardResponse
+from app.schemas.report import DashboardResponse, ResultResponse
+
 from app.services.report_service import ReportService
 
 router=APIRouter(
@@ -29,3 +34,14 @@ def get_low_stock_products(db: Session = Depends(get_db)):
 def get_expiring_products(days: int = 30, db: Session = Depends(get_db)):
     service = ReportService(db)
     return service.expiring_products(days)
+
+@router.get("/result", response_model=ResultResponse)
+def get_result(
+    start_date: date | None = None,
+    end_date: date | None = None,
+    db: Session = Depends(get_db),
+):
+    try:
+        return ReportService(db).result(start_date, end_date)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
