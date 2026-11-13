@@ -163,3 +163,11 @@ export interface ResultReport {
     gifts_forgone_revenue: number
     items_without_cost: number
 }
+
+export interface StoreSettings {
+    name: string
+    primary_color: string
+    background_color: string
+    surface_color: string
+    logo_url: string | null
+}

@@ -1,9 +1,10 @@
 interface StockFlowProps {
-    size?: "sm" | "md" | "lg"
+    size?: "xs" | "sm" | "md" | "lg"
     onDark?: boolean
 }
 
 const SIZES = {
+    xs: { icon: "h-4 w-4", text: "text-xs" },
     sm: { icon: "h-5 w-5", text: "text-base" },
     md: { icon: "h-7 w-7", text: "text-xl" },
     lg: { icon: "h-10 w-10", text: "text-3xl" },
@@ -25,7 +26,7 @@ export function StockFlowLogo({ size = "md", onDark = false }: StockFlowProps) {
                 }`}
             >
                 Stock
-                <span className={onDark ? "text-teal-300" : "text-brand-700"}>Flow</span>
+                <span className={onDark ? "text-teal-300" : "text-[#0f766e]"}>Flow</span>
             </span>
         </span>
     )

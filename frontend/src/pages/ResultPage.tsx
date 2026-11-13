@@ -156,7 +156,7 @@ export function ResultPage() {
                 <div
                     role="group"
                     aria-label="Período"
-                    className="scroll-fade-x flex max-w-full gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-white p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                    className="scroll-fade-x flex max-w-full gap-1 overflow-x-auto rounded-xl border border-slate-200 bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 >
                     {PERIOD_OPTIONS.map((option) => (
                         <button

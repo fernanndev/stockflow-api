@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { BrandLogo } from "../components/BrandLogo"
+import { StoreBrand } from "../components/StoreBrand"
 
 import axios from "axios"
 
@@ -37,14 +38,14 @@ export function LoginPage() {
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+        <div className="flex min-h-screen items-center justify-center bg-app px-4">
             <form
                 onSubmit={handleSubmit}
                 className="card w-full max-w-sm rounded-2xl p-6 shadow-sm sm:p-8"
             >
-                <h1 className="sr-only">StockFlow</h1>
+                <h1 className="sr-only">Entrar</h1>
                 <div className="mb-2">
-                    <BrandLogo size="lg"/>
+                    <StoreBrand size="lg" />
                 </div>
                 <p className="mb-6 mt-1 text-sm text-slate-500">
                     Entre para gerenciar seu estoque
@@ -84,6 +85,10 @@ export function LoginPage() {
                     Entrar
                 </button>
 
+                <div className="mt-6 flex items-center justify-center gap-2 border-t border-slate-100 pt-4 text-xs text-slate-400">
+                    Sistema
+                    <BrandLogo size="xs" />
+                </div>
             </form>
         </div>
     )

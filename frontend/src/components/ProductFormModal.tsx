@@ -346,7 +346,7 @@ export function ProductFormModal({
                                 type="file"
                                 accept="image/jpeg,image/png,image/webp"
                                 onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
-                                className="block w-full text-sm text-slate-600 file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-lg file:border file:border-slate-300 file:bg-white file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 file:shadow-xs hover:file:bg-slate-50"
+                                className="block w-full text-sm text-slate-600 file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-lg file:border file:border-slate-300 file:bg-surface file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 file:shadow-xs hover:file:bg-slate-50"
                             />
                             {product?.image_url && !removeImage && !imageFile && (
                                 <button

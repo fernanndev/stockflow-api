@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { BrandLogo } from "./BrandLogo"
 import { Icon, type IconName } from "./Icon"
+import { StoreBrand } from "./StoreBrand"
 
 interface NavItem {
     to: string
@@ -100,7 +101,7 @@ function StockMenu({ pathname }: { pathname: string }) {
             </button>
 
             {open && (
-                <div className="absolute left-0 z-40 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg">
+                <div className="absolute left-0 z-40 mt-2 w-52 rounded-xl border border-slate-200 bg-surface p-1.5 shadow-lg">
                     {STOCK_LINKS.map((link) => (
                         <NavLink
                             key={link.to}
@@ -145,12 +146,12 @@ export function Layout() {
     }, [moreOpen])
 
     return (
-        <div className="min-h-screen bg-slate-50">
-            <nav className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+        <div className="min-h-screen bg-app">
+            <nav className="sticky top-0 z-30 border-b border-slate-200 bg-surface/90 backdrop-blur supports-[backdrop-filter]:bg-surface/75">
                 <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-8 sm:py-3">
                     <div className="flex min-w-0 items-center gap-6">
-                        <Link to="/" aria-label="Ir para o Dashboard" className="shrink-0">
-                            <BrandLogo size="md" />
+                        <Link to="/" aria-label="Ir para o Dashboard" className="min-w-0 shrink">
+                            <StoreBrand size="md" />
                         </Link>
 
                         <div className="hidden items-center gap-1 lg:flex">
@@ -180,6 +181,14 @@ export function Layout() {
                             Sair
                         </button>
                     </div>
+
+                    {/* the system mark: small, on the right, the store identity stays on the left */}
+                    <div
+                        className="shrink-0 border-l border-slate-200 pl-4 opacity-80"
+                        title="Sistema StockFlow"
+                    >
+                        <BrandLogo size="xs" />
+                    </div>
                 </div>
             </nav>
 
@@ -190,7 +199,7 @@ export function Layout() {
             {showBottomBar && (
                 <nav
                     aria-label="Menu principal"
-                    className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:hidden"
+                    className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-surface pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:hidden"
                 >
                     <div className="mx-auto flex max-w-3xl items-end px-2 sm:px-6">
                         <NavLink to="/" end className={tabClass}>
@@ -206,7 +215,7 @@ export function Layout() {
                             <Link
                                 to="/sales/new"
                                 aria-label="Nova venda"
-                                className="-mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-lg ring-4 ring-white transition active:bg-brand-800 sm:-mt-7 sm:h-[4.5rem] sm:w-[4.5rem]"
+                                className="-mt-5 flex h-14 w-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-lg ring-4 ring-surface transition active:bg-brand-800 sm:-mt-7 sm:h-[4.5rem] sm:w-[4.5rem]"
                             >
                                 <Icon name="plus" className="h-7 w-7 sm:h-9 sm:w-9" />
                             </Link>
@@ -237,7 +246,7 @@ export function Layout() {
                         role="dialog"
                         aria-modal="true"
                         aria-label="Mais opções"
-                        className="w-full max-w-2xl rounded-t-2xl bg-white px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-xl sm:px-6 sm:pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+                        className="w-full max-w-2xl rounded-t-2xl bg-surface px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-xl sm:px-6 sm:pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
                         onClick={(event) => event.stopPropagation()}
                     >
                         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-300" aria-hidden="true" />
@@ -273,7 +282,7 @@ export function Layout() {
                             }}
                             className="mt-4 flex w-full items-center justify-between rounded-xl bg-slate-50 px-4 py-3 text-sm sm:py-4 sm:text-base"
                         >
-                            <BrandLogo size="sm" />
+                            <StoreBrand size="sm" />
                             <span className="flex items-center gap-1.5 font-medium text-red-600">
                                 <Icon name="logout" className="h-4 w-4" />
                                 Sair

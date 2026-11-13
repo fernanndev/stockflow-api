@@ -65,7 +65,7 @@ function chipClass(active: boolean): string {
     return `shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition ${
         active
             ? "border-brand-700 bg-brand-700 text-white"
-            : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+            : "border-slate-300 bg-surface text-slate-700 hover:bg-slate-50"
     }`
 }
 
@@ -909,7 +909,7 @@ export function NewSalePage() {
                 </aside>
             </div>
             {/* Mobile: bar that opens the sale panel */}
-            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
+            <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-surface p-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] lg:hidden">
                 <button
                     type="button"
                     onClick={() => setPanelOpen(true)}

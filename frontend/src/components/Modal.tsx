@@ -30,7 +30,7 @@ export function Modal({ open, title, onClose, children, widthClass = "max-w-2xl"
             <div
                 role="dialog"
                 aria-modal="true"
-                className={`mt-12 w-full ${widthClass} rounded-t-2xl bg-white px-4 pt-3 pb-6 shadow-xl sm:my-10 sm:rounded-2xl sm:p-6`}
+                className={`mt-12 w-full ${widthClass} rounded-t-2xl bg-surface px-4 pt-3 pb-6 shadow-xl sm:my-10 sm:rounded-2xl sm:p-6`}
                 onClick={(event) => event.stopPropagation()}
             >
                 <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-slate-300 sm:hidden" aria-hidden="true" />

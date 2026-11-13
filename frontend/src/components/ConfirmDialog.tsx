@@ -38,7 +38,7 @@ export function ConfirmDialog({
             <div
                 role="dialog"
                 aria-modal="true"
-                className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+                className="w-full max-w-sm rounded-2xl bg-surface p-6 shadow-xl"
                 onClick={(event) => event.stopPropagation()}
             >
                 <h2 className="text-lg font-semibold text-slate-900">{title}</h2>

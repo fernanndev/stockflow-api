@@ -1,7 +1,7 @@
 import { StockFlowLogo } from "./StockFlowLogo";
 
-type Size = "sm" | "md" | "lg"
+type Size = "xs" | "sm" | "md" | "lg"
 
 export function BrandLogo({ size = "md" }: { size?: Size }) {
-    return <StockFlowLogo size={size}/>
+    return <StockFlowLogo size={size} />
 }
