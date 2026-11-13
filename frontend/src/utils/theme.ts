@@ -9,6 +9,18 @@ export const DEFAULT_STORE: StoreSettings = {
     logo_url: null,
 }
 
+// Quick picks for the main color; any other #rrggbb color can still be typed.
+export const PRIMARY_SUGGESTIONS = [
+    { label: "StockFlow", value: "#0f766e" },
+    { label: "Azul", value: "#2563eb" },
+    { label: "Roxo", value: "#7c3aed" },
+    { label: "Rosa", value: "#be185d" },
+    { label: "Vermelho", value: "#dc2626" },
+    { label: "Laranja", value: "#ea580c" },
+    { label: "Verde", value: "#16a34a" },
+    { label: "Grafite", value: "#334155" },
+]
+
 // Only light tones are offered for the background and the cards: all the text of the
 // system is dark, so a dark background would make it unreadable.
 export const BACKGROUND_PRESETS = [
@@ -118,24 +130,45 @@ export function buildPalette(primary: string): Record<Shade, string> {
     }
 }
 
-// Writes the store colors as CSS variables on <html>; Tailwind reads them at runtime.
-export function applyTheme(
-    store: Pick<StoreSettings, "primary_color" | "background_color" | "surface_color">,
-) {
-    const root = document.documentElement
+// Same values as the @theme block in index.css (the StockFlow teal).
+const DEFAULT_PALETTE: Record<Shade, string> = {
+    50: "#f0fdfa",
+    100: "#ccfbf1",
+    200: "#99f6e4",
+    500: "#14b8a6",
+    600: "#0d9488",
+    700: "#0f766e",
+    800: "#115e59",
+}
 
-    if (store.primary_color === DEFAULT_STORE.primary_color) {
-        // the CSS already has the default palette
-        SHADES.forEach((shade) => root.style.removeProperty(`--color-brand-${shade}`))
-    } else {
-        const palette = buildPalette(store.primary_color)
-        SHADES.forEach((shade) =>
-            root.style.setProperty(`--color-brand-${shade}`, palette[shade]),
-        )
+type ThemeColors = Pick<StoreSettings, "primary_color" | "background_color" | "surface_color">
+
+// The CSS variables of a look. Tailwind utilities (bg-brand-700, bg-surface...) read them.
+export function themeVariables(colors: ThemeColors): Record<string, string> {
+    const palette =
+        colors.primary_color === DEFAULT_STORE.primary_color
+            ? DEFAULT_PALETTE
+            : buildPalette(colors.primary_color)
+
+    const variables: Record<string, string> = {
+        "--color-app": colors.background_color,
+        "--color-surface": colors.surface_color,
     }
 
-    root.style.setProperty("--color-app", store.background_color)
-    root.style.setProperty("--color-surface", store.surface_color)
+    SHADES.forEach((shade) => {
+        variables[`--color-brand-${shade}`] = palette[shade]
+    })
+
+    return variables
+}
+
+// Applies the look to the whole page.
+export function applyTheme(colors: ThemeColors) {
+    const root = document.documentElement
+
+    Object.entries(themeVariables(colors)).forEach(([name, value]) =>
+        root.style.setProperty(name, value),
+    )
 }
 
 const CACHE_KEY = "store_settings"

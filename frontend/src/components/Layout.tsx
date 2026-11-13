@@ -35,6 +35,7 @@ const MORE_LINKS: NavItem[] = [
     { to: "/categories", label: "Categorias", icon: "tag" },
     { to: "/stock-movements", label: "Movimentações", icon: "swap" },
     { to: "/packagings", label: "Embalagens", icon: "package" },
+    { to: "/appearance", label: "Aparência", icon: "palette" },
 ]
 
 const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -125,6 +126,74 @@ function StockMenu({ pathname }: { pathname: string }) {
     )
 }
 
+// The store identity in the header; clicking it opens the home and appearance shortcuts.
+function StoreMenu() {
+    const [open, setOpen] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (!open) return
+
+        function handleClick(event: MouseEvent) {
+            if (!ref.current?.contains(event.target as Node)) setOpen(false)
+        }
+
+        function handleKey(event: KeyboardEvent) {
+            if (event.key === "Escape") setOpen(false)
+        }
+
+        document.addEventListener("mousedown", handleClick)
+        document.addEventListener("keydown", handleKey)
+
+        return () => {
+            document.removeEventListener("mousedown", handleClick)
+            document.removeEventListener("keydown", handleKey)
+        }
+    }, [open])
+
+    const itemClass = ({ isActive }: { isActive: boolean }) =>
+        `flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
+            isActive
+                ? "bg-brand-50 font-semibold text-brand-700"
+                : "font-medium text-slate-700 hover:bg-slate-100"
+        }`
+
+    return (
+        <div ref={ref} className="relative max-w-[12rem] min-w-0 shrink-0 sm:max-w-[16rem] lg:max-w-[12rem] xl:max-w-[16rem]">
+            <button
+                type="button"
+                onClick={() => setOpen((current) => !current)}
+                aria-expanded={open}
+                aria-label="Menu da loja"
+                className="flex max-w-full min-w-0 items-center gap-1 rounded-lg py-1 pr-1 transition hover:bg-slate-100"
+            >
+                <StoreBrand size="md" />
+                <Icon
+                    name="chevron"
+                    className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? "rotate-180" : ""}`}
+                />
+            </button>
+
+            {open && (
+                <div className="absolute left-0 z-40 mt-2 w-56 rounded-xl border border-slate-200 bg-surface p-1.5 shadow-lg">
+                    <NavLink to="/" end onClick={() => setOpen(false)} className={itemClass}>
+                        <Icon name="home" className="h-4 w-4" />
+                        Ir para o início
+                    </NavLink>
+                    <NavLink
+                        to="/appearance"
+                        onClick={() => setOpen(false)}
+                        className={itemClass}
+                    >
+                        <Icon name="palette" className="h-4 w-4" />
+                        Aparência da loja
+                    </NavLink>
+                </div>
+            )}
+        </div>
+    )
+}
+
 export function Layout() {
     const { logout } = useAuth()
     const { pathname } = useLocation()
@@ -150,9 +219,7 @@ export function Layout() {
             <nav className="sticky top-0 z-30 border-b border-slate-200 bg-surface/90 backdrop-blur supports-[backdrop-filter]:bg-surface/75">
                 <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5 sm:px-8 sm:py-3">
                     <div className="flex min-w-0 items-center gap-6">
-                        <Link to="/" aria-label="Ir para o Dashboard" className="min-w-0 shrink">
-                            <StoreBrand size="md" />
-                        </Link>
+                        <StoreMenu />
 
                         <div className="hidden items-center gap-1 lg:flex">
                             {MAIN_LINKS.map((link) => (
@@ -184,7 +251,7 @@ export function Layout() {
 
                     {/* the system mark: small, on the right, the store identity stays on the left */}
                     <div
-                        className="shrink-0 border-l border-slate-200 pl-4 opacity-80"
+                        className="shrink-0 border-l border-slate-200 pl-4 opacity-80 lg:hidden xl:block"
                         title="Sistema StockFlow"
                     >
                         <BrandLogo size="xs" />
@@ -254,7 +321,7 @@ export function Layout() {
                             Mais opções
                         </p>
 
-                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
                             {MORE_LINKS.map((link) => (
                                 <NavLink
                                     key={link.to}

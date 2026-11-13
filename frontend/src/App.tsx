@@ -11,6 +11,7 @@ import { SalesPage } from "./pages/SalesPage"
 import { NewSalePage } from "./pages/NewSalePage"
 import { CustomersPage } from "./pages/CustomersPage"
 import { ResultPage } from "./pages/ResultPage"
+import { AppearancePage } from "./pages/AppearancePage"
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/sales/new" element={<NewSalePage />} />
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/result" element={<ResultPage />} />
+          <Route path="/appearance" element={<AppearancePage />} />
         </Route>
       </Route>
     </Routes>
