@@ -149,3 +149,17 @@ export interface Customer {
 export interface CustomerDetail extends Customer {
     sales: Sale[]
 }
+
+export interface ResultReport {
+    sales_count: number
+    revenue: number
+    received: number
+    open_balance: number
+    products_cost: number
+    packagings_cost: number
+    gifts_cost: number
+    losses_cost: number
+    profit: number
+    gifts_forgone_revenue: number
+    items_without_cost: number
+}

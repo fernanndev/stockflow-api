@@ -6,50 +6,15 @@ import { Pagination } from "../components/Pagination"
 import { SaleDetailModal } from "../components/SaleDetailModal"
 import { useNotice } from "../hooks/useNotice"
 import type { SaleList, SaleStatus } from "../types"
-import { toIsoDate } from "../utils/date"
+import { PERIOD_OPTIONS, periodRange, type Period } from "../utils/period"
 import { formatCurrency, normalizeText } from "../utils/format"
 import { itemsSummary, saleSituation } from "../utils/sales"
 
 const PAGE_SIZE = 15
 
-type Period = "today" | "7d" | "month" | "all" | "custom"
-
-const PERIOD_OPTIONS: { value: Period; label: string }[] = [
-    { value: "today", label: "Hoje" },
-    { value: "7d", label: "Últimos 7 dias" },
-    { value: "month", label: "Este mês" },
-    { value: "all", label: "Todo o período" },
-    { value: "custom", label: "Personalizado" },
-]
-
 const EMPTY: SaleList = { sales: [], total_sold: 0, total_paid: 0, total_open: 0 }
 
 const inputClass = "ui-input"
-
-function periodRange(period: Period, from: string, to: string) {
-    const today = new Date()
-
-    if (period === "today") {
-        return { start_date: toIsoDate(today), end_date: toIsoDate(today) }
-    }
-
-    if (period === "7d") {
-        const start = new Date()
-        start.setDate(start.getDate() - 6)
-        return { start_date: toIsoDate(start), end_date: toIsoDate(today) }
-    }
-
-    if (period === "month") {
-        const start = new Date(today.getFullYear(), today.getMonth(), 1)
-        return { start_date: toIsoDate(start), end_date: toIsoDate(today) }
-    }
-
-    if (period === "custom") {
-        return { start_date: from || undefined, end_date: to || undefined }
-    }
-
-    return {}
-}
 
 export function SalesPage() {
     const [searchParams, setSearchParams] = useSearchParams()
