@@ -30,6 +30,8 @@ def test_the_store_starts_with_the_default_look_and_is_public(client):
         "primary_color": "#0f766e",
         "background_color": "#f8fafc",
         "surface_color": "#ffffff",
+        "card_surcharge_percent" : 0,
+        "interest_free_installments" : 3,
         "logo_url": None,
     }
 
@@ -98,3 +100,36 @@ def test_a_file_that_is_not_an_image_is_rejected_as_logo(
 
     assert response.status_code == 400
     assert list(tmp_path.iterdir()) == []
+
+def test_the_card_settings_are_saved_and_kept_when_not_sent(client, auth_headers):
+    saved = client.put(
+        "/store/",
+        json={**NEW_LOOK, "card_surcharge_percent": 7.5, "interest_free_installments": 3},
+        headers=auth_headers,
+    )
+
+    assert saved.status_code == 200
+    assert saved.json()["card_surcharge_percent"] == 7.5
+    assert saved.json()["interest_free_installments"] == 3
+
+    # a save that does not mention them (the appearance screen) keeps what was set
+    again = client.put("/store/", json=NEW_LOOK, headers=auth_headers)
+
+    assert again.json()["card_surcharge_percent"] == 7.5
+    assert client.get("/store/").json()["card_surcharge_percent"] == 7.5
+
+
+def test_invalid_card_settings_are_rejected(client, auth_headers):
+    invalid = [
+        ("card_surcharge_percent", -1),
+        ("card_surcharge_percent", 31),
+        ("interest_free_installments", 0),
+        ("interest_free_installments", 13),
+    ]
+
+    for field, value in invalid:
+        response = client.put(
+            "/store/", json={**NEW_LOOK, field: value}, headers=auth_headers
+        )
+
+        assert response.status_code == 422

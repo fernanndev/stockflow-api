@@ -11,6 +11,9 @@ class StoreUpdate(BaseModel):
     primary_color: HexColor
     background_color: HexColor
     surface_color: HexColor
+    # optional: a save that does not mention them keeps the current values
+    card_surcharge_percent: float | None = Field(default=None, ge=0, le=30)
+    interest_free_installments: int | None = Field(default=None, ge=1, le=12)
 
     model_config = {"str_strip_whitespace": True}
 
@@ -21,6 +24,8 @@ class StoreResponse(BaseModel):
     primary_color: str
     background_color: str
     surface_color: str
+    card_surcharge_percent: float
+    interest_free_installments: int
     logo_url: str | None = None
 
     model_config = {"from_attributes": True}
