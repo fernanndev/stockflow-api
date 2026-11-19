@@ -4,6 +4,8 @@ import { deleteStoreLogo, updateStore, uploadStoreLogo } from "../api/store"
 import { Notice } from "../components/Notice"
 import { useStore } from "../context/storeContext"
 import { useNotice } from "../hooks/useNotice"
+import { cardPrice, cardPriceLabel, hasCardPrice, installmentLabel } from "../utils/card"
+import { formatCurrency } from "../utils/format"
 import { getImageUrl } from "../utils/image"
 import {
     BACKGROUND_PRESETS,
@@ -22,6 +24,21 @@ interface Draft {
     primary: string
     background: string
     surface: string
+    cardPercent: string
+    installments: string
+}
+
+// "7,5" as the owner types it (comma or dot); null when it is not a valid percentage
+function parsePercent(text: string): number | null {
+    const value = Number(text.trim().replace(",", "."))
+
+    if (text.trim() === "" || !Number.isFinite(value) || value < 0 || value > 30) return null
+
+    return value
+}
+
+function percentToText(value: number): string {
+    return String(value).replace(".", ",")
 }
 
 function SwatchPicker({
@@ -67,7 +84,7 @@ function SwatchPicker({
     )
 }
 
-export function AppearancePage() {
+export function StoreSettingsPage() {
     const { store, setStore } = useStore()
     const { notice, showNotice } = useNotice()
     const fileInput = useRef<HTMLInputElement>(null)
@@ -84,6 +101,8 @@ export function AppearancePage() {
         primary: edits.primary ?? store.primary_color,
         background: edits.background ?? store.background_color,
         surface: edits.surface ?? store.surface_color,
+        cardPercent: edits.cardPercent ?? percentToText(store.card_surcharge_percent),
+        installments: edits.installments ?? String(store.interest_free_installments),
     }
 
     function change(field: keyof Draft, value: string) {
@@ -96,7 +115,17 @@ export function AppearancePage() {
     const adjustedPrimary = primaryValid ? effectivePrimary(usedPrimary) : usedPrimary
     const wasAdjusted = adjustedPrimary.toLowerCase() !== usedPrimary
 
+    const cardPercentValue = parsePercent(draft.cardPercent)
+    const cardValid = cardPercentValue !== null
+    const cardSettings = {
+        card_surcharge_percent: cardPercentValue ?? store.card_surcharge_percent,
+        interest_free_installments: Number(draft.installments),
+    }
+    const EXAMPLE_PRICE = 120
+
     const dirty =
+        cardSettings.card_surcharge_percent !== store.card_surcharge_percent ||
+        cardSettings.interest_free_installments !== store.interest_free_installments ||
         draft.name.trim() !== store.name ||
         draft.primary.toLowerCase() !== store.primary_color ||
         draft.background.toLowerCase() !== store.background_color ||
@@ -120,13 +149,15 @@ export function AppearancePage() {
                 primary_color: usedPrimary,
                 background_color: draft.background.toLowerCase(),
                 surface_color: draft.surface.toLowerCase(),
+                card_surcharge_percent: cardSettings.card_surcharge_percent,
+                interest_free_installments: cardSettings.interest_free_installments,
             })
 
             setStore(saved)
             setEdits({})
-            showNotice("Aparência salva.")
+            showNotice("Configurações salvas.")
         } catch {
-            setError("Não foi possível salvar a aparência. Tente novamente.")
+            setError("Não foi possível salvar as configurações. Tente novamente.")
         } finally {
             setSaving(false)
         }
@@ -187,9 +218,10 @@ export function AppearancePage() {
     return (
         <div className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-8">
             <div className="mb-6">
-                <h1 className="page-title">Aparência da loja</h1>
+                <h1 className="page-title">Configurações da loja</h1>
                 <p className="text-sm text-slate-500">
-                    Nome, logo e cores que aparecem no sistema e na tela de login.
+                    Nome, logo e cores que aparecem no sistema e na tela de login, e o preço no
+                    cartão.
                 </p>
             </div>
 
@@ -353,6 +385,99 @@ export function AppearancePage() {
                         </p>
                     </section>
 
+                    <section className="card space-y-4 p-5 sm:p-6">
+                        <h2 className="text-base font-semibold text-slate-900">
+                            Preço no cartão
+                        </h2>
+
+                        <p className="text-xs text-slate-500">
+                            O preço cadastrado nos produtos é o preço <strong>à vista</strong>.
+                            Informe a porcentagem que a maquininha cobra até as parcelas sem
+                            juros e o sistema calcula o preço no cartão, com a mesma conta da
+                            maquininha, para você receber exatamente o valor à vista. Deixe{" "}
+                            <strong>0</strong> para não mostrar preço no cartão.
+                        </p>
+
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div>
+                                <label htmlFor="card-percent" className="ui-label">
+                                    Acréscimo no cartão (%)
+                                </label>
+                                <input
+                                    id="card-percent"
+                                    inputMode="decimal"
+                                    value={draft.cardPercent}
+                                    onChange={(e) => change("cardPercent", e.target.value)}
+                                    placeholder="Ex.: 7"
+                                    className="ui-input w-full"
+                                />
+                                {!cardValid && (
+                                    <p className="mt-1 text-xs text-red-600">
+                                        Informe um número de 0 a 30.
+                                    </p>
+                                )}
+                            </div>
+                            <div>
+                                <label htmlFor="card-installments" className="ui-label">
+                                    Parcelas sem juros (até)
+                                </label>
+                                <select
+                                    id="card-installments"
+                                    value={draft.installments}
+                                    onChange={(e) => change("installments", e.target.value)}
+                                    className="ui-input w-full"
+                                >
+                                    {Array.from({ length: 12 }, (_, index) => index + 1).map(
+                                        (n) => (
+                                            <option key={n} value={n}>
+                                                {n === 1 ? "1x (só à vista no cartão)" : `${n}x`}
+                                            </option>
+                                        ),
+                                    )}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
+                            <p className="text-xs font-medium tracking-wide text-slate-500 uppercase">
+                                Exemplo com um produto de {formatCurrency(EXAMPLE_PRICE)}
+                            </p>
+                            {hasCardPrice(cardSettings) ? (
+                                <ul className="mt-1.5 space-y-0.5">
+                                    <li>
+                                        <strong>
+                                            {cardPriceLabel(EXAMPLE_PRICE, cardSettings)}
+                                        </strong>
+                                        {installmentLabel(EXAMPLE_PRICE, cardSettings) && (
+                                            <span className="text-slate-500">
+                                                {" "}
+                                                ({installmentLabel(EXAMPLE_PRICE, cardSettings)})
+                                            </span>
+                                        )}
+                                    </li>
+                                    <li>
+                                        <strong>{formatCurrency(EXAMPLE_PRICE)}</strong> com
+                                        desconto à vista
+                                    </li>
+                                    <li className="text-xs text-slate-500">
+                                        A maquininha desconta{" "}
+                                        {formatCurrency(
+                                            cardPrice(
+                                                EXAMPLE_PRICE,
+                                                cardSettings.card_surcharge_percent,
+                                            ) - EXAMPLE_PRICE,
+                                        )}{" "}
+                                        e você recebe {formatCurrency(EXAMPLE_PRICE)}.
+                                    </li>
+                                </ul>
+                            ) : (
+                                <p className="mt-1.5 text-slate-500">
+                                    Sem porcentagem, o sistema não mostra preço no cartão.
+                                </p>
+                            )}
+                        </div>
+                    </section>
+
                     {error && <p className="text-sm text-red-600">{error}</p>}
 
                     <div className="flex flex-wrap items-center justify-end gap-3">
@@ -367,10 +492,10 @@ export function AppearancePage() {
                         <button
                             type="button"
                             onClick={handleSave}
-                            disabled={!dirty || !primaryValid || !nameValid || saving}
+                            disabled={!dirty || !primaryValid || !nameValid || !cardValid || saving}
                             className="btn btn-primary"
                         >
-                            {saving ? "Salvando..." : "Salvar aparência"}
+                            {saving ? "Salvando..." : "Salvar configurações"}
                         </button>
                     </div>
                 </div>

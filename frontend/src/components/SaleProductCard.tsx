@@ -1,4 +1,6 @@
+import { useStore } from "../context/storeContext";
 import type { Product } from "../types";
+import { cardPrice, hasCardPrice } from "../utils/card";
 import { formatCurrency } from "../utils/format";
 import { getImageUrl } from "../utils/image";
 
@@ -24,6 +26,7 @@ function stockBadge(product: Product): { label: string; className: string } {
 }
 
 export function SaleProductCard ({ product, inSale, onAdd }: SaleProductCardProps) {
+    const { store } = useStore()
     const src = getImageUrl(product.image_url)
     const badge = stockBadge(product)
     const outOfStock = product.stock_quantity <= 0
@@ -80,6 +83,12 @@ export function SaleProductCard ({ product, inSale, onAdd }: SaleProductCardProp
                 <p className="mt-1 text-base font-semibold tabular-nums text-slate-900">
                     {formatCurrency(product.price)}
                 </p>
+                {hasCardPrice(store) && (
+                    <p className="text-[11px] tabular-nums text-slate-500">
+                        Cartão{" "}
+                        {formatCurrency(cardPrice(product.price, store.card_surcharge_percent))}
+                    </p>
+                )}
 
                 <div className="mt-auto pt-3">
                     {hasSeveralVariations ? (

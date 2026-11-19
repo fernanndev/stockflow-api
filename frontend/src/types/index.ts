@@ -171,5 +171,8 @@ export interface StoreSettings {
     primary_color: string
     background_color: string
     surface_color: string
+    // card price = cash price / (1 - percent / 100); 0 means "do not show a card price"
+    card_surcharge_percent: number
+    interest_free_installments: number
     logo_url: string | null
 }

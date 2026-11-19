@@ -17,10 +17,12 @@ import { ProfitValue } from "../components/ProfitValue"
 import { StalledBadge } from "../components/StalledBadge"
 import { StockBadge } from "../components/StockBadge"
 
+import { useStore } from "../context/storeContext"
 import { useNotice } from "../hooks/useNotice"
 
 import type { Category, Product } from "../types"
 
+import { cardPrice, hasCardPrice } from "../utils/card"
 import { daysUntil, EXPIRING_SOON_DAYS, formatDate } from "../utils/date"
 import { formatCurrency, normalizeText } from "../utils/format"
 import { getImageUrl } from "../utils/image" 
@@ -39,6 +41,7 @@ export function ProductsPage() {
     const hasFilter =
         categoryId !== null || productId !== null || status !== null || search !== ""
 
+    const { store } = useStore()
     const [products, setProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<Category[]>([])
     const [error, setError] = useState<string | null>(null)
@@ -299,6 +302,17 @@ export function ProductsPage() {
                                         </td>
                                         <td className="px-3 py-3 text-right text-slate-900">
                                             {formatCurrency(product.price)}
+                                            {hasCardPrice(store) && (
+                                                <p className="text-xs text-slate-500">
+                                                    Cartão{" "}
+                                                    {formatCurrency(
+                                                        cardPrice(
+                                                            product.price,
+                                                            store.card_surcharge_percent,
+                                                        ),
+                                                    )}
+                                                </p>
+                                            )}
                                         </td>
                                         <td className="px-3 py-3 text-right">
                                             <ProfitValue value={product.unit_profit} />
@@ -383,9 +397,22 @@ export function ProductsPage() {
                                             </p>
                                         )}
                                     </div>
-                                    <p className="whitespace-nowrap font-semibold tabular-nums text-slate-900">
-                                        {formatCurrency(product.price)}
-                                    </p>
+                                    <div className="text-right">
+                                        <p className="whitespace-nowrap font-semibold tabular-nums text-slate-900">
+                                            {formatCurrency(product.price)}
+                                        </p>
+                                        {hasCardPrice(store) && (
+                                            <p className="whitespace-nowrap text-xs tabular-nums text-slate-500">
+                                                Cartão{" "}
+                                                {formatCurrency(
+                                                    cardPrice(
+                                                        product.price,
+                                                        store.card_surcharge_percent,
+                                                    ),
+                                                )}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-3 border-t border-slate-100 pt-3 text-sm">
@@ -498,6 +525,7 @@ export function ProductsPage() {
                         setSummaryProductId(null)
                         openEdit(summaryProduct)
                     }}
+                    onNotice={showNotice}
                 />
             )}
 

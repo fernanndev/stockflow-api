@@ -35,7 +35,7 @@ const MORE_LINKS: NavItem[] = [
     { to: "/categories", label: "Categorias", icon: "tag" },
     { to: "/stock-movements", label: "Movimentações", icon: "swap" },
     { to: "/packagings", label: "Embalagens", icon: "package" },
-    { to: "/appearance", label: "Aparência", icon: "palette" },
+    { to: "/store-settings", label: "Loja", icon: "palette" },
 ]
 
 const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -126,7 +126,7 @@ function StockMenu({ pathname }: { pathname: string }) {
     )
 }
 
-// The store identity in the header; clicking it opens the home and appearance shortcuts.
+// The store identity in the header; clicking it opens the home and store settings shortcuts.
 function StoreMenu() {
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
@@ -181,12 +181,12 @@ function StoreMenu() {
                         Ir para o início
                     </NavLink>
                     <NavLink
-                        to="/appearance"
+                        to="/store-settings"
                         onClick={() => setOpen(false)}
                         className={itemClass}
                     >
                         <Icon name="palette" className="h-4 w-4" />
-                        Aparência da loja
+                        Configurações da loja
                     </NavLink>
                 </div>
             )}
