@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom"
 
 import type { Product } from "../types"
-import { formatDate } from "../utils/date"
+import { daysSince, formatDate, formatDateTime, formatDaysAgo } from "../utils/date"
 import { formatCurrency } from "../utils/format"
 import { getImageUrl } from "../utils/image"
 
 import { ExpirationBadge } from "./ExpirationBadge"
 import { Modal } from "./Modal"
 import { ProfitValue } from "./ProfitValue"
+import { StalledBadge } from "./StalledBadge"
 import { StockBadge } from "./StockBadge"
 
 interface ProductSummaryModalProps {
@@ -78,6 +79,29 @@ export function ProductSummaryModal({
                     ) : (
                         "—"
                     )}
+                </Field>
+                <Field label="Cadastrado em">
+                    {formatDateTime(product.created_at)}
+                    <span className="text-slate-400">
+                        {" "}
+                        ({formatDaysAgo(daysSince(product.created_at))})
+                    </span>
+                </Field>
+                <Field label="Última venda">
+                    {product.last_sold_at ? (
+                        <>
+                            {formatDateTime(product.last_sold_at)}
+                            <span className="text-slate-400">
+                                {" "}
+                                ({formatDaysAgo(daysSince(product.last_sold_at))})
+                            </span>
+                        </>
+                    ) : (
+                        <span className="text-slate-500">Nunca vendeu</span>
+                    )}
+                    <div className="mt-1">
+                        <StalledBadge product={product} />
+                    </div>
                 </Field>
                 {product.variations.length === 1 && (
                     <Field label="Código de barras">

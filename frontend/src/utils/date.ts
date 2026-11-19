@@ -21,3 +21,25 @@ export function toIsoDate(date: Date): string {
 
     return `${date.getFullYear()}-${month}-${day}`
 }
+
+// calendar days between an ISO date-time (as the API sends it) and today, in local time
+export function daysSince(isoDateTime: string): number {
+    const then = new Date(isoDateTime)
+    then.setHours(0, 0, 0, 0)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    return Math.max(0, Math.round((today.getTime() - then.getTime()) / 86_400_000))
+}
+
+export function formatDaysAgo(days: number): string {
+    if (days === 0) return "hoje"
+    if (days === 1) return "ontem"
+
+    return `há ${days} dias`
+}
+
+// "14/11/2026" from an ISO date-time
+export function formatDateTime(isoDateTime: string): string {
+    return new Date(isoDateTime).toLocaleDateString("pt-BR")
+}

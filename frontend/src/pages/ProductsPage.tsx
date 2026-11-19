@@ -14,6 +14,7 @@ import { ProductLotsModal } from "../components/ProductLotsModal"
 import { ProductSummaryModal } from "../components/ProductSummaryModal"
 import { ProductThumb } from "../components/ProductThumb"
 import { ProfitValue } from "../components/ProfitValue"
+import { StalledBadge } from "../components/StalledBadge"
 import { StockBadge } from "../components/StockBadge"
 
 import { useNotice } from "../hooks/useNotice"
@@ -23,6 +24,7 @@ import type { Category, Product } from "../types"
 import { daysUntil, EXPIRING_SOON_DAYS, formatDate } from "../utils/date"
 import { formatCurrency, normalizeText } from "../utils/format"
 import { getImageUrl } from "../utils/image" 
+import { isStalled } from "../utils/products"
 
 export function ProductsPage() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -124,6 +126,8 @@ export function ProductsPage() {
         ) {
             return false
         }
+        const stalledMatch = status?.match(/^stalled_(\d+)$/)
+        if (stalledMatch && !isStalled(product, Number(stalledMatch[1]))) return false
         return true
     })
 
@@ -225,6 +229,9 @@ export function ProductsPage() {
                     <option value="">Todas as situações</option>
                     <option value="low_stock">Estoque baixo</option>
                     <option value="expiring">Vencidos ou perto de vencer</option>
+                    <option value="stalled_30">Parados há 30 dias ou mais</option>
+                    <option value="stalled_60">Parados há 60 dias ou mais</option>
+                    <option value="stalled_90">Parados há 90 dias ou mais</option>
                 </select>
                 {hasFilter && (
                     <button
@@ -277,6 +284,11 @@ export function ProductsPage() {
                                                     {product.size && (
                                                         <p className="text-xs text-slate-500">
                                                             {product.size}
+                                                        </p>
+                                                    )}
+                                                    {isStalled(product) && (
+                                                        <p className="mt-0.5">
+                                                            <StalledBadge product={product} />
                                                         </p>
                                                     )}
                                                 </div>
@@ -365,6 +377,11 @@ export function ProductsPage() {
                                             {product.category.name}
                                             {product.size ? ` · ${product.size}` : ""}
                                         </p>
+                                        {isStalled(product) && (
+                                            <p className="mt-1">
+                                                <StalledBadge product={product} />
+                                            </p>
+                                        )}
                                     </div>
                                     <p className="whitespace-nowrap font-semibold tabular-nums text-slate-900">
                                         {formatCurrency(product.price)}

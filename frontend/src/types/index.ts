@@ -35,6 +35,8 @@ export interface Product {
     size: string | null
     expiration_date: string | null
     image_url: string | null
+    created_at: string
+    last_sold_at: string | null
     category: Category
     variations: Variation[]
 }
