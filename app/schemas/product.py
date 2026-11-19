@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from pydantic import BaseModel
 
 from app.schemas.category import CategoryResponse
@@ -29,6 +29,8 @@ class ProductResponse(BaseModel):
     size: str | None = None
     expiration_date: date | None = None
     image_url: str | None = None
+    created_at: datetime
+    last_sold_at: datetime | None = None
     category: CategoryResponse
     variations: list[VariationResponse]
 

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, column_property, mapped_column, relationship
 
 from app.models.base_model import BaseModel
 from app.models.lot import Lot
+from app.models.sale import Sale, SaleItem, SaleStatus
 from app.models.variation import Variation
 
 class Product(BaseModel):
@@ -50,5 +51,19 @@ Product.expiration_date = column_property(
         Lot.quantity > 0,
     )
     .correlate_except(Lot, Variation)
+    .scalar_subquery()
+)
+
+# Date of the last real sale of the product: gifts and canceled sales do not count.
+# Used to find products that are not selling ("parados")
+Product.last_sold_at = column_property(
+    select(func.max(Sale.created_at))
+    .where(
+        SaleItem.sale_id == Sale.id,
+        SaleItem.product_id == Product.id,
+        SaleItem.is_gift.is_(False),
+        Sale.status == SaleStatus.COMPLETED,
+    )
+    .correlate_except(Sale, SaleItem)
     .scalar_subquery()
 )
