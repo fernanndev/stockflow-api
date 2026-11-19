@@ -4,10 +4,10 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.models.base_model import BaseModel
 
 
-class StoreSettings(BaseModel):
-    """The look of one store: its name, logo and colors. The table has a single row."""
+class Store(BaseModel):
+    """One store: its name, logo and colors. Business data will belong to a store."""
 
-    __tablename__ = "store_settings"
+    __tablename__ = "stores"
 
     name: Mapped[str] = mapped_column(String(100), default="Minha loja")
 

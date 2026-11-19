@@ -22,7 +22,10 @@ def test_the_store_starts_with_the_default_look_and_is_public(client):
     response = client.get("/store/")
 
     assert response.status_code == 200
-    assert response.json() == {
+
+    body = response.json()
+    assert isinstance(body.pop("id"), int)
+    assert body == {
         "name": "Minha loja",
         "primary_color": "#0f766e",
         "background_color": "#f8fafc",

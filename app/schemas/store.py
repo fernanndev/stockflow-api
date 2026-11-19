@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, StringConstraints
 HexColor = Annotated[str, StringConstraints(pattern=r"^#[0-9a-fA-F]{6}$", to_lower=True)]
 
 
-class StoreSettingsUpdate(BaseModel):
+class StoreUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     primary_color: HexColor
     background_color: HexColor
@@ -15,7 +15,8 @@ class StoreSettingsUpdate(BaseModel):
     model_config = {"str_strip_whitespace": True}
 
 
-class StoreSettingsResponse(BaseModel):
+class StoreResponse(BaseModel):
+    id: int
     name: str
     primary_color: str
     background_color: str
