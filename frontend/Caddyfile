@@ -1,0 +1,31 @@
+# DOMAIN comes from the .env file of the server (e.g. app.mystore.com.br).
+# With a real domain Caddy asks for the HTTPS certificate by itself and renews it.
+{$DOMAIN:localhost} {
+	encode zstd gzip
+
+	# the API answers under /api; the prefix is removed before it reaches the API
+	handle_path /api/* {
+		request_body {
+			max_size 10MB
+		}
+		reverse_proxy api:8000
+	}
+
+	# everything else is the site; unknown paths open index.html (the React router decides)
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
+	# files with a hash in the name never change: the browser can keep them for a year
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=31536000, immutable"
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

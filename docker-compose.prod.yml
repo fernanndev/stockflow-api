@@ -1,0 +1,56 @@
+# Production: docker compose -f docker-compose.prod.yml up -d --build
+# The values come from the .env file of the server (see .env.production.example).
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stockflow
+      POSTGRES_USER: stockflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?write POSTGRES_PASSWORD in the .env file}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stockflow -d stockflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # no "ports": the database is only reachable by the other containers, never from the internet
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://stockflow:${POSTGRES_PASSWORD}@postgres:5432/stockflow
+      SECRET_KEY: ${SECRET_KEY:?write SECRET_KEY in the .env file}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-720}
+      CORS_ORIGINS: https://${DOMAIN:?write DOMAIN in the .env file}
+      MAX_STORES: ${MAX_STORES:-2}
+      ENABLE_DOCS: "false"
+    # the migrations run every time the API starts, so a new version updates the database by itself
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'"]
+    volumes:
+      - uploads_data:/app/uploads
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  postgres_data:
+  uploads_data:
+  caddy_data:
+  caddy_config:
