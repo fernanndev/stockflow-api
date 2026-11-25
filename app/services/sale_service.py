@@ -30,12 +30,13 @@ def money(value) -> Decimal:
 
 class SaleService:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
         self.repository = SaleRepository(db)
-        self.product_repository = ProductRepository(db)
+        self.product_repository = ProductRepository(db, store_id)
         self.packaging_repository = PackagingRepository(db)
-        self.movements = StockMovementService(db)
+        self.movements = StockMovementService(db, store_id)
 
     def create(self, data: SaleCreate) -> Sale:
         try:

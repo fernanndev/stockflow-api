@@ -5,13 +5,19 @@ from app.models.base_model import BaseModel
 
 class Variation(BaseModel):
     __tablename__ = "variations"
-    __table_args__ = (UniqueConstraint("product_id", "name"),)
+    __table_args__ = (
+        UniqueConstraint("product_id", "name"),
+        # the code is unique inside one store; NULL (no barcode) can repeat
+        UniqueConstraint("store_id", "barcode", name="uq_variations_store_barcode"),
+    )
 
     name: Mapped[str] = mapped_column(String(100))
 
-    # the code printed on the package (EAN, UPC...) Each flavor/size has its own,
-    # unique in the whole store; NULL (no barcode) can repeat
-    barcode: Mapped[str | None] = mapped_column(String(50), unique=True)
+    # the code printed on the package (EAN, UPC...) Each flavor/size has its own
+    barcode: Mapped[str | None] = mapped_column(String(50))
+
+    # same store as the product; kept here so the barcode can be unique per store
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
 
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship(back_populates="variations")

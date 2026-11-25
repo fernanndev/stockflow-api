@@ -9,10 +9,11 @@ from app.schemas.variation import VariationCreate, VariationUpdate
 
 
 class VariationService:
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
-        self.repository = VariationRepository(db)
-        self.product_repository = ProductRepository(db)
+        self.store_id = store_id
+        self.repository = VariationRepository(db, store_id)
+        self.product_repository = ProductRepository(db, store_id)
 
     def create(self, product_id: int, data: VariationCreate) -> Variation:
         product = self.product_repository.get_by_id(product_id)
@@ -24,7 +25,12 @@ class VariationService:
         self.ensure_barcode_is_free(data.barcode)
 
         variation = self.repository.create(
-            Variation(product_id=product_id, name=data.name, barcode=data.barcode)
+            Variation(
+                product_id=product_id,
+                name=data.name,
+                barcode=data.barcode,
+                store_id=self.store_id,
+            )
         )
 
         self.db.commit()

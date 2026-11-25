@@ -21,12 +21,13 @@ MANUAL_EXIT_REASONS = {MovementReason.EXPIRED, MovementReason.LOSS, MovementReas
 
 class StockMovementService:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
         self.repository = StockMovementRepository(db)
-        self.product_repository = ProductRepository(db)
-        self.variation_repository = VariationRepository(db)
-        self.lot_repository = LotRepository(db)
+        self.product_repository = ProductRepository(db, store_id)
+        self.variation_repository = VariationRepository(db, store_id)
+        self.lot_repository = LotRepository(db, store_id)
 
     def create(self, data: StockMovementCreate) -> StockMovement:
         product = self.product_repository.get_by_id(data.product_id)

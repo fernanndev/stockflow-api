@@ -19,17 +19,15 @@ DEFAULT_VARIATION_NAME = "Padrão"
 
 class ProductService:
 
-    def __init__(self, db: Session):
-        self.db = db
-        self.repository = ProductRepository(db)
-        self.variation_service = VariationService(db)
-
-    def _get_category(self, store_id: int, category_id: int):
+    def __init__(self, db: Session, store_id: int):
+        self.store_id = store_id
+        self.repository = ProductRepository(db, store_id)
         # a product can only use a category of its own store
-        return CategoryRepository(self.db, store_id).get_by_id(category_id)
+        self.category_repository = CategoryRepository(db, store_id)
+        self.variation_service = VariationService(db, store_id)
 
-    def create(self, data: ProductCreate, store_id: int) -> Product:
-        category = self._get_category(store_id, data.category_id)
+    def create(self, data: ProductCreate) -> Product:
+        category = self.category_repository.get_by_id(data.category_id)
 
         if not category:
             raise ValueError("Category not found.")
@@ -42,12 +40,15 @@ class ProductService:
             size=data.size,
             cost_price=data.cost_price,
             category_id=data.category_id,
+            store_id=self.store_id,
         )
 
         self.variation_service.ensure_barcode_is_free(data.barcode)
 
         # Every product has at least one variation; the initial stock is its first lot.
-        variation = Variation(name=DEFAULT_VARIATION_NAME, barcode=data.barcode)
+        variation = Variation(
+            name=DEFAULT_VARIATION_NAME, barcode=data.barcode, store_id=self.store_id
+        )
 
         if data.stock_quantity > 0:
             variation.lots.append(Lot(quantity=data.stock_quantity, expiration_date=data.expiration_date))
@@ -59,13 +60,13 @@ class ProductService:
     def list_all(self) -> list[Product]:
         return self.repository.list_all()
 
-    def update(self, product_id: int, data: ProductUpdate, store_id: int) -> Product:
+    def update(self, product_id: int, data: ProductUpdate) -> Product:
         product = self.repository.get_by_id(product_id)
 
         if not product:
             raise ValueError("Product not found.")
 
-        category = self._get_category(store_id, data.category_id)
+        category = self.category_repository.get_by_id(data.category_id)
 
         if not category:
             raise ValueError("Category not found.")

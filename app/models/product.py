@@ -30,6 +30,7 @@ class Product(BaseModel):
             return None
         return float(self.price) - float(self.cost_price)
 
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     category: Mapped["Category"] = relationship(back_populates="products")
     variations: Mapped[list["Variation"]] = relationship(back_populates="product", cascade="all, delete-orphan")

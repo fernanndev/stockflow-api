@@ -3,18 +3,26 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from app.models.lot import Lot
+from app.models.variation import Variation
 
 class LotRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
 
     def create(self, lot: Lot) -> Lot:
         self.db.add(lot)
         return lot
 
     def get_by_id(self, lot_id: int) -> Lot | None:
-        return self.db.query(Lot).filter(Lot.id == lot_id).first()
+        # a lot belongs to a store through its variation
+        return (
+            self.db.query(Lot)
+            .join(Variation, Lot.variation_id == Variation.id)
+            .filter(Lot.id == lot_id, Variation.store_id == self.store_id)
+            .first()
+        )
 
     def find_by_expiration(self, variation_id: int, expiration_date: date | None) -> Lot | None:
         query = self.db.query(Lot).filter(Lot.variation_id == variation_id)

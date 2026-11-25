@@ -1,12 +1,17 @@
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Query, Session, selectinload
 
 from app.models.product import Product
 from app.models.variation import Variation
 
-class ProductRepository: 
+class ProductRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
+
+    def _query(self) -> Query:
+        # every read starts here, so a product of another store is never visible
+        return self.db.query(Product).filter(Product.store_id == self.store_id)
 
     def create(self, product: Product) -> Product:
         self.db.add(product)
@@ -15,11 +20,11 @@ class ProductRepository:
         return product
 
     def get_by_id(self, product_id: int) -> Product | None:
-        return self.db.query(Product).filter(Product.id == product_id).first()
+        return self._query().filter(Product.id == product_id).first()
 
     def list_all(self) -> list[Product]:
         return (
-            self.db.query(Product)
+            self._query()
             .options(selectinload(Product.variations).selectinload(Variation.lots))
             .all()
         )

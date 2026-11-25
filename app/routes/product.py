@@ -20,17 +20,20 @@ def create_product(
     store: Store = Depends(get_current_store),
     db: Session = Depends(get_db)
 ):
-    service = ProductService(db)
+    service = ProductService(db, store.id)
 
     try:
-        return service.create(data, store.id)
+        return service.create(data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @router.get("/", response_model=list[ProductResponse])
-def list_products(db: Session = Depends(get_db)):
-    service = ProductService(db)
+def list_products(
+    store: Store = Depends(get_current_store),
+    db: Session = Depends(get_db),
+):
+    service = ProductService(db, store.id)
     return service.list_all()
 
 
@@ -41,10 +44,10 @@ def update_product(
     store: Store = Depends(get_current_store),
     db: Session = Depends(get_db),
 ):
-    service = ProductService(db)
+    service = ProductService(db, store.id)
 
     try:
-        return service.update(product_id, data, store.id)
+        return service.update(product_id, data)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -52,9 +55,10 @@ def update_product(
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(
     product_id: int,
+    store: Store = Depends(get_current_store),
     db: Session = Depends(get_db),
 ):
-    service = ProductService(db)
+    service = ProductService(db, store.id)
 
     try:
         service.delete(product_id)
@@ -66,9 +70,10 @@ def delete_product(
 def upload_product_image(
     product_id: int,
     image: UploadFile = File(...),
+    store: Store = Depends(get_current_store),
     db: Session = Depends(get_db),
 ):
-    service = ProductService(db)
+    service = ProductService(db, store.id)
 
     try:
         return service.set_image(product_id, image.file)
@@ -78,9 +83,10 @@ def upload_product_image(
 @router.delete("/{product_id}/image", response_model=ProductResponse)
 def delete_product_image(
     product_id: int,
+    store: Store = Depends(get_current_store),
     db: Session = Depends(get_db),
 ):
-    service = ProductService(db)
+    service = ProductService(db, store.id)
 
     try:
         return service.remove_image(product_id)

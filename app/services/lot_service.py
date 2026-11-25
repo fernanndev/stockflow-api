@@ -6,9 +6,9 @@ from app.schemas.variation import LotUpdate
 
 class LotService:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
-        self.repository = LotRepository(db)
+        self.repository = LotRepository(db, store_id)
 
     def update(self, lot_id: int, data: LotUpdate) -> Lot:
         lot = self.repository.get_by_id(lot_id)
