@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom"
 
-import { useStore } from "../context/storeContext"
 import type { Product } from "../types"
-import { cardPriceShort, copyText, hasCardPrice, priceMessage } from "../utils/card"
 import { daysSince, formatDate, formatDateTime, formatDaysAgo } from "../utils/date"
 import { formatCurrency } from "../utils/format"
 import { getImageUrl } from "../utils/image"
@@ -18,8 +16,6 @@ interface ProductSummaryModalProps {
     onClose: () => void
     onOpenLots: () => void
     onEdit: () => void
-    // shows a short message in the page (e.g. after copying the price text)
-    onNotice?: (message: string) => void
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -36,15 +32,8 @@ export function ProductSummaryModal({
     onClose,
     onOpenLots,
     onEdit,
-    onNotice,
 }: ProductSummaryModalProps) {
-    const { store } = useStore()
     const imageSrc = getImageUrl(product.image_url)
-
-    async function handleCopyPrice() {
-        const copied = await copyText(priceMessage(product.name, product.price, store))
-        onNotice?.(copied ? "Texto do preço copiado." : "Não foi possível copiar o texto.")
-    }
 
     return (
         <Modal open title={product.name} onClose={onClose} widthClass="max-w-lg">
@@ -66,13 +55,7 @@ export function ProductSummaryModal({
             )}
 
             <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
-                <Field label="Preço">
-                    {formatCurrency(product.price)}
-                    {hasCardPrice(store) && <span className="text-slate-400"> à vista</span>}
-                </Field>
-                {hasCardPrice(store) && (
-                    <Field label="No cartão">{cardPriceShort(product.price, store)}</Field>
-                )}
+                <Field label="Preço">{formatCurrency(product.price)}</Field>
                 <Field label="Custo">
                     {product.cost_price !== null ? formatCurrency(product.cost_price) : "—"}
                 </Field>
@@ -149,9 +132,6 @@ export function ProductSummaryModal({
             )}
 
             <div className="mt-6 flex flex-wrap justify-end gap-3 text-sm font-medium">
-                <button type="button" onClick={handleCopyPrice} className="btn btn-secondary">
-                    Copiar texto do preço
-                </button>
                 <button
                     type="button"
                     onClick={onOpenLots}

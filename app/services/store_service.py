@@ -30,12 +30,6 @@ class StoreService:
         store.background_color = data.background_color
         store.surface_color = data.surface_color
 
-        if data.card_surcharge_percent is not None:
-            store.card_surcharge_percent = data.card_surcharge_percent
-
-        if data.interest_free_installments is not None:
-            store.interest_free_installments = data.interest_free_installments
-
         return self.repository.update(store)
 
     def set_logo(self, file: BinaryIO) -> Store:

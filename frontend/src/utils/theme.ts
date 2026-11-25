@@ -6,8 +6,6 @@ export const DEFAULT_STORE: StoreSettings = {
     primary_color: "#0f766e",
     background_color: "#f8fafc",
     surface_color: "#ffffff",
-    card_surcharge_percent: 0,
-    interest_free_installments: 3,
     logo_url: null,
 }
 

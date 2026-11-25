@@ -11,11 +11,9 @@ import { Pagination } from "../components/Pagination"
 import { SaleProductCard } from "../components/SaleProductCard"
 import { CustomerFormModal } from "../components/CustomerFormModal"
 import { CustomerPicker } from "../components/CustomerPicker"
-import { useStore } from "../context/storeContext"
 
 import type { Packaging, PaymentMethod, Product, Customer } from "../types"
 
-import { cardPrice, hasCardPrice, installmentLabel } from "../utils/card"
 import { formatCurrency, normalizeText } from "../utils/format"
 import { PAYMENT_METHOD_OPTIONS } from "../utils/sales"
 
@@ -85,7 +83,6 @@ export function NewSalePage() {
     const [page, setPage] = useState(1)
     const [items, setItems] = useState<ItemLine[]>([])
     const [usedPackagings, setUsedPackagings] = useState<PackagingLine[]>([])
-    const { store } = useStore()
     const [payments, setPayments] = useState<PaymentLine[]>([])
     const [customer, setCustomer] = useState<Customer | null>(null)
     const [showCustomerForm, setShowCustomerForm] = useState(false)
@@ -833,63 +830,6 @@ export function NewSalePage() {
                                                 >
                                                     ×
                                                 </button>
-
-                                                {line.method === "credit_card" && !hasCardPrice(store) && (
-                                                    <p className="col-span-3 text-xs text-slate-500">
-                                                        Para ver o valor a passar na maquininha,
-                                                        informe o acréscimo do cartão em{" "}
-                                                        <a
-                                                            href="/store-settings"
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="font-medium text-brand-700 hover:underline"
-                                                        >
-                                                            Configurações da loja
-                                                        </a>
-                                                        .
-                                                    </p>
-                                                )}
-
-                                                {line.method === "credit_card" &&
-                                                    hasCardPrice(store) &&
-                                                    toNumber(line.amount) > 0 && (
-                                                        <div className="col-span-3 rounded-lg bg-brand-50 p-2.5 text-xs text-slate-700">
-                                                            <p>
-                                                                Passe na maquininha{" "}
-                                                                <strong className="text-sm text-slate-900">
-                                                                    {formatCurrency(
-                                                                        cardPrice(
-                                                                            toNumber(line.amount),
-                                                                            store.card_surcharge_percent,
-                                                                        ),
-                                                                    )}
-                                                                </strong>
-                                                                {installmentLabel(
-                                                                    toNumber(line.amount),
-                                                                    store,
-                                                                ) && (
-                                                                    <>
-                                                                        {" "}
-                                                                        em até{" "}
-                                                                        {store.interest_free_installments}
-                                                                        x sem juros (
-                                                                        {installmentLabel(
-                                                                            toNumber(line.amount),
-                                                                            store,
-                                                                        )}
-                                                                        )
-                                                                    </>
-                                                                )}
-                                                                . Você recebe{" "}
-                                                                {formatCurrency(toNumber(line.amount))}.
-                                                            </p>
-                                                            <p className="mt-1 text-slate-500">
-                                                                Em mais parcelas, use a calculadora
-                                                                da maquininha: a taxa é repassada ao
-                                                                cliente.
-                                                            </p>
-                                                        </div>
-                                                    )}
                                             </li>
                                         ))}
                                     </ul>

@@ -1,4 +1,4 @@
-from sqlalchemy import Numeric ,String
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base_model import BaseModel
@@ -17,11 +17,6 @@ class Store(BaseModel):
     surface_color: Mapped[str] = mapped_column(String(7), default="#ffffff")
 
     logo_path: Mapped[str | None] = mapped_column(String(255))
-
-    # Card price = cash price / (1 - percent / 100), the same math as the card machine.
-    # 0 means "do not show a card price"
-    card_surcharge_percent: Mapped[float] = mapped_column(Numeric(5, 2), default=0)
-    interest_free_installments: Mapped[int] = mapped_column(default=3)
 
     @property
     def logo_url(self) -> str | None:
