@@ -20,12 +20,16 @@ DEFAULT_VARIATION_NAME = "Padrão"
 class ProductService:
 
     def __init__(self, db: Session):
+        self.db = db
         self.repository = ProductRepository(db)
-        self.category_repository = CategoryRepository(db)
         self.variation_service = VariationService(db)
 
-    def create(self, data: ProductCreate) -> Product:
-        category = self.category_repository.get_by_id(data.category_id)
+    def _get_category(self, store_id: int, category_id: int):
+        # a product can only use a category of its own store
+        return CategoryRepository(self.db, store_id).get_by_id(category_id)
+
+    def create(self, data: ProductCreate, store_id: int) -> Product:
+        category = self._get_category(store_id, data.category_id)
 
         if not category:
             raise ValueError("Category not found.")
@@ -55,13 +59,13 @@ class ProductService:
     def list_all(self) -> list[Product]:
         return self.repository.list_all()
 
-    def update(self, product_id: int, data: ProductUpdate) -> Product:
+    def update(self, product_id: int, data: ProductUpdate, store_id: int) -> Product:
         product = self.repository.get_by_id(product_id)
 
         if not product:
             raise ValueError("Product not found.")
 
-        category = self.category_repository.get_by_id(data.category_id)
+        category = self._get_category(store_id, data.category_id)
 
         if not category:
             raise ValueError("Category not found.")

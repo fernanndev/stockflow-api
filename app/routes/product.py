@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile ,status
 from sqlalchemy.orm import Session
 
 from app.auth.dependecies import get_current_user
+from app.auth.store import get_current_store
 from app.database.dependencies import get_db
+from app.models.store import Store
 from app.schemas.product import ProductCreate, ProductResponse, ProductUpdate
 from app.services.product_service import ProductService
 
@@ -15,12 +17,13 @@ router = APIRouter(
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 def create_product(
     data: ProductCreate,
+    store: Store = Depends(get_current_store),
     db: Session = Depends(get_db)
 ):
     service = ProductService(db)
 
     try:
-        return service.create(data)
+        return service.create(data, store.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -35,12 +38,13 @@ def list_products(db: Session = Depends(get_db)):
 def update_product(
     product_id: int,
     data: ProductUpdate,
+    store: Store = Depends(get_current_store),
     db: Session = Depends(get_db),
 ):
     service = ProductService(db)
 
     try:
-        return service.update(product_id, data)
+        return service.update(product_id, data, store.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

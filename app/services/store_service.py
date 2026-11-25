@@ -22,6 +22,9 @@ class StoreService:
         # first access: the first store starts with the default look
         return self.repository.create(Store())
 
+    def get_by_id(self, store_id: int) -> Store | None:
+        return self.repository.get_by_id(store_id)
+
     def update(self, data: StoreUpdate) -> Store:
         store = self.get()
 

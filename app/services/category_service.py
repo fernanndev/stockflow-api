@@ -6,19 +6,20 @@ from app.schemas.category import CategoryCreate
 
 class CategoryService:
 
-    def __init__(self, db: Session):
-        self.repository = CategoryRepository(db)
+    def __init__(self, db: Session, store_id: int):
+        self.store_id = store_id
+        self.repository = CategoryRepository(db, store_id)
 
     def create(self, data: CategoryCreate) -> Category:
         existing = self.repository.get_by_name(data.name)
 
         if existing:
             raise ValueError("Category already created.")
-        
-        category = Category(name=data.name)
+
+        category = Category(name=data.name, store_id=self.store_id)
 
         return self.repository.create(category)
-    
+
     def list_all(self) -> list[Category]:
         return self.repository.list_all()
 
