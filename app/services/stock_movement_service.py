@@ -24,7 +24,7 @@ class StockMovementService:
     def __init__(self, db: Session, store_id: int):
         self.db = db
         self.store_id = store_id
-        self.repository = StockMovementRepository(db)
+        self.repository = StockMovementRepository(db, store_id)
         self.product_repository = ProductRepository(db, store_id)
         self.variation_repository = VariationRepository(db, store_id)
         self.lot_repository = LotRepository(db, store_id)
@@ -99,6 +99,7 @@ class StockMovementService:
             allocations = self._take_from_lots(variation, quantity, lot)
 
         movement = StockMovement(
+            store_id=self.store_id,
             product_id=product.id,
             variation_id=variation.id,
             type=type,
@@ -130,6 +131,7 @@ class StockMovementService:
             )
 
         reversal = StockMovement(
+            store_id=self.store_id,
             product_id=movement.product_id,
             variation_id=movement.variation_id,
             type=MovementType.IN,

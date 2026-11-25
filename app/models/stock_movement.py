@@ -35,6 +35,9 @@ class StockMovement(BaseModel):
     unit_price: Mapped[float | None] = mapped_column(Numeric(10, 2))
     unit_cost: Mapped[float | None] = mapped_column(Numeric(10, 4))
 
+    # same store as the product
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+
     product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship(back_populates="movements")
 

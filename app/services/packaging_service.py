@@ -11,8 +11,9 @@ from app.schemas.packaging import PackagingCreate, PackagingPurchase, PackagingU
 
 class PackagingService:
 
-    def __init__(self, db: Session):
-        self.repository = PackagingRepository(db)
+    def __init__(self, db: Session, store_id: int):
+        self.store_id = store_id
+        self.repository = PackagingRepository(db, store_id)
 
     def create(self, data: PackagingCreate) -> Packaging:
         if self.repository.get_by_name(data.name):
@@ -21,7 +22,7 @@ class PackagingService:
         if (data.quantity is None) != (data.total_cost is None):
             raise ValueError("Quantity and total cost must be informed together.")
 
-        packaging = Packaging(name=data.name)
+        packaging = Packaging(name=data.name, store_id=self.store_id)
 
         if data.quantity is not None:
             packaging.stock_quantity = data.quantity

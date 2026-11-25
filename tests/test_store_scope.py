@@ -217,3 +217,61 @@ def test_stock_movements_and_sales_only_use_products_of_the_active_store(
     # the stock of store A did not move
     in_a = client.get("/products/", headers=in_store(auth_headers, store_a)).json()
     assert in_a[0]["stock_quantity"] == 5
+
+
+def post_packaging(client, headers, name="Sacola", **extra):
+    return client.post("/packagings/", json={"name": name, **extra}, headers=headers)
+
+
+def test_each_store_has_its_own_packagings(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    from_a = in_store(auth_headers, store_a)
+    from_b = in_store(auth_headers, store_b)
+
+    packaging = post_packaging(client, from_a).json()
+
+    assert [item["name"] for item in client.get("/packagings/", headers=from_a).json()] == ["Sacola"]
+    assert client.get("/packagings/", headers=from_b).json() == []
+
+    # the same name is fine in another store, but not twice in the same one
+    assert post_packaging(client, from_b).status_code == 201
+    assert post_packaging(client, from_a).status_code == 400
+
+    other = [
+        client.put(f"/packagings/{packaging['id']}", json={"name": "Hacked"}, headers=from_b),
+        client.post(
+            f"/packagings/{packaging['id']}/purchases",
+            json={"quantity": 5, "total_cost": 10.0},
+            headers=from_b,
+        ),
+        client.delete(f"/packagings/{packaging['id']}", headers=from_b),
+    ]
+
+    for response in other:
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Packaging not found."
+
+    # still untouched in its own store
+    assert [item["name"] for item in client.get("/packagings/", headers=from_a).json()] == ["Sacola"]
+
+
+def test_each_store_only_sees_its_own_stock_movements(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    product = make_product(client, auth_headers, store_a, stock_quantity=5)
+    from_a = in_store(auth_headers, store_a)
+    from_b = in_store(auth_headers, store_b)
+
+    entry = client.post(
+        "/stock-movements/",
+        json={"product_id": product["id"], "type": "in", "quantity": 3},
+        headers=from_a,
+    )
+
+    assert entry.status_code == 201
+    assert len(client.get("/stock-movements/", headers=from_a).json()) == 1
+    assert client.get("/stock-movements/", headers=from_b).json() == []
+    assert client.get(
+        f"/stock-movements/?product_id={product['id']}", headers=from_b
+    ).json() == []

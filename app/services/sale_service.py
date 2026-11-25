@@ -35,7 +35,7 @@ class SaleService:
         self.store_id = store_id
         self.repository = SaleRepository(db)
         self.product_repository = ProductRepository(db, store_id)
-        self.packaging_repository = PackagingRepository(db)
+        self.packaging_repository = PackagingRepository(db, store_id)
         self.movements = StockMovementService(db, store_id)
 
     def create(self, data: SaleCreate) -> Sale:

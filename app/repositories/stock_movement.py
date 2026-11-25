@@ -6,17 +6,19 @@ from app.models.stock_movement import StockMovement
 
 class StockMovementRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
-
+        self.store_id = store_id
 
     def create(self, movement: StockMovement) -> StockMovement:
         self.db.add(movement)
         return movement
 
     def list_all(self, product_id: int | None = None) -> list[StockMovement]:
-        query = self.db.query(StockMovement).options(
-            joinedload(StockMovement.product).joinedload(Product.category)
+        query = (
+            self.db.query(StockMovement)
+            .filter(StockMovement.store_id == self.store_id)
+            .options(joinedload(StockMovement.product).joinedload(Product.category))
         )
 
         if product_id is not None:
