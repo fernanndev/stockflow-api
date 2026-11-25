@@ -16,6 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 import app.models  # noqa: F401  (registers every table on Base.metadata)
 from app.core.config import settings
+from app.core.rate_limit import login_limiter
 from app.database.base import Base
 from app.database.dependencies import get_db
 from app.main import app
@@ -53,6 +54,12 @@ def engine():
     yield test_engine
 
     test_engine.dispose()
+
+
+@pytest.fixture(autouse=True)
+def clean_login_limiter():
+    # failed logins are counted in memory: every test starts with a clean count
+    login_limiter.clear()
 
 
 @pytest.fixture()

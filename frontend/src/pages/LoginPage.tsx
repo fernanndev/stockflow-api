@@ -29,6 +29,8 @@ export function LoginPage() {
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 401) {
                 setError("E-mail ou senha incorretos.")
+            } else if (axios.isAxiosError(err) && err.response?.status === 429) {
+                setError("Muitas tentativas erradas. Aguarde alguns minutos e tente de novo.")
             } else if (axios.isAxiosError(err) && !err.response) {
                 setError("Não foi possível conectar ao servidor. Verifique a conexão.")
             } else {
