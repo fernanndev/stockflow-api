@@ -275,3 +275,143 @@ def test_each_store_only_sees_its_own_stock_movements(client, auth_headers, engi
     assert client.get(
         f"/stock-movements/?product_id={product['id']}", headers=from_b
     ).json() == []
+
+
+def post_customer(client, headers, name="Ana", phone="11999990000"):
+    return client.post("/customers/", json={"name": name, "phone": phone}, headers=headers)
+
+
+def test_each_store_has_its_own_customers(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    from_a = in_store(auth_headers, store_a)
+    from_b = in_store(auth_headers, store_b)
+
+    customer = post_customer(client, from_a).json()
+
+    assert [item["name"] for item in client.get("/customers/", headers=from_a).json()] == ["Ana"]
+    assert client.get("/customers/", headers=from_b).json() == []
+
+    # the same phone is fine in another store, but not twice in the same one
+    assert post_customer(client, from_b).status_code == 201
+    assert post_customer(client, from_a, name="Outra").status_code == 400
+
+    other = [
+        client.get(f"/customers/{customer['id']}", headers=in_store(auth_headers, create_store(engine, "Loja C"))),
+        client.put(
+            f"/customers/{customer['id']}",
+            json={"name": "Hacked", "phone": "11888880000"},
+            headers=in_store(auth_headers, create_store(engine, "Loja D")),
+        ),
+        client.delete(
+            f"/customers/{customer['id']}",
+            headers=in_store(auth_headers, create_store(engine, "Loja E")),
+        ),
+    ]
+
+    for response in other:
+        assert response.status_code in (400, 404)
+        assert response.json()["detail"] == "Customer not found."
+
+
+def test_each_store_only_sees_its_own_sales(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    from_a = in_store(auth_headers, store_a)
+    from_b = in_store(auth_headers, store_b)
+    product = make_product(client, auth_headers, store_a, stock_quantity=5)
+
+    # a credit sale ("fiado") in store A: nothing paid
+    sale = client.post(
+        "/sales/",
+        json={
+            "items": [{"product_id": product["id"], "quantity": 1}],
+            "customer_name": "Ana",
+        },
+        headers=from_a,
+    )
+
+    assert sale.status_code == 201
+    sale_id = sale.json()["id"]
+
+    assert len(client.get("/sales/", headers=from_a).json()["sales"]) == 1
+    assert client.get("/sales/", headers=from_b).json()["sales"] == []
+    assert len(client.get("/sales/open-credit", headers=from_a).json()) == 1
+    assert client.get("/sales/open-credit", headers=from_b).json() == []
+
+    other = [
+        client.get(f"/sales/{sale_id}", headers=from_b),
+        client.post(
+            f"/sales/{sale_id}/payments", json={"amount": 10.0, "method": "pix"}, headers=from_b
+        ),
+        client.post(f"/sales/{sale_id}/cancel", headers=from_b),
+    ]
+
+    for response in other:
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Sale not found."
+
+    # a sale cannot use a customer of another store either
+    customer = post_customer(client, from_a, name="Bia", phone="11777770000").json()
+    product_b = make_product(client, auth_headers, store_b, name="Whey B", stock_quantity=5)
+    stolen = client.post(
+        "/sales/",
+        json={
+            "items": [{"product_id": product_b["id"], "quantity": 1}],
+            "customer_id": customer["id"],
+        },
+        headers=from_b,
+    )
+
+    assert stolen.status_code == 400
+    assert stolen.json()["detail"] == "Customer not found."
+
+
+def test_the_dashboard_counts_only_the_active_store(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    make_product(client, auth_headers, store_a, price=10.0, stock_quantity=3)
+    post_category(client, in_store(auth_headers, store_b), "Roupas")
+
+    in_a = client.get("/reports/dashboard", headers=in_store(auth_headers, store_a)).json()
+    in_b = client.get("/reports/dashboard", headers=in_store(auth_headers, store_b)).json()
+
+    assert (in_a["total_products"], in_a["total_categories"], in_a["total_stock_value"]) == (1, 1, 30)
+    assert (in_b["total_products"], in_b["total_categories"], in_b["total_stock_value"]) == (0, 1, 0)
+
+
+def test_low_stock_is_listed_per_store(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    make_product(client, auth_headers, store_a, stock_quantity=1, minimum_stock=5)
+
+    in_a = client.get("/reports/low_stock", headers=in_store(auth_headers, store_a)).json()
+    in_b = client.get("/reports/low_stock", headers=in_store(auth_headers, store_b)).json()
+
+    assert [item["name"] for item in in_a] == ["Whey"]
+    assert in_b == []
+
+
+def test_the_result_and_the_profit_belong_to_one_store(client, auth_headers, engine):
+    store_a = create_store(engine, "Loja A")
+    store_b = create_store(engine, "Loja B")
+    product = make_product(
+        client, auth_headers, store_a, price=100.0, cost_price=40.0, stock_quantity=5
+    )
+
+    sold = client.post(
+        "/sales/",
+        json={
+            "items": [{"product_id": product["id"], "quantity": 2}],
+            "payments": [{"amount": 200.0, "method": "pix"}],
+        },
+        headers=in_store(auth_headers, store_a),
+    )
+
+    assert sold.status_code == 201
+
+    in_a = client.get("/reports/result", headers=in_store(auth_headers, store_a)).json()
+    in_b = client.get("/reports/result", headers=in_store(auth_headers, store_b)).json()
+
+    assert (in_a["revenue"], in_a["products_cost"], in_a["profit"]) == (200.0, 80.0, 120.0)
+    assert (in_b["revenue"], in_b["products_cost"], in_b["profit"]) == (0, 0, 0)

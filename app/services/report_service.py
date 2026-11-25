@@ -20,9 +20,9 @@ def cents(value: Decimal) -> Decimal:
 
 class ReportService:
 
-    def __init__(self, db: Session):
-        self.repository = ReportRepository(db)
-        self.sale_repository = SaleRepository(db)
+    def __init__(self, db: Session, store_id: int):
+        self.repository = ReportRepository(db, store_id)
+        self.sale_repository = SaleRepository(db, store_id)
 
     def dashboard(self) -> dict:
         return {

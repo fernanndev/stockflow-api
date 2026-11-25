@@ -11,19 +11,30 @@ from app.repositories.sale import LOCAL_TIMEZONE
 
 class ReportRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
 
     def count_products(self) -> int:
-        return self.db.query(func.count(Product.id)).scalar()
+        return (
+            self.db.query(func.count(Product.id))
+            .filter(Product.store_id == self.store_id)
+            .scalar()
+        )
 
     def count_categories(self) -> int:
-        return self.db.query(func.count(Category.id)).scalar()
+        return (
+            self.db.query(func.count(Category.id))
+            .filter(Category.store_id == self.store_id)
+            .scalar()
+        )
 
     def total_stock_value(self) -> float:
-        total = self.db.query(
-            func.sum(Product.price * Product.stock_quantity)
-        ).scalar()
+        total = (
+            self.db.query(func.sum(Product.price * Product.stock_quantity))
+            .filter(Product.store_id == self.store_id)
+            .scalar()
+        )
 
         return total or 0
 
@@ -32,16 +43,21 @@ class ReportRepository:
             self.db.query(
                 func.sum((Product.price - Product.cost_price) * Product.stock_quantity)
             )
-            .filter(Product.cost_price.is_not(None))
+            .filter(Product.store_id == self.store_id, Product.cost_price.is_not(None))
             .scalar()
         )
 
         return total or 0
 
     def low_stock_products(self) -> list[Product]:
-        return self.db.query(Product).filter(
-            Product.stock_quantity <= Product.minimum_stock
-        ).all()
+        return (
+            self.db.query(Product)
+            .filter(
+                Product.store_id == self.store_id,
+                Product.stock_quantity <= Product.minimum_stock,
+            )
+            .all()
+        )
 
     def expiring_products(self, days: int) -> list[Product]:
         limit_date = date.today() + timedelta(days=days)
@@ -49,6 +65,7 @@ class ReportRepository:
         return (
             self.db.query(Product)
             .filter(
+                Product.store_id == self.store_id,
                 Product.expiration_date.is_not(None),
                 Product.expiration_date <= limit_date,
             )
@@ -61,6 +78,7 @@ class ReportRepository:
         movement_day = cast(func.timezone(LOCAL_TIMEZONE, StockMovement.created_at), Date)
 
         query = self.db.query(StockMovement).filter(
+            StockMovement.store_id == self.store_id,
             StockMovement.type == MovementType.OUT,
             StockMovement.reason.in_(
                 [MovementReason.EXPIRED, MovementReason.LOSS, MovementReason.OTHER]

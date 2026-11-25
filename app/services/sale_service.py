@@ -33,7 +33,7 @@ class SaleService:
     def __init__(self, db: Session, store_id: int):
         self.db = db
         self.store_id = store_id
-        self.repository = SaleRepository(db)
+        self.repository = SaleRepository(db, store_id)
         self.product_repository = ProductRepository(db, store_id)
         self.packaging_repository = PackagingRepository(db, store_id)
         self.movements = StockMovementService(db, store_id)
@@ -155,12 +155,12 @@ class SaleService:
         return sale
 
     def _build(self, data: SaleCreate) -> Sale:
-        customer = CustomerService(self.db).for_sale(
+        customer = CustomerService(self.db, self.store_id).for_sale(
             data.customer_id, data.customer_name, data.customer_phone
         )
 
         sale = self.repository.create(
-            Sale(customer=customer, status=SaleStatus.COMPLETED)
+            Sale(customer=customer, status=SaleStatus.COMPLETED, store_id=self.store_id)
         )
 
         for item in data.items:

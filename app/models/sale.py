@@ -23,6 +23,8 @@ class PaymentMethod(str, enum.Enum):
 class Sale(BaseModel):
     __tablename__ = "sales"
 
+    store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
+
     customer_id: Mapped[int | None] = mapped_column(
         ForeignKey("customers.id", ondelete="RESTRICT"), index=True
     )

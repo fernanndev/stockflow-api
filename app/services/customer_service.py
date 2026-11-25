@@ -14,10 +14,11 @@ from app.schemas.customer import CustomerCreate, CustomerUpdate
 
 class CustomerService:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
-        self.repository = CustomerRepository(db)
-        self.sale_repository = SaleRepository(db)
+        self.store_id = store_id
+        self.repository = CustomerRepository(db, store_id)
+        self.sale_repository = SaleRepository(db, store_id)
 
     def find_or_create(self, name: str | None, phone: str | None) -> Customer | None:
         """The customer a sale belongs to; None for an anonymous sale."""
@@ -28,7 +29,9 @@ class CustomerService:
             if existing:
                 return existing
 
-            return self.repository.create(Customer(name=name or phone, phone=phone))
+            return self.repository.create(
+                Customer(name=name or phone, phone=phone, store_id=self.store_id)
+            )
 
         if name:
             existing = self.repository.get_by_name_without_phone(name)
@@ -36,7 +39,7 @@ class CustomerService:
             if existing:
                 return existing
 
-            return self.repository.create(Customer(name=name))
+            return self.repository.create(Customer(name=name, store_id=self.store_id))
 
         return None
 
@@ -51,7 +54,9 @@ class CustomerService:
         self._check_unique(data.name, data.phone, None)
 
         customer = self.repository.create(
-            Customer(name=data.name, phone=data.phone, notes=data.notes)
+            Customer(
+                name=data.name, phone=data.phone, notes=data.notes, store_id=self.store_id
+            )
         )
 
         self.db.commit()

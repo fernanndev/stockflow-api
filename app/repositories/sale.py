@@ -1,7 +1,7 @@
 from datetime import date
 
 from sqlalchemy import Date, cast, func
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Query, Session, selectinload
 
 from app.models.sale import Sale, SaleStatus
 
@@ -11,15 +11,20 @@ LOCAL_TIMEZONE = "America/Sao_Paulo"
 
 class SaleRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
+
+    def _query(self) -> Query:
+        # every read starts here, so a sale of another store is never visible
+        return self.db.query(Sale).filter(Sale.store_id == self.store_id)
 
     def create(self, sale: Sale) -> Sale:
         self.db.add(sale)
         return sale
 
     def get_by_id(self, sale_id: int) -> Sale | None:
-        return self.db.query(Sale).filter(Sale.id == sale_id).first()
+        return self._query().filter(Sale.id == sale_id).first()
 
     def list_all(
             self,
@@ -27,7 +32,7 @@ class SaleRepository:
             end_date: date | None = None,
             status: SaleStatus | None = None,
     ) -> list[Sale]:
-        query = self._with_children(self.db.query(Sale))
+        query = self._with_children(self._query())
         sale_day = cast(func.timezone(LOCAL_TIMEZONE, Sale.created_at), Date)
 
         if start_date:
@@ -43,7 +48,7 @@ class SaleRepository:
 
     def list_with_customer(self) -> list[Sale]:
         """Completed sales that have a customer, oldest first (candidates for open credit.)"""
-        query = self._with_children(self.db.query(Sale)).filter(
+        query = self._with_children(self._query()).filter(
             Sale.status == SaleStatus.COMPLETED,
             Sale.customer_id.isnot(None)
         )
@@ -52,7 +57,7 @@ class SaleRepository:
 
     def list_by_customer(self, customer_id: int) -> list[Sale]:
         """Every sale of one customer, newest first (canceled ones included)."""
-        query = self._with_children(self.db.query(Sale)).filter(Sale.customer_id == customer_id)
+        query = self._with_children(self._query()).filter(Sale.customer_id == customer_id)
 
         return query.order_by(Sale.created_at.desc(), Sale.id.desc()).all()
 

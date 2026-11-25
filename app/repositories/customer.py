@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session
 
 from app.models.customer import Customer
 from app.models.sale import Sale
@@ -7,8 +7,13 @@ from app.models.sale import Sale
 
 class CustomerRepository:
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, store_id: int):
         self.db = db
+        self.store_id = store_id
+
+    def _query(self) -> Query:
+        # every read starts here, so a customer of another store is never visible
+        return self.db.query(Customer).filter(Customer.store_id == self.store_id)
 
     def create(self, customer: Customer) -> Customer:
         # flush, not commit: this runs inside the sale's transaction,
@@ -18,20 +23,20 @@ class CustomerRepository:
         return customer
 
     def get_by_id(self, customer_id: int) -> Customer | None:
-        return self.db.query(Customer).filter(Customer.id == customer_id).first()
+        return self._query().filter(Customer.id == customer_id).first()
 
     def get_by_phone(self, phone: str) -> Customer | None:
-        return self.db.query(Customer).filter(Customer.phone == phone).first()
+        return self._query().filter(Customer.phone == phone).first()
 
     def get_by_name_without_phone(self, name: str) -> Customer | None:
         return (
-            self.db.query(Customer)
+            self._query()
             .filter(Customer.phone.is_(None), func.lower(Customer.name) == name.lower())
             .first()
         )
 
     def list_all(self) -> list[Customer]:
-        return self.db.query(Customer).order_by(func.lower(Customer.name)).all()
+        return self._query().order_by(func.lower(Customer.name)).all()
 
     def count_sales(self, customer_id: int) -> int:
         return self.db.query(Sale).filter(Sale.customer_id == customer_id).count()
