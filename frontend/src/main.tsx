@@ -14,11 +14,11 @@ applyTheme(readCachedStore())
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <StoreProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <StoreProvider>
           <App />
-        </AuthProvider>
-      </StoreProvider>
+        </StoreProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 )

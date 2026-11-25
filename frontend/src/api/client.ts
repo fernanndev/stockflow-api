@@ -1,5 +1,7 @@
 import axios from "axios"
 
+import { readActiveStoreId } from "../utils/activeStore"
+
 export const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 })
@@ -9,6 +11,12 @@ api.interceptors.request.use((config) => {
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
+    }
+
+    const storeId = readActiveStoreId()
+
+    if (storeId) {
+        config.headers["X-Store-Id"] = String(storeId)
     }
 
     return config

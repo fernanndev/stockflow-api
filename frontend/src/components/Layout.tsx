@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react"
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom"
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import { useStore } from "../context/storeContext"
 import { BrandLogo } from "./BrandLogo"
 import { Icon, type IconName } from "./Icon"
+import { NewStoreModal } from "./NewStoreModal"
 import { StoreBrand } from "./StoreBrand"
+import { StoreTile } from "./StoreTile"
 
 interface NavItem {
     to: string
@@ -126,10 +129,16 @@ function StockMenu({ pathname }: { pathname: string }) {
     )
 }
 
-// The store identity in the header; clicking it opens the home and store settings shortcuts.
+// The store identity in the header. Clicking it opens the stores of the installation
+// (to switch between them or add one) and the shortcuts to the home and to the settings.
 function StoreMenu() {
+    const { store, stores, plan, switchStore } = useStore()
+    const navigate = useNavigate()
     const [open, setOpen] = useState(false)
+    const [creating, setCreating] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
+
+    const limitReached = plan !== null && plan.total_stores >= plan.max_stores
 
     useEffect(() => {
         if (!open) return
@@ -150,6 +159,15 @@ function StoreMenu() {
             document.removeEventListener("keydown", handleKey)
         }
     }, [open])
+
+    function choose(id: number) {
+        setOpen(false)
+
+        if (id === store.id) return
+
+        switchStore(id)
+        navigate("/")
+    }
 
     const itemClass = ({ isActive }: { isActive: boolean }) =>
         `flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
@@ -175,7 +193,58 @@ function StoreMenu() {
             </button>
 
             {open && (
-                <div className="absolute left-0 z-40 mt-2 w-56 rounded-xl border border-slate-200 bg-surface p-1.5 shadow-lg">
+                <div className="absolute left-0 z-40 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 bg-surface p-1.5 shadow-lg">
+                    {stores.length > 0 && (
+                        <>
+                            <p className="px-3 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+                                Suas lojas
+                            </p>
+                            {stores.map((item) => (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => choose(item.id)}
+                                    aria-current={item.id === store.id}
+                                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm transition ${
+                                        item.id === store.id
+                                            ? "bg-brand-50 font-semibold text-brand-700"
+                                            : "font-medium text-slate-700 hover:bg-slate-100"
+                                    }`}
+                                >
+                                    <StoreTile store={item} />
+                                    <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                                    {item.id === store.id && (
+                                        <Icon name="check" className="h-4 w-4 shrink-0" />
+                                    )}
+                                </button>
+                            ))}
+
+                            <button
+                                type="button"
+                                disabled={limitReached}
+                                onClick={() => {
+                                    setOpen(false)
+                                    setCreating(true)
+                                }}
+                                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-brand-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400 disabled:hover:bg-transparent"
+                            >
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-dashed border-current">
+                                    <Icon name="plus" className="h-4 w-4" />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                    Nova loja
+                                    {limitReached && (
+                                        <span className="block text-xs font-normal text-slate-500">
+                                            Seu plano permite até {plan?.max_stores} lojas
+                                        </span>
+                                    )}
+                                </span>
+                            </button>
+
+                            <div className="my-1.5 border-t border-slate-100" />
+                        </>
+                    )}
+
                     <NavLink to="/" end onClick={() => setOpen(false)} className={itemClass}>
                         <Icon name="home" className="h-4 w-4" />
                         Ir para o início
@@ -190,12 +259,23 @@ function StoreMenu() {
                     </NavLink>
                 </div>
             )}
+
+            <NewStoreModal
+                open={creating}
+                onClose={() => setCreating(false)}
+                onCreated={() => {
+                    setCreating(false)
+                    // the new store is already the active one: set its name, logo and colors
+                    navigate("/store-settings")
+                }}
+            />
         </div>
     )
 }
 
 export function Layout() {
     const { logout } = useAuth()
+    const { store } = useStore()
     const { pathname } = useLocation()
     const [moreOpen, setMoreOpen] = useState(false)
 
@@ -260,7 +340,7 @@ export function Layout() {
             </nav>
 
             <div className={showBottomBar ? "pb-20 sm:pb-28 xl:pb-0" : ""}>
-                <Outlet />
+                <Outlet key={store.id} />
             </div>
 
             {showBottomBar && (

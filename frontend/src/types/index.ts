@@ -167,9 +167,15 @@ export interface ResultReport {
 }
 
 export interface StoreSettings {
+    id: number
     name: string
     primary_color: string
     background_color: string
     surface_color: string
     logo_url: string | null
+}
+
+export interface StorePlan {
+    max_stores: number
+    total_stores: number
 }

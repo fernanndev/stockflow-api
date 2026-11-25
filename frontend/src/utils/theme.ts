@@ -2,6 +2,7 @@ import type { StoreSettings } from "../types"
 
 // The look the system had before stores could change it (StockFlow teal).
 export const DEFAULT_STORE: StoreSettings = {
+    id: 0,
     name: "Minha loja",
     primary_color: "#0f766e",
     background_color: "#f8fafc",
