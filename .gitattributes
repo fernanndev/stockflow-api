@@ -1,0 +1,5 @@
+# the deploy scripts and files run on Linux: they must always keep Unix line endings
+*.sh text eol=lf
+Dockerfile text eol=lf
+Caddyfile text eol=lf
+*.yml text eol=lf
