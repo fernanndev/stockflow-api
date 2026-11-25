@@ -15,4 +15,7 @@ class Settings(BaseSettings):
     # how many stores this installation may have (the plan of the customer)
     max_stores: int = 2
 
+    # the interactive API docs (/docs) are turned off in production
+    enable_docs: bool = True
+
 settings = Settings()

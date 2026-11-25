@@ -1,6 +1,16 @@
-.venv
-__pychace__
-*.pyc
 .git
+.github
 .env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
 /uploads
+frontend
+tests
+docs
+deploy
+Claude outputs
+*.sql
