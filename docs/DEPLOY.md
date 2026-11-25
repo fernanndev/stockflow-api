@@ -175,14 +175,24 @@ Crie uma conta grátis no [UptimeRobot](https://uptimerobot.com), adicione um mo
 
 ## 10. Atualizar para uma versão nova
 
-```bash
-cd ~/stockflow-api
-./deploy/backup.sh                 # sempre antes de atualizar
-git pull
-docker compose -f docker-compose.prod.yml up -d --build
+O caminho do código é sempre o mesmo, e **nunca se edita nada direto no servidor**:
+
+```
+seu computador ──git push──► GitHub ──git pull──► VPS ──► o sistema atualizado
 ```
 
-O banco é atualizado sozinho. Se algo der errado: `git checkout <versão anterior>` e o mesmo `up -d --build` (e, se preciso, restaure o backup).
+1. No seu computador: altera, testa, faz o commit e o `git push` (e uma tag para marcar a versão, por exemplo `v1.2.1`).
+2. No servidor, um comando só:
+
+```bash
+cd ~/stockflow-api
+./deploy/update.sh              # o código mais novo (branch main)
+./deploy/update.sh v1.2.1       # ou exatamente uma versão
+```
+
+Ele faz o backup, baixa o código, reconstrói e reinicia. Os **dados não se perdem** (o banco e as fotos ficam em "volumes" separados do código) e o banco é atualizado sozinho. O sistema fica indisponível por alguns segundos durante a troca.
+
+Se uma versão der problema: `./deploy/update.sh v1.2.0` volta para a anterior (e, se mexeu em dados, o backup de antes está em `~/backups`).
 
 ## 11. Comandos do dia a dia
 
