@@ -15,6 +15,17 @@ class StoreUpdate(BaseModel):
     model_config = {"str_strip_whitespace": True}
 
 
+class StoreCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+    model_config = {"str_strip_whitespace": True}
+
+
+class StorePlanResponse(BaseModel):
+    max_stores: int
+    total_stores: int
+
+
 class StoreResponse(BaseModel):
     id: int
     name: str

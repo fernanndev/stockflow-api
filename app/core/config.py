@@ -12,4 +12,7 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:5173"
 
+    # how many stores this installation may have (the plan of the customer)
+    max_stores: int = 2
+
 settings = Settings()

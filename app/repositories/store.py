@@ -12,6 +12,12 @@ class StoreRepository:
         # until the active store exists (M3), the system uses the first one
         return self.db.query(Store).order_by(Store.id).first()
 
+    def list_all(self) -> list[Store]:
+        return self.db.query(Store).order_by(Store.id).all()
+
+    def count(self) -> int:
+        return self.db.query(Store).count()
+
     def get_by_id(self, store_id: int) -> Store | None:
         return self.db.query(Store).filter(Store.id == store_id).first()
 

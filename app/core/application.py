@@ -19,6 +19,7 @@ from app.routes.lot import router as lot_router
 from app.routes.sale import router as sale_router
 from app.routes.customer import router as customer_router
 from app.routes.store import router as store_router
+from app.routes.stores import router as stores_router
 
 
 def create_app() -> FastAPI:
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(sale_router)
     app.include_router(customer_router)
     app.include_router(store_router)
+    app.include_router(stores_router)
 
     app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 

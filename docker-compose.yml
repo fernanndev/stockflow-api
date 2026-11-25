@@ -23,6 +23,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-480}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      MAX_STORES: ${MAX_STORES:-2}
     ports:
       - "8000:8000"
     volumes:
