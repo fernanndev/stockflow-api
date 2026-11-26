@@ -105,12 +105,12 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
 ```bash
 cd ~
-git clone https://github.com/SEU-USUARIO/stockflow-api.git
+git clone https://github.com/fernanndev/stockflow-api.git
 cd stockflow-api
-git checkout v1.2.0        # a versão que você testou
+git checkout v1.2.1        # a versão que você testou
 ```
 
-(Se o repositório for privado, o GitHub pede um _token_ no lugar da senha. Crie em GitHub → Settings → Developer settings → Personal access tokens, só com permissão de leitura do repositório.)
+(O repositório é público, então o `git clone` não pede senha. Se um dia ele virar privado, crie em GitHub → Settings → Deploy keys uma chave de leitura para o servidor.)
 
 ## 6. Configurar e subir
 
