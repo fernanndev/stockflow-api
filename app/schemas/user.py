@@ -15,3 +15,12 @@ class UserResponse(BaseModel):
         "from_attributes": True
     }
     
+
+
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
+
+
+class PasswordReset(BaseModel):
+    password: str = Field(min_length=8)

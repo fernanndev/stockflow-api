@@ -12,6 +12,7 @@ import { NewSalePage } from "./pages/NewSalePage"
 import { CustomersPage } from "./pages/CustomersPage"
 import { ResultPage } from "./pages/ResultPage"
 import { StoreSettingsPage } from "./pages/StoreSettingsPage"
+import { ChangePasswordPage } from "./pages/ChangePasswordPage"
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="/customers" element={<CustomersPage />} />
           <Route path="/result" element={<ResultPage />} />
           <Route path="/store-settings" element={<StoreSettingsPage />} />
+          <Route path="/change-password" element={<ChangePasswordPage />} />
         </Route>
       </Route>
     </Routes>

@@ -142,7 +142,13 @@ O sistema não tem cadastro público (de propósito). O primeiro usuário se cri
 docker compose -f docker-compose.prod.yml exec api python -m app.create_user --name "Seu Nome" --email voce@exemplo.com
 ```
 
-Ele pede a senha (mínimo 8 caracteres). Entre no sistema, abra o menu da loja (topo) → **Configurações da loja** e coloque nome, logo e cores da primeira loja. Para a segunda: menu da loja → **Nova loja**. Cada pessoa que for usar precisa do próprio usuário (rode o comando de novo).
+Ele pede a senha (mínimo 8 caracteres). Cada pessoa pode depois trocar a própria senha no sistema (ícone da chave no topo, ou "Mais → Senha" no celular). Se alguém **esquecer** a senha, você define uma nova pelo servidor:
+
+```bash
+docker compose -f docker-compose.prod.yml exec api python -m app.reset_password --email voce@exemplo.com
+```
+
+Entre no sistema, abra o menu da loja (topo) → **Configurações da loja** e coloque nome, logo e cores da primeira loja. Para a segunda: menu da loja → **Nova loja**. Cada pessoa que for usar precisa do próprio usuário (rode o comando de novo).
 
 ## 8. Backup (não pule)
 

@@ -13,6 +13,7 @@ export type IconName =
     | "logout"
     | "palette"
     | "check"
+    | "key"
 
 // simple line icons (24x24), drawn with the current text color
 const PATHS: Record<IconName, string> = {
@@ -29,6 +30,7 @@ const PATHS: Record<IconName, string> = {
     chevron: "M6 9l6 6 6-6",
     logout: "M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4",
     check: "M5 13l4 4L19 7",
+    key: "M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 1-7.8 7.8 5.5 5.5 0 0 1 7.8-7.8zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3",
     palette: "M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.7 1.6-1.4 0-1-.8-1.3-.8-2.2 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4c0-4.4-4-8.8-9-8.8zM7.5 12h.01M9.5 8h.01M14.5 8h.01",
 }
 

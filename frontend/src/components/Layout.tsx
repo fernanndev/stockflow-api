@@ -39,6 +39,7 @@ const MORE_LINKS: NavItem[] = [
     { to: "/stock-movements", label: "Movimentações", icon: "swap" },
     { to: "/packagings", label: "Embalagens", icon: "package" },
     { to: "/store-settings", label: "Loja", icon: "palette" },
+    { to: "/change-password", label: "Senha", icon: "key" },
 ]
 
 const desktopLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -320,6 +321,14 @@ export function Layout() {
                         <Link to="/sales/new" className="btn btn-primary btn-sm">
                             + Nova venda
                         </Link>
+                        <Link
+                            to="/change-password"
+                            aria-label="Alterar minha senha"
+                            title="Alterar minha senha"
+                            className="btn btn-ghost btn-sm px-2 text-slate-500"
+                        >
+                            <Icon name="key" className="h-4 w-4" />
+                        </Link>
                         <button
                             onClick={logout}
                             className="btn btn-ghost btn-sm text-slate-500 hover:text-red-600"
@@ -401,7 +410,7 @@ export function Layout() {
                             Mais opções
                         </p>
 
-                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
+                        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
                             {MORE_LINKS.map((link) => (
                                 <NavLink
                                     key={link.to}
